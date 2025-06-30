@@ -1,0 +1,18 @@
+#include "Pins_Definitions.h"
+
+// Pin Configuration - Using ESP32-S3 GPIO pins (Freenove ESP32-S3 board)
+namespace Pins {
+// Input pins
+const int HOME_SWITCH = 1;                  
+const int START_BUTTON = 2;                 
+const int TRANSFER_ARM_START_SIGNAL = 47;  
+
+// Output pins
+const int STEP = 38;                        
+const int DIR = 37;                        
+const int ENABLE = 8;                       
+const int LEFT_CLAMP = 46;                  
+const int RIGHT_CLAMP = 10;                 
+const int ALIGN_CYLINDER = 3;               
+const int TRANSFER_ARM_SIGNAL = 48;         
+}  // namespace Pins 
