@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <Bounce2.h>
-#include <WiFi.h>
 #include <FastAccelStepper.h>
 
 // Config includes
@@ -77,15 +76,6 @@ void updateInputs();
 bool checkInputs();
 float inchesToSteps(float inches);
 float stepsToInches(float steps);
-
-// Communication functions
-void setupWiFi();
-void sendStatus();
-
-// OTA functions
-void setupOTA();
-void handleOTA();
-bool isOTAInProgress();
 
 // State handler function declarations
 void handleIdleState();

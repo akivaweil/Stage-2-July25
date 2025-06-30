@@ -38,15 +38,39 @@ void setupHardware() {
 //* ************************************************************************
 
 void setupMotor() {
+    Serial.println("Setting up FastAccelStepper motor...");
+    
+    // Validate pin numbers first
+    if (Pins::STEP < 0 || Pins::STEP > 48) {
+        Serial.println("ERROR: Invalid STEP pin");
+        return;
+    }
+    if (Pins::DIR < 0 || Pins::DIR > 48) {
+        Serial.println("ERROR: Invalid DIR pin");
+        return;
+    }
+    if (Pins::ENABLE < 0 || Pins::ENABLE > 48) {
+        Serial.println("ERROR: Invalid ENABLE pin");
+        return;
+    }
+    
+    Serial.printf("Using pins - STEP: %d, DIR: %d, ENABLE: %d\n", Pins::STEP, Pins::DIR, Pins::ENABLE);
+    
     // Initialize the stepper engine
     engine.init();
+    Serial.println("FastAccelStepper engine initialized");
     
     // Create stepper instance
     stepper = engine.stepperConnectToPin(Pins::STEP);
     if (stepper) {
+        Serial.println("Stepper connected to step pin");
+        
         // Set direction and enable pins
         stepper->setDirectionPin(Pins::DIR);
+        Serial.println("Direction pin set");
+        
         stepper->setEnablePin(Pins::ENABLE);
+        Serial.println("Enable pin set");
         
         // Set motor parameters
         stepper->setSpeedInHz(Motion::HOMING_SPEED);        // Default speed
@@ -54,6 +78,10 @@ void setupMotor() {
         
         // Disable motor initially
         stepper->disableOutputs();
+        
+        Serial.println("Motor setup complete - motor disabled");
+    } else {
+        Serial.println("ERROR: Failed to create stepper instance");
     }
 }
 

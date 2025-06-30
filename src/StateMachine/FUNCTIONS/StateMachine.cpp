@@ -11,11 +11,7 @@
 // Main state machine execution function
 
 void runStateMachine() {
-    // Handle OTA updates - pause state machine if OTA is in progress
-    if (isOTAInProgress()) {
-        return; // Skip state machine execution during OTA
-    }
-    
+    // Execute state machine
     switch (currentState) {
         case IDLE:
             handleIdleState();

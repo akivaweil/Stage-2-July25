@@ -42,23 +42,27 @@ unsigned long lastMotorUpdate = 0;
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
+    delay(2000); // Give time for serial to initialize
     Serial.println("Stage 2 Cutting Machine Starting...");
+    Serial.println("USB-ONLY VERSION (No WiFi/OTA)");
     
-    // Setup all hardware components
+    // Setup hardware components
+    Serial.println("Initializing hardware...");
     setupHardware();
+    Serial.println("Hardware initialization complete");
+    
+    Serial.println("Initializing inputs...");
     setupInputs();
+    Serial.println("Input initialization complete");
+    
+    Serial.println("Initializing motor...");
     setupMotor();
+    Serial.println("Motor initialization complete");
     
-    // Initialize WiFi connection first for OTA
-    setupWiFi();
-    
-    // Initialize OTA - available immediately, no homing required
-    setupOTA();
-    
-    // Set initial state - OTA works regardless of machine state
+    // Set initial state
     changeState(HOMING);
     
-    Serial.println("Setup complete - OTA ready, starting homing sequence");
+    Serial.println("Setup complete - machine ready for operation");
 }
 
 //* ************************************************************************
@@ -66,9 +70,6 @@ void setup() {
 //* ************************************************************************
 
 void loop() {
-    // Handle OTA updates
-    handleOTA();
-    
     // Update all input readings
     updateInputs();
     

@@ -1,11 +1,9 @@
 #include "Config.h"
 
-// WiFi credentials and board identification
+// Board identification
 namespace Config {
-const char *WIFI_SSID = "Everwood";
-const char *WIFI_PASSWORD = "Everwood-Staff";
 const char *BOARD_ID = "STAGE2_001";
-const char *BOARD_DESCRIPTION = "Stage 2 Cutting Machine";
+const char *BOARD_DESCRIPTION = "Stage 2 Cutting Machine - USB Only";
 }  // namespace Config
 
 // Motion Parameters
