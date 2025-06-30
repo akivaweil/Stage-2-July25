@@ -15,7 +15,6 @@ void handleHomingState() {
     
     // First entry into homing state
     if (!homingStarted) {
-        Serial.println("Starting homing sequence - moving in negative direction");
         enableMotor();
         homingComplete = false;
         
@@ -31,8 +30,6 @@ void handleHomingState() {
         stepper->setSpeedInHz(Motion::HOMING_SPEED);
         stepper->setAcceleration(Motion::FORWARD_ACCEL);
         stepper->move(-100000); // Move far in negative direction
-        
-        Serial.println("Moving toward home switch...");
     }
     
     // Check home switch with 10ms debounce while moving to home
@@ -50,8 +47,6 @@ void handleHomingState() {
                     // Home switch confirmed active after debounce
                     stopMotor();
                     waitForMotorComplete(); // Wait for motor to fully stop
-                    
-                    Serial.println("Home switch triggered - moving to offset position");
                     
                     // Set current position as home (0)
                     setCurrentMotorPosition(0);
@@ -84,11 +79,6 @@ void handleHomingState() {
             
             // Update position tracking
             currentPosition = getCurrentMotorPosition();
-            
-            Serial.println("Homing complete - moving to IDLE state");
-            Serial.print("Current position: ");
-            Serial.print(stepsToInches(currentPosition));
-            Serial.println(" inches from home");
             
             currentState = IDLE;
         }

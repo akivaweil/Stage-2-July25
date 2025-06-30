@@ -19,19 +19,12 @@ void handleReturningState() {
         //! STEP 1: RETRACT ALIGNMENT CYLINDER (ENSURE CLEAR PATH)
         //! ************************************************************************
         retractAlignmentCylinder();
-        Serial.println("RETURN: Alignment cylinder retracted");
         
         //! ************************************************************************
         //! STEP 2: RETURN TO HOME OFFSET POSITION AT HIGH SPEED
         //! ************************************************************************
         float homeOffsetSteps = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
         moveMotorToPosition(homeOffsetSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
-        
-        Serial.print("RETURN: Moving to home offset ");
-        Serial.print(Motion::HOME_OFFSET);
-        Serial.print(" inches (");
-        Serial.print(homeOffsetSteps);
-        Serial.println(" steps)");
         
         returnStarted = true;
         returnStartTime = millis();
@@ -44,14 +37,9 @@ void handleReturningState() {
         //! ************************************************************************
         // Complete the transfer arm signal pulse
         digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
-        Serial.println("RETURN COMPLETE: Transfer arm signal completed");
         
         // Update current position from stepper
         currentPosition = getCurrentMotorPosition();
-        
-        Serial.print("RETURN: Final position verified at ");
-        Serial.print(stepsToInches(currentPosition));
-        Serial.println(" inches");
         
         // Reset static variables for next cycle
         returnStarted = false;
@@ -60,7 +48,6 @@ void handleReturningState() {
         //! ************************************************************************
         //! STEP 4: RETURN TO IDLE STATE
         //! ************************************************************************
-        Serial.println("CYCLE COMPLETE: Returning to IDLE state");
         currentState = IDLE;
     }
 } 

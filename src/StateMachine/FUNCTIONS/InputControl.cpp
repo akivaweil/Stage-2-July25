@@ -19,7 +19,7 @@ void setupInputs() {
     
     // Initialize Bounce2 objects for debouncing
     homeSwitch.attach(Pins::HOME_SWITCH);
-    homeSwitch.interval(10); // 10ms debounce time as requested
+    homeSwitch.interval(10); // 10ms
     homeSwitch.setPressedState(HIGH); // Active HIGH
     
     startButton.attach(Pins::START_BUTTON);

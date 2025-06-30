@@ -29,13 +29,6 @@ void handleCuttingState() {
             targetPosition = Motion::APPROACH_DISTANCE * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
             
-            // Log approach movement
-            Serial.print("APPROACH: Moving to ");
-            Serial.print(Motion::APPROACH_DISTANCE);
-            Serial.print(" inches (");
-            Serial.print(targetPosition);
-            Serial.println(" steps)");
-            
             stepStartTime = millis();
             cuttingPhase++;
             break;
@@ -48,10 +41,6 @@ void handleCuttingState() {
             if (!isMotorRunning()) {
                 // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
-                
-                Serial.print("APPROACH COMPLETE: Position verified at ");
-                Serial.print(stepsToInches(currentPosition));
-                Serial.println(" inches");
                 
                 cuttingPhase++;
                 stepStartTime = millis();
@@ -75,15 +64,6 @@ void handleCuttingState() {
             // Distance: 4.0 inches through material
             moveMotorToPosition(targetPosition, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL / 2);
             
-            // Log cutting movement
-            Serial.print("CUTTING: Moving from ");
-            Serial.print(Motion::APPROACH_DISTANCE);
-            Serial.print(" to ");
-            Serial.print(Motion::APPROACH_DISTANCE + Motion::CUTTING_DISTANCE);
-            Serial.print(" inches at ");
-            Serial.print(Motion::CUTTING_SPEED);
-            Serial.println(" steps/sec");
-            
             stepStartTime = millis();
             cuttingPhase++;
             break;
@@ -96,10 +76,6 @@ void handleCuttingState() {
             if (!isMotorRunning()) {
                 // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
-                
-                Serial.print("CUTTING COMPLETE: Position verified at ");
-                Serial.print(stepsToInches(currentPosition));
-                Serial.println(" inches");
                 
                 cuttingPhase++;
                 stepStartTime = millis();
@@ -118,13 +94,6 @@ void handleCuttingState() {
             targetPosition = Motion::TOTAL_FORWARD_DISTANCE * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::FINISH_SPEED, Motion::FORWARD_ACCEL);
             
-            // Log finish movement
-            Serial.print("FINISH: Moving to final position ");
-            Serial.print(Motion::TOTAL_FORWARD_DISTANCE);
-            Serial.print(" inches (");
-            Serial.print(targetPosition);
-            Serial.println(" steps)");
-            
             stepStartTime = millis();
             cuttingPhase++;
             break;
@@ -137,10 +106,6 @@ void handleCuttingState() {
             if (!isMotorRunning()) {
                 // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
-                
-                Serial.print("FINISH COMPLETE: Final position verified at ");
-                Serial.print(stepsToInches(currentPosition));
-                Serial.println(" inches");
                 
                 cuttingPhase++;
                 stepStartTime = millis();
@@ -157,7 +122,6 @@ void handleCuttingState() {
             //! ************************************************************************
             // Retract left clamp (release material)
             retractLeftClamp();
-            Serial.println("CLAMP RELEASE: Left clamp retracted");
             
             stepStartTime = millis();
             cuttingPhase++;
@@ -168,7 +132,6 @@ void handleCuttingState() {
             if (millis() - stepStartTime >= 50) {
                 // Retract right clamp (release material)
                 retractRightClamp();
-                Serial.println("CLAMP RELEASE: Right clamp retracted");
                 
                 stepStartTime = millis();
                 cuttingPhase++;
@@ -181,8 +144,6 @@ void handleCuttingState() {
             //! ************************************************************************
             // Wait 100ms (ensure full release)
             if (millis() - stepStartTime >= 100) {
-                Serial.println("CLAMP RELEASE: Full release verified");
-                
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -198,7 +159,6 @@ void handleCuttingState() {
             //! ************************************************************************
             // Signal transfer arm: Set HIGH (prevent Z-axis interference)
             digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
-            Serial.println("CUTTING COMPLETE: Transfer arm signaled, transitioning to return");
             
             // Reset static variables for next cycle
             stepStartTime = 0;

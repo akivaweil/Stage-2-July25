@@ -41,7 +41,7 @@ unsigned long lastMotorUpdate = 0;
 
 void setup() {
     // Initialize serial communication
-    Serial.begin(SERIAL_BAUDRATE);
+    Serial.begin(115200);
     Serial.println("Stage 2 Cutting Machine Starting...");
     
     // Setup all hardware components

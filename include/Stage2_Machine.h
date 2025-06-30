@@ -54,7 +54,6 @@ void moveMotorToPosition(float targetSteps, float speed, float acceleration);
 void stopMotor();
 void enableMotor();
 void disableMotor();
-void setDirection(bool forward);
 bool isMotorRunning();
 void waitForMotorComplete();
 long getCurrentMotorPosition();

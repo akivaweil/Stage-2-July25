@@ -49,11 +49,5 @@ void changeState(MachineState newState) {
         previousState = currentState;
         currentState = newState;
         stateStartTime = millis();
-        
-        // Log state changes
-        Serial.print("State change: ");
-        Serial.print(previousState);
-        Serial.print(" -> ");
-        Serial.println(currentState);
     }
 } 

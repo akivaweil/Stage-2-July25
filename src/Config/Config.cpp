@@ -19,13 +19,13 @@ inline const float TOTAL_FORWARD_DISTANCE = 14.0;  // Total forward distance
 // Speed Settings (steps/second)
 inline const float HOMING_SPEED = 423;     
 inline const float APPROACH_SPEED = 12000; 
-inline const float CUTTING_SPEED = 127;    
+inline const float CUTTING_SPEED = 100;    
 inline const float FINISH_SPEED = 14000;   
 inline const float RETURN_SPEED = 14000;   
 
 // Acceleration Settings (steps/second²)
-inline const float FORWARD_ACCEL = 2115;   
-inline const float RETURN_ACCEL = 2115;    
+inline const float FORWARD_ACCEL = 2000;   
+inline const float RETURN_ACCEL = 2000;    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
@@ -37,6 +37,3 @@ inline const int MOTION_SETTLE_TIME = 50;
 inline const int ALIGN_SETTLE_TIME = 300;
 inline const int SIGNAL_DURATION = 100;
 }  // namespace Timing
-
-// Serial communication settings
-inline const unsigned long SERIAL_BAUDRATE = 115200; 

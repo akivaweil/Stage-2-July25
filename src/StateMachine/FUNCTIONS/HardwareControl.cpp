@@ -38,8 +38,6 @@ void setupHardware() {
 //* ************************************************************************
 
 void setupMotor() {
-    Serial.println("Initializing FastAccelStepper...");
-    
     // Initialize the stepper engine
     engine.init();
     
@@ -56,37 +54,23 @@ void setupMotor() {
         
         // Disable motor initially
         stepper->disableOutputs();
-        
-        Serial.println("FastAccelStepper initialized successfully");
-    } else {
-        Serial.println("ERROR: Failed to initialize FastAccelStepper!");
     }
 }
 
 void enableMotor() {
     if (stepper) {
         stepper->enableOutputs();
-        Serial.println("Motor enabled");
     }
 }
 
 void disableMotor() {
     if (stepper) {
         stepper->disableOutputs();
-        Serial.println("Motor disabled");
-    }
-}
-
-void setDirection(bool forward) {
-    if (stepper) {
-        // FastAccelStepper handles direction automatically with move commands
-        // This function is kept for compatibility but direction is handled in move functions
     }
 }
 
 void moveMotor(float steps, float speed, float acceleration) {
     if (!stepper) {
-        Serial.println("ERROR: Stepper not initialized!");
         return;
     }
     
@@ -96,18 +80,10 @@ void moveMotor(float steps, float speed, float acceleration) {
     
     // Execute relative move
     stepper->move((long)steps);
-    
-    Serial.print("Moving motor: ");
-    Serial.print(steps);
-    Serial.print(" steps at ");
-    Serial.print(speed);
-    Serial.print(" Hz with accel ");
-    Serial.println(acceleration);
 }
 
 void moveMotorToPosition(float targetSteps, float speed, float acceleration) {
     if (!stepper) {
-        Serial.println("ERROR: Stepper not initialized!");
         return;
     }
     
@@ -120,19 +96,11 @@ void moveMotorToPosition(float targetSteps, float speed, float acceleration) {
     
     // Update current position tracking
     currentPosition = targetSteps;
-    
-    Serial.print("Moving motor to position: ");
-    Serial.print(targetSteps);
-    Serial.print(" steps at ");
-    Serial.print(speed);
-    Serial.print(" Hz with accel ");
-    Serial.println(acceleration);
 }
 
 void stopMotor() {
     if (stepper) {
         stepper->stopMove();
-        Serial.println("Motor stopped");
     }
 }
 
@@ -168,8 +136,6 @@ void setCurrentMotorPosition(long position) {
     if (stepper) {
         stepper->setCurrentPosition(position);
         currentPosition = (float)position;
-        Serial.print("Motor position set to: ");
-        Serial.println(position);
     }
 }
 
@@ -226,5 +192,4 @@ void signalTransferArm() {
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
     delay(100); // Brief pulse
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
-    Serial.println("Transfer arm signaled");
 } 
