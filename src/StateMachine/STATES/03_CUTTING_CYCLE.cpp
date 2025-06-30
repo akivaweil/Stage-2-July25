@@ -3,38 +3,52 @@
 //* ************************************************************************
 //* ************************ CUTTING CYCLE STATE ************************
 //* ************************************************************************
-// This state performs the complete cutting sequence
+// This state performs the motor cutting sequence (clamps already engaged from alignment)
 
 void handleCuttingCycleState() {
     static float currentPosition = 0;
+    static int cutStep = 0;
     
-    //! ************************************************************************
-    //! STEP 1: EXTEND CLAMPS TO SECURE WORKPIECE
-    //! ************************************************************************
-    extendBothClamps();
-    delay(Timing::CLAMP_SETTLE_TIME);
-    
-    //! ************************************************************************
-    //! STEP 2: APPROACH MOVE - FAST SPEED TO CUTTING START POSITION
-    //! ************************************************************************
-    moveMotorToPosition(Motion::APPROACH_DISTANCE * Motion::STEPS_PER_INCH, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
-    currentPosition = Motion::APPROACH_DISTANCE * Motion::STEPS_PER_INCH;
-    
-    //! ************************************************************************
-    //! STEP 3: CUTTING MOVE - SLOW SPEED THROUGH MATERIAL
-    //! ************************************************************************
-    float cuttingTarget = currentPosition + (Motion::CUTTING_DISTANCE * Motion::STEPS_PER_INCH);
-    moveMotorToPosition(cuttingTarget, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL);
-    currentPosition = cuttingTarget;
-    
-    //! ************************************************************************
-    //! STEP 4: FINISH MOVE - FAST SPEED TO COMPLETE FORWARD TRAVEL
-    //! ************************************************************************
-    float finishTarget = Motion::TOTAL_FORWARD_DISTANCE * Motion::STEPS_PER_INCH;
-    moveMotorToPosition(finishTarget, Motion::FINISH_SPEED, Motion::FORWARD_ACCEL);
-    
-    //! ************************************************************************
-    //! STEP 5: PROCEED TO RETURNING STATE
-    //! ************************************************************************
-    currentState = RETURNING;
+    switch (cutStep) {
+        case 0:
+            //! ************************************************************************
+            //! STEP 1: APPROACH MOVE - FAST SPEED TO CUTTING START POSITION
+            //! ************************************************************************
+            moveMotor(Motion::APPROACH_DISTANCE * Motion::STEPS_PER_INCH, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
+            currentPosition = Motion::APPROACH_DISTANCE;
+            cutStep++;
+            break;
+            
+        case 1:
+            //! ************************************************************************
+            //! STEP 2: CUTTING MOVE - SLOW SPEED THROUGH MATERIAL
+            //! ************************************************************************
+            moveMotor(Motion::CUTTING_DISTANCE * Motion::STEPS_PER_INCH, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL);
+            currentPosition += Motion::CUTTING_DISTANCE;
+            cutStep++;
+            break;
+            
+        case 2:
+            //! ************************************************************************
+            //! STEP 3: FINISH MOVE - FAST SPEED TO COMPLETE FORWARD TRAVEL
+            //! ************************************************************************
+            {
+                float remainingDistance = Motion::TOTAL_FORWARD_DISTANCE - currentPosition;
+                moveMotor(remainingDistance * Motion::STEPS_PER_INCH, Motion::FINISH_SPEED, Motion::FORWARD_ACCEL);
+                cutStep++;
+            }
+            break;
+            
+        case 3:
+            //! ************************************************************************
+            //! STEP 4: PROCEED TO RETURNING STATE
+            //! ************************************************************************
+            // Reset static variables for next cycle
+            currentPosition = 0;
+            cutStep = 0;
+            
+            // Transition to returning state
+            currentState = RETURNING;
+            break;
+    }
 } 

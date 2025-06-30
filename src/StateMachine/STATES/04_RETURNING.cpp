@@ -19,13 +19,13 @@ void handleReturningState() {
     //! ************************************************************************
     //! STEP 3: RETURN MOTOR TO HOME POSITION AT HIGH SPEED
     //! ************************************************************************
-    moveMotorToPosition(0, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
+    moveMotor(Motion::TOTAL_FORWARD_DISTANCE * Motion::STEPS_PER_INCH * -1, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
     
     //! ************************************************************************
     //! STEP 4: SIGNAL TRANSFER ARM THAT CYCLE IS COMPLETE
     //! ************************************************************************
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
-    delay(Timing::SIGNAL_DURATION);
+    delay(100); // Brief signal pulse
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
     
     //! ************************************************************************
