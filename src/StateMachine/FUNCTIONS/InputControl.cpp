@@ -18,9 +18,9 @@ void setupInputs() {
     pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN); // Transfer signal is active HIGH
     
     // Initialize Bounce2 objects for debouncing
-    // Home switch - shorter debounce for responsiveness during homing
+    // Home switch - ultra-fast debounce for immediate homing response
     homeSwitch.attach(Pins::HOME_SWITCH);
-    homeSwitch.interval(5); // 5ms debounce for faster homing response
+    homeSwitch.interval(1); // 1ms debounce for instant homing response
     homeSwitch.setPressedState(HIGH); // Active HIGH
     
     // Start button - standard debounce for reliable button presses

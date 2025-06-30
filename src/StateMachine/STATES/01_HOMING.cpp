@@ -11,9 +11,6 @@ void handleHomingState() {
     static bool movingToHome = false;
     static bool movingToOffset = false;
     
-    // Ensure inputs are updated for reliable Bounce2 operation
-    updateInputs();
-    
     // First entry into homing state
     if (!homingStarted) {
         enableMotor();
@@ -34,11 +31,14 @@ void handleHomingState() {
     }
     
     // Check for home switch activation while moving to home
-    // Using Bounce2's .read() for current state (properly debounced)
     if (movingToHome) {
-        if (homeSwitch.read()) {
-            // Home switch is active (already debounced by Bounce2)
-            stopMotor();
+        // Update inputs immediately before checking switch state for real-time response
+        updateInputs();
+        
+        // Check if home switch is pressed (use .pressed() for immediate edge detection)
+        if (homeSwitch.pressed()) {
+            // Home switch just activated - stop immediately
+            stepper->forceStopAndNewPosition(stepper->getCurrentPosition());
             waitForMotorComplete(); // Wait for motor to fully stop
             
             // Set current position as home (0)
