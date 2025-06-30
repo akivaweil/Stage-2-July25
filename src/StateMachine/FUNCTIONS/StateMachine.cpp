@@ -6,65 +6,35 @@
 #include <Stage2_Machine.h>
 
 //* ************************************************************************
-//* ************************ STATE MACHINE EXECUTION *******************
+//* ************************ STATE MACHINE HANDLER **********************
 //* ************************************************************************
+// Main state machine execution function
 
-void executeStateMachine() {
+void runStateMachine() {
+    // Handle OTA updates - pause state machine if OTA is in progress
+    if (isOTAInProgress()) {
+        return; // Skip state machine execution during OTA
+    }
+    
     switch (currentState) {
         case IDLE:
-            state_IDLE();
+            handleIdleState();
             break;
             
         case HOMING:
-            state_HOMING();
+            handleHomingState();
+            break;
+            
+        case ALIGNMENT:
+            handleAlignmentState();
             break;
             
         case CUTTING_CYCLE:
-            state_CUTTING_CYCLE();
+            handleCuttingCycleState();
             break;
             
-        case CLAMP_ENGAGE:
-            state_CLAMP_ENGAGE();
-            break;
-            
-        case ALIGN_ENGAGE:
-            state_ALIGN_ENGAGE();
-            break;
-            
-        case APPROACH_MOVE:
-            state_APPROACH_MOVE();
-            break;
-            
-        case CUTTING_MOVE:
-            state_CUTTING_MOVE();
-            break;
-            
-        case FINISH_MOVE:
-            state_FINISH_MOVE();
-            break;
-            
-        case CLAMP_RELEASE:
-            state_CLAMP_RELEASE();
-            break;
-            
-        case ALIGN_RELEASE:
-            state_ALIGN_RELEASE();
-            break;
-            
-        case RETURN_MOVE:
-            state_RETURN_MOVE();
-            break;
-            
-        case CYCLE_COMPLETE:
-            state_CYCLE_COMPLETE();
-            break;
-            
-        case ERROR_STATE:
-            state_ERROR_STATE();
-            break;
-            
-        default:
-            changeState(ERROR_STATE);
+        case RETURNING:
+            handleReturningState();
             break;
     }
 }

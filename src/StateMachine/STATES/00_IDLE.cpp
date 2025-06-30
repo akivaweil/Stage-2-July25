@@ -6,29 +6,36 @@
 
 #include <Stage2_Machine.h>
 
-void state_IDLE() {
-    // Ensure motor is disabled and clamps are released
+void handleIdleState() {
+    //! ************************************************************************
+    //! STEP 1: ENSURE SAFE STATE - MOTOR DISABLED, CLAMPS RETRACTED
+    //! ************************************************************************
     disableMotor();
-    releaseClamps();
-    releaseAlignCylinder();
+    retractBothClamps();
+    retractAlignmentCylinder();
     
-    // Reset cycle flags
+    //! ************************************************************************
+    //! STEP 2: RESET CYCLE FLAGS
+    //! ************************************************************************
     cycleInProgress = false;
     
+    //! ************************************************************************
+    //! STEP 3: CHECK FOR START CONDITIONS
+    //! ************************************************************************
     // Check for start conditions - either start button or transfer arm signal
     if (startButton.read() || transferArmSignal.read()) {
         // Only start cycle if homing is complete
         if (homingComplete) {
-            Serial.println("Cutting cycle requested - starting cycle");
-            changeState(CUTTING_CYCLE);
+            currentState = ALIGNMENT;
         } else {
-            Serial.println("Homing not complete - cannot start cycle");
-            changeState(HOMING);
+            currentState = HOMING;
         }
     }
     
-    // Check if we need to home again
+    //! ************************************************************************
+    //! STEP 4: CHECK IF WE NEED TO HOME AGAIN
+    //! ************************************************************************
     if (!homingComplete) {
-        changeState(HOMING);
+        currentState = HOMING;
     }
 } 

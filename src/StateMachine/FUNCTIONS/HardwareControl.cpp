@@ -77,33 +77,47 @@ void stopMotor() {
 }
 
 //* ************************************************************************
-//* ************************ PNEUMATIC CONTROL *************************
+//* ************************ CLAMP CONTROL FUNCTIONS ********************
 //* ************************************************************************
+// Controls for left and right clamps (LOW = extended, HIGH = retracted)
 
-void engageClamps() {
-    // Activate both clamps simultaneously
-    digitalWrite(Pins::LEFT_CLAMP, HIGH);
-    digitalWrite(Pins::RIGHT_CLAMP, HIGH);
-    Serial.println("Clamps engaged");
+void extendLeftClamp() {
+    digitalWrite(Pins::LEFT_CLAMP, LOW);  // LOW extends the clamp
 }
 
-void releaseClamps() {
-    // Deactivate both clamps simultaneously
-    digitalWrite(Pins::LEFT_CLAMP, LOW);
-    digitalWrite(Pins::RIGHT_CLAMP, LOW);
-    Serial.println("Clamps released");
+void retractLeftClamp() {
+    digitalWrite(Pins::LEFT_CLAMP, HIGH);  // HIGH retracts the clamp
 }
 
-void engageAlignCylinder() {
-    // Activate alignment cylinder
-    digitalWrite(Pins::ALIGN_CYLINDER, HIGH);
-    Serial.println("Alignment cylinder engaged");
+void extendRightClamp() {
+    digitalWrite(Pins::RIGHT_CLAMP, LOW);  // LOW extends the clamp
 }
 
-void releaseAlignCylinder() {
-    // Deactivate alignment cylinder
-    digitalWrite(Pins::ALIGN_CYLINDER, LOW);
-    Serial.println("Alignment cylinder released");
+void retractRightClamp() {
+    digitalWrite(Pins::RIGHT_CLAMP, HIGH);  // HIGH retracts the clamp
+}
+
+void extendBothClamps() {
+    digitalWrite(Pins::LEFT_CLAMP, LOW);   // LOW extends the clamp
+    digitalWrite(Pins::RIGHT_CLAMP, LOW);  // LOW extends the clamp
+}
+
+void retractBothClamps() {
+    digitalWrite(Pins::LEFT_CLAMP, HIGH);   // HIGH retracts the clamp
+    digitalWrite(Pins::RIGHT_CLAMP, HIGH);  // HIGH retracts the clamp
+}
+
+//* ************************************************************************
+//* ************************ ALIGNMENT CYLINDER FUNCTIONS ***************
+//* ************************************************************************
+// Controls for alignment cylinder (LOW = retracted, HIGH = extended)
+
+void extendAlignmentCylinder() {
+    digitalWrite(Pins::ALIGN_CYLINDER, HIGH);  // HIGH extends the cylinder
+}
+
+void retractAlignmentCylinder() {
+    digitalWrite(Pins::ALIGN_CYLINDER, LOW);   // LOW retracts the cylinder
 }
 
 //* ************************************************************************

@@ -5,7 +5,7 @@
 
 #include <Stage2_Machine.h>
 
-void state_HOMING() {
+void handleHomingState() {
     static bool homingStarted = false;
     static bool movingToHome = false;
     

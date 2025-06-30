@@ -12,17 +12,9 @@
 enum MachineState {
     IDLE,
     HOMING,
+    ALIGNMENT,
     CUTTING_CYCLE,
-    CLAMP_ENGAGE,
-    ALIGN_ENGAGE,
-    APPROACH_MOVE,
-    CUTTING_MOVE,
-    FINISH_MOVE,
-    CLAMP_RELEASE,
-    ALIGN_RELEASE,
-    RETURN_MOVE,
-    CYCLE_COMPLETE,
-    ERROR_STATE
+    RETURNING
 };
 
 // Global variables
@@ -47,23 +39,8 @@ void setup();
 void loop();
 
 // State machine functions
-void executeStateMachine();
+void runStateMachine();
 void changeState(MachineState newState);
-
-// State functions
-void state_IDLE();
-void state_HOMING();
-void state_CUTTING_CYCLE();
-void state_CLAMP_ENGAGE();
-void state_ALIGN_ENGAGE();
-void state_APPROACH_MOVE();
-void state_CUTTING_MOVE();
-void state_FINISH_MOVE();
-void state_CLAMP_RELEASE();
-void state_ALIGN_RELEASE();
-void state_RETURN_MOVE();
-void state_CYCLE_COMPLETE();
-void state_ERROR_STATE();
 
 // Motor control functions
 void setupMotor();
@@ -75,10 +52,14 @@ void setDirection(bool forward);
 
 // Hardware control functions
 void setupHardware();
-void engageClamps();
-void releaseClamps();
-void engageAlignCylinder();
-void releaseAlignCylinder();
+void extendLeftClamp();
+void retractLeftClamp();
+void extendRightClamp();
+void retractRightClamp();
+void extendBothClamps();
+void retractBothClamps();
+void extendAlignmentCylinder();
+void retractAlignmentCylinder();
 void signalTransferArm();
 
 // Utility functions
@@ -95,4 +76,11 @@ void sendStatus();
 // OTA functions
 void setupOTA();
 void handleOTA();
-bool isOTAInProgress(); 
+bool isOTAInProgress();
+
+// State handler function declarations
+void handleIdleState();
+void handleHomingState();
+void handleAlignmentState();
+void handleCuttingCycleState();
+void handleReturningState(); 
