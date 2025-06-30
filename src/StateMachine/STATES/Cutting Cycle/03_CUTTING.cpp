@@ -140,10 +140,10 @@ void handleCuttingState() {
             
         case 8:
             //! ************************************************************************
-            //! WAIT 100ms (ENSURE FULL RELEASE)
+            //! WAIT 200ms (ENSURE FULL RELEASE)
             //! ************************************************************************
-            // Wait 100ms (ensure full release)
-            if (millis() - stepStartTime >= 100) {
+            // Wait 200ms (ensure full release)
+            if (millis() - stepStartTime >= 300) {
                 cuttingPhase++;
                 stepStartTime = millis();
             }
