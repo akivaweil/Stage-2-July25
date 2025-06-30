@@ -34,4 +34,5 @@ extern const int HOME_SETTLE_TIME;
 extern const int MOTION_SETTLE_TIME;
 extern const int ALIGN_SETTLE_TIME;
 extern const int SIGNAL_DURATION;
+extern const int MOTOR_TIMEOUT;
 }  // namespace Timing

@@ -9,7 +9,7 @@ const char *BOARD_DESCRIPTION = "Stage 2 Cutting Machine - USB Only";
 // Motion Parameters
 namespace Motion {
 const float STEPS_PER_INCH = 42.33;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 42.33 steps/inch
-const float HOME_OFFSET = .7;        // Position offset from home switch (sets position 0 after homing)
+const float HOME_OFFSET = .6;        // Position offset from home switch (sets position 0 after homing)
 const float APPROACH_DISTANCE = 4.0;  // Exact distance from offset position to approach cutting position
 const float CUTTING_DISTANCE = 5.0;   // Exact distance to cut through material (from approach position)
 const float TOTAL_FORWARD_DISTANCE = 25.0;  // Total exact distance from offset position to final position
@@ -34,4 +34,5 @@ const int HOME_SETTLE_TIME = 100;
 const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 300;
 const int SIGNAL_DURATION = 100;
+const int MOTOR_TIMEOUT = 5000;
 }  // namespace Timing 
