@@ -3,33 +3,61 @@
 //* ************************************************************************
 //* ************************ RETURNING STATE *****************************
 //* ************************************************************************
-// This state returns the motor to home and releases all cylinders
+// This state returns the motor to home offset (clamps already released in cutting state)
 
 void handleReturningState() {
-    //! ************************************************************************
-    //! STEP 1: RETRACT CLAMPS TO RELEASE WORKPIECE
-    //! ************************************************************************
-    retractBothClamps();
+    static bool returnStarted = false;
+    static unsigned long returnStartTime = 0;
     
-    //! ************************************************************************
-    //! STEP 2: RETRACT ALIGNMENT CYLINDER
-    //! ************************************************************************
-    retractAlignmentCylinder();
+    if (!returnStarted) {
+        //! ************************************************************************
+        //! PHASE 6: RETURN MOVEMENT - RETURN TO HOME OFFSET
+        //! ************************************************************************
+        // Transfer arm signal already set HIGH in cutting state (prevents Z-axis interference)
+        
+        //! ************************************************************************
+        //! STEP 1: RETRACT ALIGNMENT CYLINDER (ENSURE CLEAR PATH)
+        //! ************************************************************************
+        retractAlignmentCylinder();
+        Serial.println("RETURN: Alignment cylinder retracted");
+        
+        //! ************************************************************************
+        //! STEP 2: RETURN TO HOME OFFSET POSITION AT HIGH SPEED
+        //! ************************************************************************
+        float homeOffsetSteps = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
+        moveMotorToPosition(homeOffsetSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
+        
+        Serial.print("RETURN: Moving to home offset ");
+        Serial.print(Motion::HOME_OFFSET);
+        Serial.print(" inches (");
+        Serial.print(homeOffsetSteps);
+        Serial.println(" steps)");
+        
+        returnStarted = true;
+        returnStartTime = millis();
+    }
     
-    //! ************************************************************************
-    //! STEP 3: RETURN MOTOR TO HOME POSITION AT HIGH SPEED
-    //! ************************************************************************
-    moveMotor(Motion::TOTAL_FORWARD_DISTANCE * Motion::STEPS_PER_INCH * -1, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
-    
-    //! ************************************************************************
-    //! STEP 4: SIGNAL TRANSFER ARM THAT CYCLE IS COMPLETE
-    //! ************************************************************************
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
-    delay(100); // Brief signal pulse
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
-    
-    //! ************************************************************************
-    //! STEP 5: RETURN TO IDLE STATE
-    //! ************************************************************************
-    currentState = IDLE;
+    // Wait for return movement to complete
+    if (millis() - returnStartTime >= 1000) { // Allow time for return movement
+        //! ************************************************************************
+        //! STEP 3: COMPLETE TRANSFER ARM SIGNAL AND RETURN TO IDLE
+        //! ************************************************************************
+        // Complete the transfer arm signal pulse
+        digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
+        Serial.println("RETURN COMPLETE: Transfer arm signal completed");
+        
+        Serial.print("RETURN: Final position verified at ");
+        Serial.print(stepsToInches(currentPosition));
+        Serial.println(" inches");
+        
+        // Reset static variables for next cycle
+        returnStarted = false;
+        returnStartTime = 0;
+        
+        //! ************************************************************************
+        //! STEP 4: RETURN TO IDLE STATE
+        //! ************************************************************************
+        Serial.println("CYCLE COMPLETE: Returning to IDLE state");
+        currentState = IDLE;
+    }
 } 

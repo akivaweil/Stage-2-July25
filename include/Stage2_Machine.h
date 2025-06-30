@@ -13,7 +13,7 @@ enum MachineState {
     IDLE,
     HOMING,
     ALIGNMENT,
-    CUTTING_CYCLE,
+    CUTTING,
     RETURNING
 };
 
@@ -83,5 +83,5 @@ bool isOTAInProgress();
 void handleIdleState();
 void handleHomingState();
 void handleAlignmentState();
-void handleCuttingCycleState();
+void handleCuttingState();
 void handleReturningState(); 

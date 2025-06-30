@@ -133,8 +133,8 @@ void handleAlignmentState() {
                 stepStartTime = 0;
                 currentStep = 0;
                 
-                // Transition to cutting cycle
-                currentState = CUTTING_CYCLE;
+                // Transition to cutting state
+                currentState = CUTTING;
             }
             break;
     }

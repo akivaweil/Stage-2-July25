@@ -29,8 +29,8 @@ void runStateMachine() {
             handleAlignmentState();
             break;
             
-        case CUTTING_CYCLE:
-            handleCuttingCycleState();
+        case CUTTING:
+            handleCuttingState();
             break;
             
         case RETURNING:
