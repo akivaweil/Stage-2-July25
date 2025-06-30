@@ -9,6 +9,9 @@
 void handleIdleState() {
     static bool idleInitialized = false;
     
+    // Ensure inputs are updated for reliable Bounce2 operation
+    updateInputs();
+    
     // Initialize idle state on first entry
     if (!idleInitialized) {
         //! ************************************************************************
@@ -26,10 +29,10 @@ void handleIdleState() {
     }
     
     //! ************************************************************************
-    //! STEP 3: CHECK FOR START CONDITIONS
+    //! STEP 3: CHECK FOR START CONDITIONS - USING EDGE DETECTION
     //! ************************************************************************
-    // Check for start conditions - either start button OR transfer arm signal
-    if (startButton.read() || transferArmSignal.read()) {
+    // Check for start conditions - using .pressed() for immediate response when button/signal is activated
+    if (startButton.pressed() || transferArmSignal.pressed()) {
         // Only start cycle if homing is complete
         if (homingComplete) {
             enableMotor(); // Re-enable motor for cutting cycle

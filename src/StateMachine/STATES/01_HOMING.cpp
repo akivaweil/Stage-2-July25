@@ -2,7 +2,7 @@
 //* ************************ HOMING ***********************************
 //* ************************************************************************
 // Moves the cutting motor in the negative direction until it hits the home switch 
-// (10ms debounce) and moves to the home offset position before switching to idle state
+// using Bounce2 library for reliable debouncing, then moves to home offset position
 
 #include <Stage2_Machine.h>
 
@@ -10,8 +10,9 @@ void handleHomingState() {
     static bool homingStarted = false;
     static bool movingToHome = false;
     static bool movingToOffset = false;
-    static unsigned long homeHitTime = 0;
-    static bool homeDebounceActive = false;
+    
+    // Ensure inputs are updated for reliable Bounce2 operation
+    updateInputs();
     
     // First entry into homing state
     if (!homingStarted) {
@@ -32,39 +33,26 @@ void handleHomingState() {
         stepper->move(-100000); // Move far in negative direction
     }
     
-    // Check home switch with 10ms debounce while moving to home
+    // Check for home switch activation while moving to home
+    // Using Bounce2's .read() for current state (properly debounced)
     if (movingToHome) {
-        if (homeSwitch.read() && !homeDebounceActive) {
-            // Home switch just activated - start debounce timer
-            homeHitTime = millis();
-            homeDebounceActive = true;
-        }
-        
-        if (homeDebounceActive) {
-            // Check if 10ms have passed and switch is still active
-            if (millis() - homeHitTime >= 10) {
-                if (homeSwitch.read()) {
-                    // Home switch confirmed active after debounce
-                    stopMotor();
-                    waitForMotorComplete(); // Wait for motor to fully stop
-                    
-                    // Set current position as home (0)
-                    setCurrentMotorPosition(0);
-                    
-                    // Move away from home switch by offset distance
-                    float offsetSteps = inchesToSteps(Motion::HOME_OFFSET);
-                    stepper->setSpeedInHz(Motion::HOMING_SPEED);
-                    stepper->setAcceleration(Motion::FORWARD_ACCEL);
-                    stepper->moveTo((long)offsetSteps); // Move to positive offset position
-                    
-                    movingToHome = false;
-                    movingToOffset = true;
-                    currentPosition = offsetSteps;
-                } else {
-                    // False trigger - reset debounce
-                    homeDebounceActive = false;
-                }
-            }
+        if (homeSwitch.read()) {
+            // Home switch is active (already debounced by Bounce2)
+            stopMotor();
+            waitForMotorComplete(); // Wait for motor to fully stop
+            
+            // Set current position as home (0)
+            setCurrentMotorPosition(0);
+            
+            // Move away from home switch by offset distance
+            float offsetSteps = inchesToSteps(Motion::HOME_OFFSET);
+            stepper->setSpeedInHz(Motion::HOMING_SPEED);
+            stepper->setAcceleration(Motion::FORWARD_ACCEL);
+            stepper->moveTo((long)offsetSteps); // Move to positive offset position
+            
+            movingToHome = false;
+            movingToOffset = true;
+            currentPosition = offsetSteps;
         }
     }
     

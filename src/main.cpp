@@ -76,6 +76,6 @@ void loop() {
     // Execute state machine
     runStateMachine();
     
-    // Small delay for stability
-    delay(10);
+    // Small delay for stability - reduced for better input responsiveness
+    delay(5);
 }

@@ -18,14 +18,17 @@ void setupInputs() {
     pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN); // Transfer signal is active HIGH
     
     // Initialize Bounce2 objects for debouncing
+    // Home switch - shorter debounce for responsiveness during homing
     homeSwitch.attach(Pins::HOME_SWITCH);
-    homeSwitch.interval(10); // 10ms
+    homeSwitch.interval(5); // 5ms debounce for faster homing response
     homeSwitch.setPressedState(HIGH); // Active HIGH
     
+    // Start button - standard debounce for reliable button presses
     startButton.attach(Pins::START_BUTTON);
-    startButton.interval(25); // 25ms debounce time
+    startButton.interval(50); // 50ms debounce for reliable button detection
     startButton.setPressedState(HIGH); // Active HIGH
     
+    // Transfer arm signal - moderate debounce for sensor reliability
     transferArmSignal.attach(Pins::TRANSFER_ARM_START_SIGNAL);
     transferArmSignal.interval(25); // 25ms debounce time
     transferArmSignal.setPressedState(HIGH); // Active HIGH
@@ -38,7 +41,7 @@ void setupInputs() {
 //* ************************************************************************
 
 void updateInputs() {
-    // Update all input objects
+    // Update all input objects - must be called regularly for proper debouncing
     homeSwitch.update();
     startButton.update();
     transferArmSignal.update();
