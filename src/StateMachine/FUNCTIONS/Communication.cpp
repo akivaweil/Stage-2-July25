@@ -12,6 +12,18 @@
 void setupWiFi() {
     Serial.println("Connecting to WiFi...");
     
+    // Configure static IP for reliable OTA access
+    IPAddress local_IP(192, 168, 1, 239);
+    IPAddress gateway(192, 168, 1, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    IPAddress primaryDNS(8, 8, 8, 8);
+    IPAddress secondaryDNS(8, 8, 4, 4);
+    
+    // Configure static IP
+    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+        Serial.println("Static IP configuration failed");
+    }
+    
     // Start WiFi connection
     WiFi.begin(Config::WIFI_SSID, Config::WIFI_PASSWORD);
     
@@ -32,6 +44,7 @@ void setupWiFi() {
         Serial.println(Config::BOARD_ID);
         Serial.print("Description: ");
         Serial.println(Config::BOARD_DESCRIPTION);
+        Serial.println("OTA Ready - Use: pio run -e freenove_esp32_s3_wroom_ota -t upload");
     } else {
         Serial.println("");
         Serial.println("WiFi connection failed - continuing without network");

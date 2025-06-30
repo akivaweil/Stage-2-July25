@@ -49,16 +49,16 @@ void setup() {
     setupInputs();
     setupMotor();
     
-    // Initialize WiFi connection
+    // Initialize WiFi connection first for OTA
     setupWiFi();
     
-    // Initialize OTA
+    // Initialize OTA - available immediately, no homing required
     setupOTA();
     
-    // Set initial state
+    // Set initial state - OTA works regardless of machine state
     changeState(HOMING);
     
-    Serial.println("Setup complete - Starting homing sequence");
+    Serial.println("Setup complete - OTA ready, starting homing sequence");
 }
 
 //* ************************************************************************

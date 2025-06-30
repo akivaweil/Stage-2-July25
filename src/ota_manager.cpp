@@ -14,12 +14,16 @@ bool otaInProgress = false;
 //* ************************************************************************
 
 void setupOTA() {
-    // Configure ArduinoOTA
-    ArduinoOTA.setHostname("Stage2-Saw-Machine");
+    // Configure ArduinoOTA with specific settings
+    ArduinoOTA.setHostname("Stage2-Saw-192-168-1-239");
     ArduinoOTA.setPassword("Everwood-OTA");
+    ArduinoOTA.setPort(3232);  // Default OTA port
     
     ArduinoOTA.onStart([]() {
         otaInProgress = true;
+        // Disable motor during OTA to prevent interference
+        disableMotor();
+        
         String type;
         if (ArduinoOTA.getCommand() == U_FLASH) {
             type = "sketch";
@@ -31,7 +35,7 @@ void setupOTA() {
     
     ArduinoOTA.onEnd([]() {
         otaInProgress = false;
-        Serial.println("\nOTA Update complete");
+        Serial.println("\nOTA Update complete - Rebooting...");
     });
     
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -59,6 +63,7 @@ void setupOTA() {
     Serial.println("OTA Manager initialized");
     Serial.print("OTA available at IP: ");
     Serial.println(WiFi.localIP());
+    Serial.println("Upload command: pio run -t upload --upload-port 192.168.1.239");
 }
 
 //* ************************************************************************
