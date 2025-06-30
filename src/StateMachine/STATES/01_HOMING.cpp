@@ -50,7 +50,7 @@ void handleHomingState() {
         Serial.print(stepsToInches(currentPosition));
         Serial.println(" inches");
         
-        changeState(IDLE);
+        currentState = IDLE;
     }
     
     // Continue moving if still homing

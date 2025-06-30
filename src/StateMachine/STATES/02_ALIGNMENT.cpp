@@ -14,7 +14,7 @@ void handleAlignmentState() {
     //! ************************************************************************
     //! STEP 2: WAIT FOR ALIGNMENT TO SETTLE
     //! ************************************************************************
-    delay(Motion::ALIGN_SETTLE_TIME);
+    delay(Timing::ALIGN_SETTLE_TIME);
     
     //! ************************************************************************
     //! STEP 3: PROCEED TO CUTTING CYCLE

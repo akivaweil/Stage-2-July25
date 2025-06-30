@@ -45,6 +45,7 @@ void changeState(MachineState newState);
 // Motor control functions
 void setupMotor();
 void moveMotor(float steps, float speed, float acceleration);
+void moveMotorToPosition(float targetSteps, float speed, float acceleration);
 void stopMotor();
 void enableMotor();
 void disableMotor();

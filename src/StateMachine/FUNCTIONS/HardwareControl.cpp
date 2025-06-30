@@ -77,6 +77,24 @@ void stopMotor() {
 }
 
 //* ************************************************************************
+//* ************************ ADVANCED MOTOR CONTROL *********************
+//* ************************************************************************
+
+void moveMotorToPosition(float targetSteps, float speed, float acceleration) {
+    float distance = targetSteps - currentPosition;
+    
+    if (distance > 0) {
+        setDirection(true);  // Forward
+    } else {
+        setDirection(false); // Reverse
+        distance = -distance;
+    }
+    
+    moveMotor(distance, speed, acceleration);
+    currentPosition = targetSteps;
+}
+
+//* ************************************************************************
 //* ************************ CLAMP CONTROL FUNCTIONS ********************
 //* ************************************************************************
 // Controls for left and right clamps (LOW = extended, HIGH = retracted)

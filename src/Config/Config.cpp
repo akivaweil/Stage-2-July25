@@ -14,7 +14,7 @@ inline const float STEPS_PER_INCH = 42.33;   // 200 steps/rev ÷ (60 teeth × 2m
 inline const float HOME_OFFSET = 1.0;        // Position offset from home switch
 inline const float APPROACH_DISTANCE = 8.0;  // Distance to approach cutting position
 inline const float CUTTING_DISTANCE = 4.0;   // Distance to cut through material
-inline const float FORWARD_DISTANCE = 14.0;  // Total forward distance
+inline const float TOTAL_FORWARD_DISTANCE = 14.0;  // Total forward distance
 
 // Speed Settings (steps/second)
 inline const float HOMING_SPEED = 423;     
@@ -30,11 +30,12 @@ inline const float RETURN_ACCEL = 2115;
 
 // Timing Settings (milliseconds)
 namespace Timing {
-inline const int CLAMP_ENGAGE_TIME = 200;
+inline const int CLAMP_SETTLE_TIME = 200;
 inline const int CLAMP_RELEASE_TIME = 200;
 inline const int HOME_SETTLE_TIME = 100;
 inline const int MOTION_SETTLE_TIME = 50;
-inline const int ALIGNMENT_TIME = 300;
+inline const int ALIGN_SETTLE_TIME = 300;
+inline const int SIGNAL_DURATION = 100;
 }  // namespace Timing
 
 // Serial communication settings

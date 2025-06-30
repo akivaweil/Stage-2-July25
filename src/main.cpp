@@ -69,7 +69,7 @@ void loop() {
     updateInputs();
     
     // Execute state machine
-    executeStateMachine();
+    runStateMachine();
     
     // Small delay for stability
     delay(10);

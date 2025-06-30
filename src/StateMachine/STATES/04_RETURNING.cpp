@@ -25,7 +25,7 @@ void handleReturningState() {
     //! STEP 4: SIGNAL TRANSFER ARM THAT CYCLE IS COMPLETE
     //! ************************************************************************
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
-    delay(Motion::SIGNAL_DURATION);
+    delay(Timing::SIGNAL_DURATION);
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
     
     //! ************************************************************************
