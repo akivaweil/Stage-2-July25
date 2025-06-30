@@ -23,9 +23,9 @@ void handleCuttingState() {
         
         case 0:
             //! ************************************************************************
-            //! APPROACH: SET TARGET POSITION TO 8.0 INCHES
+            //! APPROACH: SET TARGET POSITION
             //! ************************************************************************
-            // Set target position to 8.0 inches (approach distance)
+            // Set target position to (approach distance)
             targetPosition = Motion::APPROACH_DISTANCE * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
             
@@ -53,15 +53,11 @@ void handleCuttingState() {
         
         case 2:
             //! ************************************************************************
-            //! CUTTING: CALCULATE TARGET (8.0" + 4.0" = 12.0")
+            //! CUTTING: CALCULATE TARGET
             //! ************************************************************************
-            // Calculate cutting target: 8.0" + 4.0" = 12.0 inches
             targetPosition = (Motion::APPROACH_DISTANCE + Motion::CUTTING_DISTANCE) * Motion::STEPS_PER_INCH;
             
             // Execute slow, controlled cutting
-            // Speed: 127 steps/sec (~3 inches/second)
-            // Reduced acceleration for precision
-            // Distance: 4.0 inches through material
             moveMotorToPosition(targetPosition, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL / 2);
             
             stepStartTime = millis();
@@ -88,9 +84,8 @@ void handleCuttingState() {
         
         case 4:
             //! ************************************************************************
-            //! FINISH: SET FINAL TARGET POSITION (14.0 INCHES)
+            //! FINISH: SET FINAL TARGET POSITION
             //! ************************************************************************
-            // Set final target position: 14.0 inches (total forward distance)
             targetPosition = Motion::TOTAL_FORWARD_DISTANCE * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::FINISH_SPEED, Motion::FORWARD_ACCEL);
             
@@ -118,32 +113,21 @@ void handleCuttingState() {
         
         case 6:
             //! ************************************************************************
-            //! CLAMP RELEASE: RETRACT BOTH CLAMPS
+            //! CLAMP RELEASE: RETRACT BOTH CLAMPS SIMULTANEOUSLY
             //! ************************************************************************
-            // Retract left clamp (release material)
-            retractLeftClamp();
+            // Retract both clamps at the same time (release material)
+            retractBothClamps();
             
             stepStartTime = millis();
             cuttingPhase++;
             break;
             
         case 7:
-            // Brief delay between clamp retractions
-            if (millis() - stepStartTime >= 50) {
-                // Retract right clamp (release material)
-                retractRightClamp();
-                
-                stepStartTime = millis();
-                cuttingPhase++;
-            }
-            break;
-            
-        case 8:
             //! ************************************************************************
-            //! WAIT 200ms (ENSURE FULL RELEASE)
+            //! WAIT FOR CLAMP RELEASE COMPLETION
             //! ************************************************************************
-            // Wait 200ms (ensure full release)
-            if (millis() - stepStartTime >= 300) {
+            // Wait for clamp release time (ensure full release)
+            if (millis() - stepStartTime >= Timing::CLAMP_RELEASE_TIME) {
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -153,7 +137,7 @@ void handleCuttingState() {
         //* ************************ PHASE 6: PREPARE FOR RETURN *****************
         //* ************************************************************************
         
-        case 9:
+        case 8:
             //! ************************************************************************
             //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
             //! ************************************************************************

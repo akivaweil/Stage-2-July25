@@ -5,8 +5,8 @@
 #include <FastAccelStepper.h>
 
 // Config includes
-#include "Config/Config.h"
-#include "Config/Pins_Definitions.h"
+#include "Config.h"
+#include "Pins_Definitions.h"
 
 // State Machine enum
 enum MachineState {
