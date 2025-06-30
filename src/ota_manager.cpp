@@ -14,8 +14,8 @@ bool otaInProgress = false;
 //* ************************************************************************
 
 void setupOTA() {
-    // Configure ArduinoOTA with specific settings
-    ArduinoOTA.setHostname("Stage2-Saw-192-168-1-239");
+    // Configure ArduinoOTA with specific settings for THIS ESP32 only
+    ArduinoOTA.setHostname("Stage2-Saw-94A990-0AF384");  // Unique hostname with MAC
     ArduinoOTA.setPassword("Everwood-OTA");
     ArduinoOTA.setPort(3232);  // Default OTA port
     
@@ -63,7 +63,10 @@ void setupOTA() {
     Serial.println("OTA Manager initialized");
     Serial.print("OTA available at IP: ");
     Serial.println(WiFi.localIP());
-    Serial.println("Upload command: pio run -t upload --upload-port 192.168.1.239");
+    Serial.print("MAC Address: ");
+    Serial.println(WiFi.macAddress());
+    Serial.println("To upload via OTA, first check the actual IP in serial monitor,");
+    Serial.println("then use: pio run -e freenove_esp32_s3_wroom_ota -t upload --upload-port <ACTUAL_IP>");
 }
 
 //* ************************************************************************

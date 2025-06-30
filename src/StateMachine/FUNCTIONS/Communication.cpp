@@ -12,19 +12,7 @@
 void setupWiFi() {
     Serial.println("Connecting to WiFi...");
     
-    // Configure static IP for reliable OTA access
-    IPAddress local_IP(192, 168, 1, 239);
-    IPAddress gateway(192, 168, 1, 1);
-    IPAddress subnet(255, 255, 255, 0);
-    IPAddress primaryDNS(8, 8, 8, 8);
-    IPAddress secondaryDNS(8, 8, 4, 4);
-    
-    // Configure static IP
-    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
-        Serial.println("Static IP configuration failed");
-    }
-    
-    // Start WiFi connection
+    // Start WiFi connection first
     WiFi.begin(Config::WIFI_SSID, Config::WIFI_PASSWORD);
     
     // Wait for connection with timeout
@@ -38,13 +26,55 @@ void setupWiFi() {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("");
         Serial.println("WiFi connected successfully!");
-        Serial.print("IP address: ");
+        Serial.print("Current IP address: ");
         Serial.println(WiFi.localIP());
+        Serial.print("MAC Address: ");
+        Serial.println(WiFi.macAddress());
+        
+        // Try to set static IP after connection (some routers prefer this)
+        IPAddress local_IP(192, 168, 1, 239);
+        IPAddress gateway(192, 168, 1, 1);
+        IPAddress subnet(255, 255, 255, 0);
+        IPAddress primaryDNS(8, 8, 8, 8);
+        IPAddress secondaryDNS(8, 8, 4, 4);
+        
+        // Disconnect and reconnect with static IP
+        WiFi.disconnect();
+        delay(1000);
+        
+        if (WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+            WiFi.begin(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+            
+            // Wait for connection with static IP
+            attempts = 0;
+            while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+                delay(500);
+                Serial.print("*");
+                attempts++;
+            }
+            
+            if (WiFi.status() == WL_CONNECTED) {
+                Serial.println("");
+                Serial.println("Static IP configured successfully!");
+                Serial.print("Final IP address: ");
+                Serial.println(WiFi.localIP());
+            } else {
+                Serial.println("");
+                Serial.println("Static IP failed, using DHCP IP");
+                // Reconnect with DHCP
+                WiFi.begin(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+                while (WiFi.status() != WL_CONNECTED && attempts < 10) {
+                    delay(500);
+                    attempts++;
+                }
+            }
+        }
+        
         Serial.print("Board ID: ");
         Serial.println(Config::BOARD_ID);
         Serial.print("Description: ");
         Serial.println(Config::BOARD_DESCRIPTION);
-        Serial.println("OTA Ready - Use: pio run -e freenove_esp32_s3_wroom_ota -t upload");
+        Serial.println("OTA Ready - Check IP above, then use: pio run -e freenove_esp32_s3_wroom_ota -t upload --upload-port <IP>");
     } else {
         Serial.println("");
         Serial.println("WiFi connection failed - continuing without network");
