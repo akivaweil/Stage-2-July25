@@ -35,8 +35,8 @@ void handleHomingState() {
         // Update inputs immediately before checking switch state for real-time response
         updateInputs();
         
-        // Check if home switch is pressed (use .pressed() for immediate edge detection)
-        if (homeSwitch.pressed()) {
+        // Check if home switch is currently active (use .read() for continuous monitoring)
+        if (homeSwitch.read()) {
             // Home switch just activated - stop immediately
             stepper->forceStopAndNewPosition(stepper->getCurrentPosition());
             waitForMotorComplete(); // Wait for motor to fully stop
@@ -44,10 +44,15 @@ void handleHomingState() {
             // Set current position as home (0)
             setCurrentMotorPosition(0);
             
-            // Move away from home switch by offset distance
-            float offsetSteps = inchesToSteps(Motion::HOME_OFFSET);
+            // First, make a small move away from the switch to ensure we're clear
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
+            stepper->move(5); // Small positive move to clear the switch
+            waitForMotorComplete(); // Wait for small move to complete
+            
+            // Now move to the full offset distance (positive direction away from home)
+            float offsetSteps = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
+            setCurrentMotorPosition(0); // Reset position after backup move
             stepper->moveTo((long)offsetSteps); // Move to positive offset position
             
             movingToHome = false;
