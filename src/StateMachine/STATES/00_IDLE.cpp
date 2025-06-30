@@ -29,10 +29,10 @@ void handleIdleState() {
     }
     
     //! ************************************************************************
-    //! STEP 3: CHECK FOR START CONDITIONS - USING EDGE DETECTION
+    //! STEP 3: CHECK FOR START CONDITIONS
     //! ************************************************************************
-    // Check for start conditions - using .pressed() for immediate response when button/signal is activated
-    if (startButton.pressed() || transferArmSignal.pressed()) {
+    // Check for start conditions - using .read() for continuous monitoring
+    if (startButton.read() || transferArmSignal.read()) {
         // Only start cycle if homing is complete
         if (homingComplete) {
             enableMotor(); // Re-enable motor for cutting cycle

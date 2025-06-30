@@ -57,21 +57,21 @@ void handleHomingState() {
             
             movingToHome = false;
             movingToOffset = true;
-            currentPosition = offsetSteps;
+            currentPosition = 0.0; // Will be set to 0 when we reach offset position
         }
     }
     
     // Check if offset movement is complete
     if (movingToOffset) {
         if (!isMotorRunning()) {
-            // Motor has finished moving to offset position
+            // Motor has finished moving to offset position - this is now position 0
             stopMotor();
+            setCurrentMotorPosition(0); // Set offset position as zero reference
+            currentPosition = 0.0; // Reset position tracking to 0
+            
             homingComplete = true;
             homingStarted = false;
             movingToOffset = false;
-            
-            // Update position tracking
-            currentPosition = getCurrentMotorPosition();
             
             currentState = IDLE;
         }
