@@ -44,8 +44,11 @@ void handleCuttingState() {
             //! ************************************************************************
             //! VERIFY APPROACH POSITION AND LOG COMPLETION
             //! ************************************************************************
-            // Wait for motion to complete (simplified - in real implementation would check motion controller)
-            if (millis() - stepStartTime >= 500) { // Allow time for approach movement
+            // Wait for motion to complete using FastAccelStepper status
+            if (!isMotorRunning()) {
+                // Update current position from stepper
+                currentPosition = getCurrentMotorPosition();
+                
                 Serial.print("APPROACH COMPLETE: Position verified at ");
                 Serial.print(stepsToInches(currentPosition));
                 Serial.println(" inches");
@@ -89,8 +92,11 @@ void handleCuttingState() {
             //! ************************************************************************
             //! VERIFY CUTTING COMPLETION
             //! ************************************************************************
-            // Wait for cutting motion to complete (in real implementation would check controller status)
-            if (millis() - stepStartTime >= 2000) { // Allow time for slow cutting movement
+            // Wait for cutting motion to complete using FastAccelStepper status
+            if (!isMotorRunning()) {
+                // Update current position from stepper
+                currentPosition = getCurrentMotorPosition();
+                
                 Serial.print("CUTTING COMPLETE: Position verified at ");
                 Serial.print(stepsToInches(currentPosition));
                 Serial.println(" inches");
@@ -127,8 +133,11 @@ void handleCuttingState() {
             //! ************************************************************************
             //! VERIFY FINISH COMPLETION
             //! ************************************************************************
-            // Wait for finish motion to complete
-            if (millis() - stepStartTime >= 300) { // Allow time for finish movement
+            // Wait for finish motion to complete using FastAccelStepper status
+            if (!isMotorRunning()) {
+                // Update current position from stepper
+                currentPosition = getCurrentMotorPosition();
+                
                 Serial.print("FINISH COMPLETE: Final position verified at ");
                 Serial.print(stepsToInches(currentPosition));
                 Serial.println(" inches");

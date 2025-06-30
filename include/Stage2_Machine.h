@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Bounce2.h>
 #include <WiFi.h>
+#include <FastAccelStepper.h>
 
 // Config includes
 #include "Config/Config.cpp"
@@ -34,6 +35,10 @@ extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;
 extern Bounce2::Button transferArmSignal;
 
+// FastAccelStepper objects
+extern FastAccelStepperEngine engine;
+extern FastAccelStepper *stepper;
+
 // Function declarations
 void setup();
 void loop();
@@ -50,6 +55,10 @@ void stopMotor();
 void enableMotor();
 void disableMotor();
 void setDirection(bool forward);
+bool isMotorRunning();
+void waitForMotorComplete();
+long getCurrentMotorPosition();
+void setCurrentMotorPosition(long position);
 
 // Hardware control functions
 void setupHardware();

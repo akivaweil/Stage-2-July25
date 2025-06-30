@@ -18,15 +18,24 @@ void handleHomingState() {
         Serial.println("Starting homing sequence - moving in negative direction");
         enableMotor();
         homingComplete = false;
+        
+        // Set current position to 0 for reference
+        setCurrentMotorPosition(0);
         currentPosition = 0.0;
+        
         homingStarted = true;
         movingToHome = true;
         
         // Start moving towards home switch (negative direction)
-        setDirection(false); // Move in negative direction towards home
+        // Use a large negative move to ensure we reach the home switch
+        stepper->setSpeedInHz(Motion::HOMING_SPEED);
+        stepper->setAcceleration(Motion::FORWARD_ACCEL);
+        stepper->move(-100000); // Move far in negative direction
+        
+        Serial.println("Moving toward home switch...");
     }
     
-    // Check home switch with 10ms debounce
+    // Check home switch with 10ms debounce while moving to home
     if (movingToHome) {
         if (homeSwitch.read() && !homeDebounceActive) {
             // Home switch just activated - start debounce timer
@@ -40,50 +49,48 @@ void handleHomingState() {
                 if (homeSwitch.read()) {
                     // Home switch confirmed active after debounce
                     stopMotor();
+                    waitForMotorComplete(); // Wait for motor to fully stop
+                    
                     Serial.println("Home switch triggered - moving to offset position");
+                    
+                    // Set current position as home (0)
+                    setCurrentMotorPosition(0);
                     
                     // Move away from home switch by offset distance
                     float offsetSteps = inchesToSteps(Motion::HOME_OFFSET);
-                    setDirection(true); // Move away from home (positive direction)
-                    moveMotor(offsetSteps, Motion::HOMING_SPEED, Motion::FORWARD_ACCEL);
+                    stepper->setSpeedInHz(Motion::HOMING_SPEED);
+                    stepper->setAcceleration(Motion::FORWARD_ACCEL);
+                    stepper->moveTo((long)offsetSteps); // Move to positive offset position
                     
                     movingToHome = false;
                     movingToOffset = true;
-                    currentPosition = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
+                    currentPosition = offsetSteps;
                 } else {
                     // False trigger - reset debounce
                     homeDebounceActive = false;
                 }
-            }
-        } else {
-            // Continue moving towards home - simple step generation
-            static unsigned long lastStep = 0;
-            unsigned long stepInterval = 1000000 / Motion::HOMING_SPEED; // Microseconds
-            
-            if (micros() - lastStep >= stepInterval) {
-                digitalWrite(Pins::STEP, HIGH);
-                delayMicroseconds(2);
-                digitalWrite(Pins::STEP, LOW);
-                lastStep = micros();
             }
         }
     }
     
     // Check if offset movement is complete
     if (movingToOffset) {
-        // Simple check - in real implementation this would be handled by motion controller
-        delay(Timing::HOME_SETTLE_TIME);
-        
-        stopMotor();
-        homingComplete = true;
-        homingStarted = false;
-        movingToOffset = false;
-        
-        Serial.println("Homing complete - moving to IDLE state");
-        Serial.print("Current position: ");
-        Serial.print(stepsToInches(currentPosition));
-        Serial.println(" inches from home");
-        
-        currentState = IDLE;
+        if (!isMotorRunning()) {
+            // Motor has finished moving to offset position
+            stopMotor();
+            homingComplete = true;
+            homingStarted = false;
+            movingToOffset = false;
+            
+            // Update position tracking
+            currentPosition = getCurrentMotorPosition();
+            
+            Serial.println("Homing complete - moving to IDLE state");
+            Serial.print("Current position: ");
+            Serial.print(stepsToInches(currentPosition));
+            Serial.println(" inches from home");
+            
+            currentState = IDLE;
+        }
     }
 } 

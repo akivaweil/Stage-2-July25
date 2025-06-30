@@ -1,7 +1,7 @@
 //* ************************************************************************
 //* ************************ HARDWARE CONTROL **************************
 //* ************************************************************************
-// Functions to control motor, clamps, cylinders, and other hardware
+// Functions to control motor, clamps, cylinders, and other hardware using FastAccelStepper
 
 #include <Stage2_Machine.h>
 
@@ -38,60 +38,139 @@ void setupHardware() {
 //* ************************************************************************
 
 void setupMotor() {
-    // Motor is already configured in setupHardware()
-    // Additional motor controller initialization could go here
-    Serial.println("Motor controller ready");
+    Serial.println("Initializing FastAccelStepper...");
+    
+    // Initialize the stepper engine
+    engine.init();
+    
+    // Create stepper instance
+    stepper = engine.stepperConnectToPin(Pins::STEP);
+    if (stepper) {
+        // Set direction and enable pins
+        stepper->setDirectionPin(Pins::DIR);
+        stepper->setEnablePin(Pins::ENABLE);
+        
+        // Set motor parameters
+        stepper->setSpeedInHz(Motion::HOMING_SPEED);        // Default speed
+        stepper->setAcceleration(Motion::FORWARD_ACCEL);    // Default acceleration
+        
+        // Disable motor initially
+        stepper->disableOutputs();
+        
+        Serial.println("FastAccelStepper initialized successfully");
+    } else {
+        Serial.println("ERROR: Failed to initialize FastAccelStepper!");
+    }
 }
 
 void enableMotor() {
-    digitalWrite(Pins::ENABLE, LOW); // Enable motor (active low)
+    if (stepper) {
+        stepper->enableOutputs();
+        Serial.println("Motor enabled");
+    }
 }
 
 void disableMotor() {
-    digitalWrite(Pins::ENABLE, HIGH); // Disable motor (active low)
+    if (stepper) {
+        stepper->disableOutputs();
+        Serial.println("Motor disabled");
+    }
 }
 
 void setDirection(bool forward) {
-    digitalWrite(Pins::DIR, forward ? HIGH : LOW);
+    if (stepper) {
+        // FastAccelStepper handles direction automatically with move commands
+        // This function is kept for compatibility but direction is handled in move functions
+    }
 }
 
 void moveMotor(float steps, float speed, float acceleration) {
-    // This is a simplified move function
-    // In a real implementation, this would interface with a stepper driver
-    // that handles acceleration, deceleration, and precise timing
+    if (!stepper) {
+        Serial.println("ERROR: Stepper not initialized!");
+        return;
+    }
+    
+    // Set speed and acceleration
+    stepper->setSpeedInHz(speed);
+    stepper->setAcceleration(acceleration);
+    
+    // Execute relative move
+    stepper->move((long)steps);
     
     Serial.print("Moving motor: ");
     Serial.print(steps);
     Serial.print(" steps at ");
     Serial.print(speed);
-    Serial.println(" steps/sec");
+    Serial.print(" Hz with accel ");
+    Serial.println(acceleration);
+}
+
+void moveMotorToPosition(float targetSteps, float speed, float acceleration) {
+    if (!stepper) {
+        Serial.println("ERROR: Stepper not initialized!");
+        return;
+    }
     
-    // For now, just update timing for state machine
-    // Real implementation would start hardware motion controller
+    // Set speed and acceleration
+    stepper->setSpeedInHz(speed);
+    stepper->setAcceleration(acceleration);
+    
+    // Execute absolute move
+    stepper->moveTo((long)targetSteps);
+    
+    // Update current position tracking
+    currentPosition = targetSteps;
+    
+    Serial.print("Moving motor to position: ");
+    Serial.print(targetSteps);
+    Serial.print(" steps at ");
+    Serial.print(speed);
+    Serial.print(" Hz with accel ");
+    Serial.println(acceleration);
 }
 
 void stopMotor() {
-    // Stop any ongoing motor motion
-    // In real implementation, would send stop command to motor controller
-    Serial.println("Motor stopped");
+    if (stepper) {
+        stepper->stopMove();
+        Serial.println("Motor stopped");
+    }
+}
+
+bool isMotorRunning() {
+    if (stepper) {
+        return stepper->isRunning();
+    }
+    return false;
+}
+
+void waitForMotorComplete() {
+    if (stepper) {
+        while (stepper->isRunning()) {
+            delay(1); // Small delay to prevent watchdog issues
+        }
+    }
 }
 
 //* ************************************************************************
 //* ************************ ADVANCED MOTOR CONTROL *********************
 //* ************************************************************************
 
-void moveMotorToPosition(float targetSteps, float speed, float acceleration) {
-    float distance = targetSteps - currentPosition;
-    
-    if (distance > 0) {
-        setDirection(true);  // Forward
-    } else {
-        setDirection(false); // Reverse
-        distance = -distance;
+// Get current motor position from FastAccelStepper
+long getCurrentMotorPosition() {
+    if (stepper) {
+        return stepper->getCurrentPosition();
     }
-    
-    moveMotor(distance, speed, acceleration);
-    currentPosition = targetSteps;
+    return 0;
+}
+
+// Set current motor position (useful for homing)
+void setCurrentMotorPosition(long position) {
+    if (stepper) {
+        stepper->setCurrentPosition(position);
+        currentPosition = (float)position;
+        Serial.print("Motor position set to: ");
+        Serial.println(position);
+    }
 }
 
 //* ************************************************************************

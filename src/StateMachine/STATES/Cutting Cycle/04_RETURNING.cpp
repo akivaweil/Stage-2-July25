@@ -37,14 +37,17 @@ void handleReturningState() {
         returnStartTime = millis();
     }
     
-    // Wait for return movement to complete
-    if (millis() - returnStartTime >= 1000) { // Allow time for return movement
+    // Wait for return movement to complete using FastAccelStepper status
+    if (!isMotorRunning()) {
         //! ************************************************************************
         //! STEP 3: COMPLETE TRANSFER ARM SIGNAL AND RETURN TO IDLE
         //! ************************************************************************
         // Complete the transfer arm signal pulse
         digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
         Serial.println("RETURN COMPLETE: Transfer arm signal completed");
+        
+        // Update current position from stepper
+        currentPosition = getCurrentMotorPosition();
         
         Serial.print("RETURN: Final position verified at ");
         Serial.print(stepsToInches(currentPosition));

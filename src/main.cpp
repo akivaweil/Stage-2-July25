@@ -27,6 +27,10 @@ Bounce2::Button homeSwitch;
 Bounce2::Button startButton;
 Bounce2::Button transferArmSignal;
 
+// FastAccelStepper objects
+FastAccelStepperEngine engine = FastAccelStepperEngine();
+FastAccelStepper *stepper = NULL;
+
 // Timing variables
 unsigned long stateStartTime = 0;
 unsigned long lastMotorUpdate = 0;
