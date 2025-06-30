@@ -21,6 +21,9 @@ void setupWiFi() {
         delay(500);
         Serial.print(".");
         attempts++;
+        
+        // Feed watchdog to prevent reset
+        yield();
     }
     
     if (WiFi.status() == WL_CONNECTED) {
@@ -51,6 +54,9 @@ void setupWiFi() {
                 delay(500);
                 Serial.print("*");
                 attempts++;
+                
+                // Feed watchdog to prevent reset
+                yield();
             }
             
             if (WiFi.status() == WL_CONNECTED) {
@@ -63,9 +69,12 @@ void setupWiFi() {
                 Serial.println("Static IP failed, using DHCP IP");
                 // Reconnect with DHCP
                 WiFi.begin(Config::WIFI_SSID, Config::WIFI_PASSWORD);
+                attempts = 0;
                 while (WiFi.status() != WL_CONNECTED && attempts < 10) {
                     delay(500);
                     attempts++;
+                    // Feed watchdog to prevent reset
+                    yield();
                 }
             }
         }
@@ -78,6 +87,8 @@ void setupWiFi() {
     } else {
         Serial.println("");
         Serial.println("WiFi connection failed - continuing without network");
+        Serial.print("WiFi status: ");
+        Serial.println(WiFi.status());
     }
 }
 
