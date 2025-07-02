@@ -21,10 +21,17 @@ void setupOTA() {
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     
-    // Wait for WiFi connection with retry mechanism
-    while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-        delay(5000);
-        ESP.restart();
+    // Non-blocking WiFi connection with timeout
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
+        delay(500);
+        attempts++;
+    }
+    
+    // Only proceed with OTA setup if WiFi connected
+    if (WiFi.status() != WL_CONNECTED) {
+        // WiFi failed to connect - continue without OTA
+        return;
     }
 
     // Set hostname for OTA identification
@@ -67,5 +74,8 @@ void setupOTA() {
 }
 
 void handleOTA() {
-    ArduinoOTA.handle();
+    // Only handle OTA if WiFi is connected
+    if (WiFi.status() == WL_CONNECTED) {
+        ArduinoOTA.handle();
+    }
 } 
