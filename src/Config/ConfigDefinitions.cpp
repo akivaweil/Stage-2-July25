@@ -9,27 +9,27 @@ const char *BOARD_DESCRIPTION = "Stage 2 Cutting Machine - USB Only";
 // Motion Parameters
 namespace Motion {
 const float STEPS_PER_INCH = 42.33;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 42.33 steps/inch
-const float HOME_OFFSET = .9;        // Position offset from home switch (sets position 0 after homing)
+const float HOME_OFFSET = .85;        // Position offset from home switch (sets position 0 after homing)
 const float APPROACH_DISTANCE = 4.0;  // Exact distance from offset position to approach cutting position
-const float CUTTING_DISTANCE = 5.0;   // Exact distance to cut through material (from approach position)
-const float TOTAL_FORWARD_DISTANCE = 26;  // Total exact distance from offset position to final position
+const float CUTTING_DISTANCE = 6.0;   // Exact distance to cut through material (from approach position)
+const float TOTAL_FORWARD_DISTANCE = 27.2;  // Total exact distance from offset position to final position
 
 // Speed Settings (steps/second)
 const float HOMING_SPEED = 200;     
 const float APPROACH_SPEED = 30000; 
-const float CUTTING_SPEED = 90;    
+const float CUTTING_SPEED = 80;    
 const float FINISH_SPEED = 30000;   
 const float RETURN_SPEED = 30000;   
 
 // Acceleration Settings (steps/second²)
 const float FORWARD_ACCEL = 20000;   
-const float RETURN_ACCEL = 20000;    
+const float RETURN_ACCEL = 17000;    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
 namespace Timing {
 const int CLAMP_SETTLE_TIME = 200;
-const int CLAMP_RELEASE_TIME = 200;
+const int CLAMP_RELEASE_TIME = 300;
 const int HOME_SETTLE_TIME = 100;
 const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 300;

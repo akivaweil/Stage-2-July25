@@ -62,7 +62,7 @@ void handleIdleState() {
     //! ************************************************************************
     // Check if 5 seconds have passed without activity
     if (motorCurrentlyEnabled && (millis() - lastActivityTime >= Timing::MOTOR_TIMEOUT)) {
-        disableMotor(); // Disable motor after timeout
+        //disableMotor(); // Disable motor after timeout
         motorCurrentlyEnabled = false;
     }
     

@@ -42,7 +42,7 @@ unsigned long lastMotorUpdate = 0;
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
-    delay(500); // Brief delay for serial initialization (reduced from 2000ms)
+    delay(100); // Brief delay for serial initialization (reduced from 2000ms)
     Serial.println("Stage 2 Cutting Machine Starting...");
     Serial.println("USB-ONLY VERSION (No WiFi/OTA)");
     

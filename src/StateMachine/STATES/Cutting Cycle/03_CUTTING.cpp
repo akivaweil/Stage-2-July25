@@ -108,21 +108,39 @@ void handleCuttingState() {
             break;
             
         //* ************************************************************************
-        //* ************************ PHASE 5: CLAMP RELEASE **********************
+        //* ************************ PHASE 5: SETTLE TIME *************************
         //* ************************************************************************
         
         case 6:
+            //! ************************************************************************
+            //! SETTLE TIME: WAIT 150MS BEFORE CLAMP RELEASE
+            //! ************************************************************************
+            // Wait for 150ms settle time to ensure motion has fully stabilized
+            if (millis() - stepStartTime >= 150) {
+                cuttingPhase++;
+                stepStartTime = millis();
+            }
+            break;
+            
+        //* ************************************************************************
+        //* ************************ PHASE 6: CLAMP RELEASE **********************
+        //* ************************************************************************
+        
+        case 7:
             //! ************************************************************************
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS SIMULTANEOUSLY
             //! ************************************************************************
             // Retract both clamps at the same time (release material)
             retractBothClamps();
             
+            // Send high signal to pin 17 for duration of release and return
+            digitalWrite(17, HIGH);
+            
             stepStartTime = millis();
             cuttingPhase++;
             break;
             
-        case 7:
+        case 8:
             //! ************************************************************************
             //! WAIT FOR CLAMP RELEASE COMPLETION
             //! ************************************************************************
@@ -134,15 +152,18 @@ void handleCuttingState() {
             break;
             
         //* ************************************************************************
-        //* ************************ PHASE 6: PREPARE FOR RETURN *****************
+        //* ************************ PHASE 7: PREPARE FOR RETURN *****************
         //* ************************************************************************
         
-        case 8:
+        case 9:
             //! ************************************************************************
             //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
             //! ************************************************************************
             // Signal transfer arm: Set HIGH (prevent Z-axis interference)
             digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
+            
+            // Bring pin 17 low before transitioning to returning state
+            digitalWrite(17, LOW);
             
             // Reset static variables for next cycle
             stepStartTime = 0;

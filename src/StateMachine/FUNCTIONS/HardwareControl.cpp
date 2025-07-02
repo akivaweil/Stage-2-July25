@@ -20,6 +20,7 @@ void setupHardware() {
     pinMode(Pins::RIGHT_CLAMP, OUTPUT);
     pinMode(Pins::ALIGN_CYLINDER, OUTPUT);
     pinMode(Pins::TRANSFER_ARM_SIGNAL, OUTPUT);
+    pinMode(17, OUTPUT);  // Pin 17 for clamp release signal
     
     // Set initial states - all outputs OFF
     digitalWrite(Pins::STEP, LOW);
@@ -29,6 +30,7 @@ void setupHardware() {
     digitalWrite(Pins::RIGHT_CLAMP, LOW);
     digitalWrite(Pins::ALIGN_CYLINDER, LOW);
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
+    digitalWrite(17, LOW);  // Pin 17 starts LOW
     
     Serial.println("Hardware initialization complete");
 }
