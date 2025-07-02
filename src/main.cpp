@@ -6,6 +6,10 @@
 
 #include <Stage2_Machine.h>
 
+// OTA function declarations
+void setupOTA();
+void handleOTA();
+
 //* ************************************************************************
 //* ************************ GLOBAL VARIABLES **************************
 //* ************************************************************************
@@ -44,7 +48,11 @@ void setup() {
     Serial.begin(115200);
     delay(100); // Brief delay for serial initialization (reduced from 2000ms)
     Serial.println("Stage 2 Cutting Machine Starting...");
-    Serial.println("USB-ONLY VERSION (No WiFi/OTA)");
+    
+    // Initialize OTA
+    Serial.println("Initializing OTA...");
+    setupOTA();
+    Serial.println("OTA initialization complete");
     
     // Setup hardware components
     Serial.println("Initializing hardware...");
@@ -70,6 +78,9 @@ void setup() {
 //* ************************************************************************
 
 void loop() {
+    // Handle OTA requests
+    handleOTA();
+    
     // Update all input readings
     updateInputs();
     
