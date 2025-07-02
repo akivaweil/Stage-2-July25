@@ -12,6 +12,9 @@
 const char* ssid = "Everwood";
 const char* password = "Everwood-Staff";
 
+// Global variables
+bool otaEnabled = false;
+
 // Function declarations
 void setupOTA();
 void handleOTA();
@@ -21,21 +24,20 @@ void setupOTA() {
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     
-    // Non-blocking WiFi connection with timeout
+    // Non-blocking WiFi connection with shorter timeout
     int attempts = 0;
-    while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-        delay(500);
+    while (WiFi.status() != WL_CONNECTED && attempts < 10) {
+        delay(250);
         attempts++;
     }
     
-    // Only proceed with OTA setup if WiFi connected
-    if (WiFi.status() != WL_CONNECTED) {
-        // WiFi failed to connect - continue without OTA
-        return;
-    }
-
-    // Set hostname for OTA identification
-    ArduinoOTA.setHostname("stage2-esp32s3");
+    // Check WiFi connection status and report
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.print("WiFi connected! IP address: ");
+        Serial.println(WiFi.localIP());
+        
+        // Set hostname for OTA identification
+        ArduinoOTA.setHostname("stage2-esp32s3");
 
     // Configure OTA callbacks
     ArduinoOTA
@@ -69,13 +71,20 @@ void setupOTA() {
             }
         });
 
-    // Start OTA service
-    ArduinoOTA.begin();
+        // Start OTA service
+        ArduinoOTA.begin();
+        Serial.println("OTA service started");
+        otaEnabled = true;
+    } else {
+        Serial.println("WiFi connection failed - OTA disabled");
+        Serial.println("Machine will continue normal operation without OTA");
+        otaEnabled = false;
+    }
 }
 
 void handleOTA() {
-    // Only handle OTA if WiFi is connected
-    if (WiFi.status() == WL_CONNECTED) {
+    // Only handle OTA if it was successfully enabled
+    if (otaEnabled && WiFi.status() == WL_CONNECTED) {
         ArduinoOTA.handle();
     }
 } 
