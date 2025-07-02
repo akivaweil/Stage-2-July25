@@ -2,6 +2,7 @@
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <esp_task_wdt.h>
 
 //* ************************************************************************
 //* *********************** OTA MANAGER IMPLEMENTATION *********************
@@ -85,6 +86,8 @@ void setupOTA() {
 void handleOTA() {
     // Only handle OTA if it was successfully enabled
     if (otaEnabled && WiFi.status() == WL_CONNECTED) {
+        // Feed watchdog before handling OTA to prevent resets
+        esp_task_wdt_reset();
         ArduinoOTA.handle();
     }
 } 

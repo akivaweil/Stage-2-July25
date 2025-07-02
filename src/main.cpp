@@ -5,6 +5,7 @@
 // alignment cylinder, and stepper motor for precise cutting operations.
 
 #include <Stage2_Machine.h>
+#include <esp_task_wdt.h>
 
 // OTA function declarations
 void setupOTA();
@@ -78,8 +79,11 @@ void setup() {
 //* ************************************************************************
 
 void loop() {
-    // Handle OTA requests
-    handleOTA();
+    // Feed the watchdog timer to prevent resets
+    esp_task_wdt_reset();
+    
+    // Handle OTA requests (temporarily disabled to isolate issue)
+    // handleOTA();
     
     // Update all input readings
     updateInputs();
