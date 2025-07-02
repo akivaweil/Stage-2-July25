@@ -5,11 +5,6 @@
 // alignment cylinder, and stepper motor for precise cutting operations.
 
 #include <Stage2_Machine.h>
-#include <esp_task_wdt.h>
-
-// OTA function declarations
-void setupOTA();
-void handleOTA();
 
 //* ************************************************************************
 //* ************************ GLOBAL VARIABLES **************************
@@ -49,11 +44,7 @@ void setup() {
     Serial.begin(115200);
     delay(100); // Brief delay for serial initialization (reduced from 2000ms)
     Serial.println("Stage 2 Cutting Machine Starting...");
-    
-    // Initialize OTA
-    Serial.println("Initializing OTA...");
-    setupOTA();
-    Serial.println("OTA initialization complete");
+    Serial.println("USB-ONLY VERSION (No WiFi/OTA)");
     
     // Setup hardware components
     Serial.println("Initializing hardware...");
@@ -79,12 +70,6 @@ void setup() {
 //* ************************************************************************
 
 void loop() {
-    // Feed the watchdog timer to prevent resets
-    esp_task_wdt_reset();
-    
-    // Handle OTA requests (temporarily disabled to isolate issue)
-    // handleOTA();
-    
     // Update all input readings
     updateInputs();
     
