@@ -82,4 +82,12 @@ void handleIdleState();
 void handleHomingState();
 void handleAlignmentState();
 void handleCuttingState();
-void handleReturningState(); 
+void handleReturningState();
+
+// OTA function declarations
+void initOTA();
+void handleOTA();
+void initWiFiForOTA();
+bool isWiFiConnected();
+void displayOTAStatus();
+bool isOTAActive(); 

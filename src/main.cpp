@@ -5,6 +5,7 @@
 // alignment cylinder, and stepper motor for precise cutting operations.
 
 #include <Stage2_Machine.h>
+#include <WiFi.h>
 
 //* ************************************************************************
 //* ************************ GLOBAL VARIABLES **************************
@@ -42,9 +43,20 @@ unsigned long lastMotorUpdate = 0;
 void setup() {
     // Initialize serial communication
     Serial.begin(115200);
-    delay(100); // Brief delay for serial initialization (reduced from 2000ms)
+    delay(100); // Brief delay for serial initialization
     Serial.println("Stage 2 Cutting Machine Starting...");
-    Serial.println("USB-ONLY VERSION (No WiFi/OTA)");
+    
+    // Initialize WiFi for OTA
+    Serial.println("Initializing WiFi...");
+    initWiFiForOTA();
+    
+    // Initialize OTA if WiFi connected
+    if (isWiFiConnected()) {
+        initOTA();
+        Serial.println("OTA enabled - ready for wireless uploads");
+    } else {
+        Serial.println("WiFi connection failed - OTA disabled");
+    }
     
     // Setup hardware components
     Serial.println("Initializing hardware...");
@@ -70,11 +82,19 @@ void setup() {
 //* ************************************************************************
 
 void loop() {
+    // Handle OTA updates first (if WiFi connected)
+    if (isWiFiConnected()) {
+        handleOTA();
+    }
+    
     // Update all input readings
     updateInputs();
     
     // Execute state machine
     runStateMachine();
+    
+    // Display OTA status periodically
+    displayOTAStatus();
     
     // Small delay for stability - reduced for better input responsiveness
     delay(5);
