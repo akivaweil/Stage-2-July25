@@ -6,6 +6,7 @@
 
 #include <Stage2_Machine.h>
 #include <WiFi.h>
+#include "OTA/OTA_Upload.h"
 
 //* ************************************************************************
 //* ************************ GLOBAL VARIABLES **************************
@@ -46,17 +47,10 @@ void setup() {
     delay(100); // Brief delay for serial initialization
     Serial.println("Stage 2 Cutting Machine Starting...");
     
-    // Initialize WiFi for OTA
-    Serial.println("Initializing WiFi...");
-    initWiFiForOTA();
-    
-    // Initialize OTA if WiFi connected
-    if (isWiFiConnected()) {
-        initOTA();
-        Serial.println("OTA enabled - ready for wireless uploads");
-    } else {
-        Serial.println("WiFi connection failed - OTA disabled");
-    }
+    // Initialize OTA
+    Serial.println("Initializing OTA...");
+    setupOTA();
+    Serial.println("OTA enabled - ready for wireless uploads");
     
     // Setup hardware components
     Serial.println("Initializing hardware...");
@@ -82,19 +76,14 @@ void setup() {
 //* ************************************************************************
 
 void loop() {
-    // Handle OTA updates first (if WiFi connected)
-    if (isWiFiConnected()) {
-        handleOTA();
-    }
+    // Handle OTA updates first
+    handleOTA();
     
     // Update all input readings
     updateInputs();
     
     // Execute state machine
     runStateMachine();
-    
-    // Display OTA status periodically
-    displayOTAStatus();
     
     // Small delay for stability - reduced for better input responsiveness
     delay(5);

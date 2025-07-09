@@ -84,10 +84,4 @@ void handleAlignmentState();
 void handleCuttingState();
 void handleReturningState();
 
-// OTA function declarations
-void initOTA();
-void handleOTA();
-void initWiFiForOTA();
-bool isWiFiConnected();
-void displayOTAStatus();
-bool isOTAActive(); 
+// OTA function declarations are in OTA/OTA_Upload.h 
