@@ -9,7 +9,7 @@ const int TRANSFER_ARM_START_SIGNAL = 47;
 
 // Output pins (using safe output pins)
 const int STEP = 38;                        
-const int DIR = 37;                        
+const int DIR = 11;                        
 const int ENABLE = 8;                       
 const int LEFT_CLAMP = 46;                  
 const int RIGHT_CLAMP = 10;                 

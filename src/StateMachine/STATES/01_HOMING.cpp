@@ -47,7 +47,7 @@ void handleHomingState() {
             // First, make a small move away from the switch to ensure we're clear
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
-            stepper->move(5); // Small positive move to clear the switch
+            stepper->move(1); // Small positive move to clear the switch
             waitForMotorComplete(); // Wait for small move to complete
             
             // Now move to the full offset distance (positive direction away from home)
