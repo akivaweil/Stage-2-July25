@@ -10,12 +10,15 @@ extern const char *BOARD_DESCRIPTION;
 namespace Motion {
 extern const float STEPS_PER_INCH;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 42.33 steps/inch
 extern const float HOME_OFFSET;        // Position offset from home switch
+extern const float ALIGNMENT_INITIAL_DISTANCE; // Initial distance for alignment
+extern const float ALIGNMENT_BACKWARD_DISTANCE;
 extern const float APPROACH_DISTANCE;  // Distance to approach cutting position
 extern const float CUTTING_DISTANCE;   // Distance to cut through material
 extern const float TOTAL_FORWARD_DISTANCE;  // Total forward distance
 
 // Speed Settings (steps/second)
 extern const float HOMING_SPEED;     
+extern const float ALIGNMENT_INITIAL_SPEED; // Initial speed for alignment
 extern const float APPROACH_SPEED; 
 extern const float CUTTING_SPEED;    
 extern const float FINISH_SPEED;   
