@@ -3,7 +3,7 @@
 //* ************************************************************************
 //* ************************ CUTTING STATE *******************************
 //* ************************************************************************
-// This state performs the complete cutting sequence: approach, cut, finish, release clamps
+// This state performs the complete cutting sequence: approach, cut, finish, temporarily release clamps, then re-extend for return
 
 void handleCuttingState() {
     static unsigned long stepStartTime = 0;
@@ -113,7 +113,7 @@ void handleCuttingState() {
         
         case 6:
             //! ************************************************************************
-            //! SETTLE TIME: WAIT 150MS BEFORE CLAMP RELEASE
+            //! SETTLE TIME: WAIT 150MS
             //! ************************************************************************
             // Wait for 150ms settle time to ensure motion has fully stabilized
             if (millis() - stepStartTime >= 150) {
@@ -128,12 +128,12 @@ void handleCuttingState() {
         
         case 7:
             //! ************************************************************************
-            //! CLAMP RELEASE: RETRACT BOTH CLAMPS SIMULTANEOUSLY
+            //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
             //! ************************************************************************
-            // Retract both clamps at the same time (release material)
+            // Retract both clamps temporarily to release material
             retractBothClamps();
             
-            // Send high signal to pin 17 for duration of release and return
+            // Send high signal to pin 17 for duration of release
             digitalWrite(17, HIGH);
             
             stepStartTime = millis();
@@ -152,10 +152,36 @@ void handleCuttingState() {
             break;
             
         //* ************************************************************************
-        //* ************************ PHASE 7: PREPARE FOR RETURN *****************
+        //* ************************ PHASE 7: RE-EXTEND CLAMPS *******************
         //* ************************************************************************
         
         case 9:
+            //! ************************************************************************
+            //! RE-EXTEND CLAMPS FOR RETURN JOURNEY
+            //! ************************************************************************
+            // Extend both clamps again for the return journey
+            extendBothClamps();
+            
+            stepStartTime = millis();
+            cuttingPhase++;
+            break;
+            
+        case 10:
+            //! ************************************************************************
+            //! WAIT FOR CLAMP RE-EXTENSION
+            //! ************************************************************************
+            // Wait for clamps to fully extend before return
+            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
+                cuttingPhase++;
+                stepStartTime = millis();
+            }
+            break;
+            
+        //* ************************************************************************
+        //* ************************ PHASE 8: PREPARE FOR RETURN *****************
+        //* ************************************************************************
+        
+        case 11:
             //! ************************************************************************
             //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
             //! ************************************************************************

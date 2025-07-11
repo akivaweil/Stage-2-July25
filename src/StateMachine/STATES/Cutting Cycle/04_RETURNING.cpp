@@ -3,7 +3,8 @@
 //* ************************************************************************
 //* ************************ RETURNING STATE *****************************
 //* ************************************************************************
-// This state returns the motor to home offset (clamps already released in cutting state)
+// This state returns the motor to home offset with clamps extended.
+// Clamps are retracted in the IDLE state after the return is complete.
 
 void handleReturningState() {
     static bool returnStarted = false;
