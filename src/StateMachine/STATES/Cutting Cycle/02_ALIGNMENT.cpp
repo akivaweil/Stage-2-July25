@@ -126,16 +126,16 @@ void handleAlignmentState() {
             break;
             
         case 11:
-            // Step 4.5: Extend alignment cylinder (final positioning adjustment)
+            // Step 4.5: Extend alignment cylinder and right clamp (prep for final positioning)
             extendAlignmentCylinder();
+            extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
         case 12:
-            // Step 4.6: Wait 150ms (alignment time)
-            if (millis() - stepStartTime >= 150) {
-                // Step 4.7: Retract alignment cylinder (clear for cutting)
+            // Step 4.6: Wait 100ms, then retract alignment cylinder (clear for cutting)
+            if (millis() - stepStartTime >= 100) {
                 retractAlignmentCylinder();
                 stepStartTime = millis();
                 currentStep++;
