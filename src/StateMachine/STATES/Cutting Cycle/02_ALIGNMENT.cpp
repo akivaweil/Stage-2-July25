@@ -18,7 +18,7 @@ void handleAlignmentState() {
     switch (currentStep) {
         case 0:
             //! ************************************************************************
-            //! STEP 1: INITIAL 1-INCH FORWARD MOVEMENT
+            //! STEP 1: INITIAL FORWARD MOVEMENT
             //! ************************************************************************
             // Move motor forward 1 inch at a specific speed for initial alignment
             stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
@@ -37,7 +37,7 @@ void handleAlignmentState() {
 
         case 2:
             //! ************************************************************************
-            //! STEP 2: REVERSE 0.1-INCH FOR MATERIAL SETTLING
+            //! STEP 2: REVERSE A BIT TO MOVE OUT OF THE WAY
             //! ************************************************************************
             // Move motor backward 0.1 inch to allow material to settle against clamps
             stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED); // Assuming same speed is okay

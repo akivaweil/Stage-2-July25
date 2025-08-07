@@ -14,28 +14,28 @@ const float ALIGNMENT_INITIAL_DISTANCE = .5; // Initial distance for alignment
 const float ALIGNMENT_BACKWARD_DISTANCE = 0.2;
 const float APPROACH_DISTANCE = 4.0;  // Exact distance from offset position to approach cutting position
 const float CUTTING_DISTANCE = 6.0;   // Exact distance to cut through material (from approach position)
-const float TOTAL_FORWARD_DISTANCE = 24.35;  // Total exact distance from offset position to final position
+const float TOTAL_FORWARD_DISTANCE = 24.5;  // Total exact distance from offset position to final position
 
 // Speed Settings (steps/second)
 const float HOMING_SPEED = 150;     
-const float ALIGNMENT_INITIAL_SPEED = 70; // Initial speed for alignment
+const float ALIGNMENT_INITIAL_SPEED = 200; // Initial speed for alignment
 const float APPROACH_SPEED = 30000; 
-const float CUTTING_SPEED = 70;    
+const float CUTTING_SPEED = 75;    
 const float FINISH_SPEED = 30000;   
 const float RETURN_SPEED = 30000;   
 
 // Acceleration Settings (steps/second²)
-const float FORWARD_ACCEL = 14000;   
-const float RETURN_ACCEL = 17000;    
+const float FORWARD_ACCEL = 16000;   
+const float RETURN_ACCEL = 16000;    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
 namespace Timing {
-const int CLAMP_SETTLE_TIME = 250;
-const int CLAMP_RELEASE_TIME = 300;
+const int CLAMP_SETTLE_TIME = 150;
+const int CLAMP_RELEASE_TIME = 450;
 const int HOME_SETTLE_TIME = 100;
 const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 300;
-const int SIGNAL_DURATION = 500;
+const int SIGNAL_DURATION = 2000;
 const int MOTOR_TIMEOUT = 5000;
-}  // namespace Timing 
+}  // namespace Timing 3

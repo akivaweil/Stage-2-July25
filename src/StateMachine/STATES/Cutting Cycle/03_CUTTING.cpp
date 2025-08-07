@@ -171,7 +171,7 @@ void handleCuttingState() {
             //! WAIT FOR CLAMP RE-EXTENSION
             //! ************************************************************************
             // Wait for clamps to fully extend before return
-            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
+            if (millis() - stepStartTime >= 0) { //skip settle time
                 cuttingPhase++;
                 stepStartTime = millis();
             }

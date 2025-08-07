@@ -4,7 +4,8 @@
 //* ************************ RETURNING STATE *****************************
 //* ************************************************************************
 // This state returns the motor to home offset with clamps extended.
-// Clamps are retracted in the IDLE state after the return is complete.
+// After return is complete, transitions to HOMING state for end-of-cycle homing sequence.
+// Clamps are retracted in the IDLE state after homing is complete.
 
 void handleReturningState() {
     static bool returnStarted = false;
@@ -47,8 +48,10 @@ void handleReturningState() {
         returnStartTime = 0;
         
         //! ************************************************************************
-        //! STEP 4: RETURN TO IDLE STATE
+        //! STEP 4: TRANSITION TO HOMING FOR END-OF-CYCLE HOMING SEQUENCE
         //! ************************************************************************
-        currentState = IDLE;
+        // After each cut cycle, perform homing sequence to ensure accuracy
+        homingComplete = false; // Reset homing flag to force homing sequence
+        currentState = HOMING;
     }
 } 
