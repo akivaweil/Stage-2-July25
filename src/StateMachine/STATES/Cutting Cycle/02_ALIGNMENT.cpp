@@ -69,7 +69,7 @@ void handleAlignmentState() {
             break;
             
         case 5:
-            // Step 3.2: Wait 150ms (allow clamp to engage)
+            // Step 3.2: Wait 50ms (allow left clamp to fully extend)
             if (millis() - stepStartTime >= 50) {
                 // Step 3.3: Extend alignment cylinder (position material precisely)
                 extendAlignmentCylinder();
@@ -79,7 +79,7 @@ void handleAlignmentState() {
             break;
             
         case 6:
-            // Step 3.4: Wait 150ms (allow alignment to complete)
+            // Step 3.4: Wait 20ms (allow alignment movement to complete)
             if (millis() - stepStartTime >= 20) {
                 // Step 3.5: Retract left clamp (release to allow fine adjustment)
                 retractLeftClamp();
@@ -89,7 +89,7 @@ void handleAlignmentState() {
             break;
             
         case 7:
-            // Step 3.6: Wait 150ms (settle time)
+            // Step 3.6: Wait 200ms (settle time)
             if (millis() - stepStartTime >= 200) {
                 currentStep++;
                 stepStartTime = millis();
@@ -114,7 +114,7 @@ void handleAlignmentState() {
             break;
             
         case 10:
-            // Step 4.3: Wait 150ms (clamp engagement time)
+            // Step 4.3: Wait 150ms (right clamp extension time)
             if (millis() - stepStartTime >= 150) {
                 // Step 4.4: Retract right clamp (release for repositioning)
                 retractRightClamp();
