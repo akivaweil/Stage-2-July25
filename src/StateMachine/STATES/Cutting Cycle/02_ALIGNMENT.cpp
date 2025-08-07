@@ -100,17 +100,19 @@ void handleAlignmentState() {
             //! ************************************************************************
             //! STEP 4: RIGHT CLAMP SEQUENCE WITH ALIGNMENT
             //! ************************************************************************
-            // Step 4.1: Retract alignment cylinder (clear the way)
-            retractAlignmentCylinder();
+            // Step 4.1: Extend right clamp first
+            extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
         case 9:
-            // Step 4.2: Extend right clamp (secure other end of material)
-            extendRightClamp();
-            stepStartTime = millis();
-            currentStep++;
+            // Step 4.2: Wait 100ms, then retract alignment cylinder
+            if (millis() - stepStartTime >= 100) {
+                retractAlignmentCylinder();
+                stepStartTime = millis();
+                currentStep++;
+            }
             break;
             
         case 10:
