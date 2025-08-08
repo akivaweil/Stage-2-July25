@@ -116,7 +116,7 @@ void handleCuttingState() {
             //! SETTLE TIME: WAIT 150MS
             //! ************************************************************************
             // Wait for settle time to ensure motion has fully stabilized
-            if ((float)(millis() - stepStartTime) >= Timing::CLAMP_SETTLE_TIME) {
+            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -145,7 +145,7 @@ void handleCuttingState() {
             //! WAIT FOR CLAMP RELEASE COMPLETION
             //! ************************************************************************
             // Wait for clamp release time (ensure full release)
-            if ((float)(millis() - stepStartTime) >= Timing::CLAMP_RELEASE_TIME) {
+            if (millis() - stepStartTime >= Timing::CLAMP_RELEASE_TIME) {
                 cuttingPhase++;
                 stepStartTime = millis();
             }
