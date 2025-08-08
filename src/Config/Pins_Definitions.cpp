@@ -15,4 +15,5 @@ const int LEFT_CLAMP = 46;
 const int RIGHT_CLAMP = 10;                 
 const int ALIGN_CYLINDER = 3;               
 const int TRANSFER_ARM_SIGNAL = 48;         
+const int CLAMP_RELEASE_SIGNAL = 17;        
 }  // namespace Pins 

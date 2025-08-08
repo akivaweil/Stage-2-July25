@@ -115,8 +115,8 @@ void handleCuttingState() {
             //! ************************************************************************
             //! SETTLE TIME: WAIT 150MS
             //! ************************************************************************
-            // Wait for 150ms settle time to ensure motion has fully stabilized
-            if (millis() - stepStartTime >= 150) {
+            // Wait for settle time to ensure motion has fully stabilized
+            if ((float)(millis() - stepStartTime) >= Timing::CLAMP_SETTLE_TIME) {
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -134,7 +134,7 @@ void handleCuttingState() {
             retractBothClamps();
             
             // Send high signal to pin 17 for duration of release
-            digitalWrite(17, HIGH);
+            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
             
             stepStartTime = millis();
             cuttingPhase++;
@@ -145,7 +145,7 @@ void handleCuttingState() {
             //! WAIT FOR CLAMP RELEASE COMPLETION
             //! ************************************************************************
             // Wait for clamp release time (ensure full release)
-            if (millis() - stepStartTime >= Timing::CLAMP_RELEASE_TIME) {
+            if ((float)(millis() - stepStartTime) >= Timing::CLAMP_RELEASE_TIME) {
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -189,7 +189,7 @@ void handleCuttingState() {
             digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
             
             // Bring pin 17 low before transitioning to returning state
-            digitalWrite(17, LOW);
+            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
             
             // Reset static variables for next cycle
             stepStartTime = 0;
