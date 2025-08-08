@@ -69,8 +69,8 @@ void handleAlignmentState() {
             break;
             
         case 5:
-            // Step 3.2: Wait 50ms (allow left clamp to fully extend)
-            if (millis() - stepStartTime >= 50) {
+            // Step 3.2: Wait (allow left clamp to fully extend)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_LEFT_CLAMP_EXTEND_MS) {
                 // Step 3.3: Extend alignment cylinder (position material precisely)
                 extendAlignmentCylinder();
                 stepStartTime = millis();
@@ -79,8 +79,8 @@ void handleAlignmentState() {
             break;
             
         case 6:
-            // Step 3.4: Wait 20ms (allow alignment movement to complete)
-            if (millis() - stepStartTime >= 20) {
+            // Step 3.4: Wait (allow alignment movement to complete)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_ALIGNMENT_MOVE_MS) {
                 // Step 3.5: Retract left clamp (release to allow fine adjustment)
                 retractLeftClamp();
                 stepStartTime = millis();
@@ -89,8 +89,8 @@ void handleAlignmentState() {
             break;
             
         case 7:
-            // Step 3.6: Wait 200ms (settle time)
-            if (millis() - stepStartTime >= 200) {
+            // Step 3.6: Wait (settle time)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
                 currentStep++;
                 stepStartTime = millis();
             }
@@ -107,8 +107,8 @@ void handleAlignmentState() {
             break;
             
         case 9:
-            // Step 4.2: Wait 100ms, then retract alignment cylinder
-            if (millis() - stepStartTime >= 100) {
+            // Step 4.2: Wait, then retract alignment cylinder
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_SHORT_SETTLE_MS) {
                 retractAlignmentCylinder();
                 stepStartTime = millis();
                 currentStep++;
@@ -116,8 +116,8 @@ void handleAlignmentState() {
             break;
             
         case 10:
-            // Step 4.3: Wait 150ms (right clamp extension time)
-            if (millis() - stepStartTime >= 150) {
+            // Step 4.3: Wait (right clamp extension time)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_RIGHT_CLAMP_WAIT_MS) {
                 // Step 4.4: Retract right clamp (release for repositioning)
                 retractRightClamp();
                 stepStartTime = millis();
@@ -134,8 +134,8 @@ void handleAlignmentState() {
             break;
             
         case 12:
-            // Step 4.6: Wait 100ms, then retract alignment cylinder (clear for cutting)
-            if (millis() - stepStartTime >= 100) {
+            // Step 4.6: Wait, then retract alignment cylinder (clear for cutting)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_SHORT_SETTLE_MS) {
                 retractAlignmentCylinder();
                 stepStartTime = millis();
                 currentStep++;
@@ -143,8 +143,8 @@ void handleAlignmentState() {
             break;
             
         case 13:
-            // Step 4.8: Wait 200ms (settle time)
-            if (millis() - stepStartTime >= 200) {
+            // Step 4.8: Wait (settle time)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
                 currentStep++;
                 stepStartTime = millis();
             }
@@ -169,7 +169,7 @@ void handleAlignmentState() {
             
         case 16:
             // Wait for final clamp engagement before proceeding to cutting cycle
-            if (millis() - stepStartTime >= 150) {
+            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
                 // ADDED: Set current position to account for relative alignment moves
                 float netAlignmentSteps = (Motion::ALIGNMENT_INITIAL_DISTANCE - Motion::ALIGNMENT_BACKWARD_DISTANCE) * Motion::STEPS_PER_INCH;
                 setCurrentMotorPosition((long)netAlignmentSteps);

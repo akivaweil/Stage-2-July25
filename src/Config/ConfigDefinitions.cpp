@@ -38,4 +38,10 @@ const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 300;
 const int SIGNAL_DURATION = 2000;
 const int MOTOR_TIMEOUT = 5000;
+// Alignment-specific timing (ms)
+const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS = 50;   // allow left clamp to extend
+const int ALIGNMENT_ALIGNMENT_MOVE_MS = 20;      // allow alignment movement to complete
+const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS = 150;   // right clamp extension time
+const int ALIGNMENT_SHORT_SETTLE_MS = 100;       // short settle/pause
+const int ALIGNMENT_LONG_SETTLE_MS = 200;        // long settle/pause
 }  // namespace Timing 3
