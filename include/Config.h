@@ -45,4 +45,5 @@ extern const int ALIGNMENT_ALIGNMENT_MOVE_MS;       // was 20
 extern const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS;     // was 150
 extern const int ALIGNMENT_SHORT_SETTLE_MS;         // was 100
 extern const int ALIGNMENT_LONG_SETTLE_MS;          // was 200
+extern const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS;  // 150ms for alignment cylinder to position material
 }  // namespace Timing

@@ -60,27 +60,27 @@ void handleAlignmentState() {
         
         case 4:
             //! ************************************************************************
-            //! STEP 3: INITIAL LEFT CLAMP PULSE AND ALIGNMENT
+            //! STEP 3: ALIGNMENT CYLINDER FIRST, THEN LEFT CLAMP SEQUENCE
             //! ************************************************************************
-            // Step 3.1: Extend left clamp (secure material initially)
-            extendLeftClamp();
+            // Step 3.1: Extend alignment cylinder first (position material precisely)
+            extendAlignmentCylinder();
             stepStartTime = millis();
             currentStep++;
             break;
             
         case 5:
-            // Step 3.2: Wait (allow left clamp to fully extend)
-            if (millis() - stepStartTime >= Timing::ALIGNMENT_LEFT_CLAMP_EXTEND_MS) {
-                // Step 3.3: Extend alignment cylinder (position material precisely)
-                extendAlignmentCylinder();
+            // Step 3.2: Wait for alignment cylinder to position material
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_CYLINDER_PRE_EXTEND_MS) {
+                // Step 3.3: Extend left clamp (secure material after alignment)
+                extendLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
             
         case 6:
-            // Step 3.4: Wait (allow alignment movement to complete)
-            if (millis() - stepStartTime >= Timing::ALIGNMENT_ALIGNMENT_MOVE_MS) {
+            // Step 3.4: Wait (allow left clamp to fully extend)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_LEFT_CLAMP_EXTEND_MS) {
                 // Step 3.5: Retract left clamp (release to allow fine adjustment)
                 retractLeftClamp();
                 stepStartTime = millis();
@@ -143,14 +143,25 @@ void handleAlignmentState() {
             break;
             
         case 13:
-            // Step 4.8: Wait (settle time)
+            // Step 4.7: Wait (settle time after alignment cylinder retraction)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
+                // Step 4.8: Final backward movement of 0.3 inches after all clamp movements
+                stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
+                stepper->move(-0.3 * Motion::STEPS_PER_INCH);
+                stepStartTime = millis();
+                currentStep++;
+            }
+            break;
+            
+        case 14:
+            // Step 4.9: Wait for final backward movement to complete
+            if (!stepper->isRunning()) {
                 currentStep++;
                 stepStartTime = millis();
             }
             break;
             
-        case 14:
+        case 15:
             //! ************************************************************************
             //! STEP 5: FINAL CLAMP ENGAGEMENT FOR CUTTING
             //! ************************************************************************
@@ -160,18 +171,18 @@ void handleAlignmentState() {
             currentStep++;
             break;
             
-        case 15:
+        case 16:
             // Step 5.2: Extend right clamp (dual-clamp secure hold)
             extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case 16:
-            // Wait for final clamp engagement before proceeding to cutting cycle
+        case 17:
+            // Step 5.3: Wait for final clamp engagement before proceeding to cutting cycle
             if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
                 // ADDED: Set current position to account for relative alignment moves
-                float netAlignmentSteps = (Motion::ALIGNMENT_INITIAL_DISTANCE - Motion::ALIGNMENT_BACKWARD_DISTANCE) * Motion::STEPS_PER_INCH;
+                float netAlignmentSteps = (Motion::ALIGNMENT_INITIAL_DISTANCE - Motion::ALIGNMENT_BACKWARD_DISTANCE - 0.3) * Motion::STEPS_PER_INCH;
                 setCurrentMotorPosition((long)netAlignmentSteps);
 
                 // Reset static variables for next cycle
