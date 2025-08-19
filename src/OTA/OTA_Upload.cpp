@@ -18,8 +18,21 @@ void setupOTA() {
     ESP.restart();
   }
 
+  // Print WiFi connection details
+  Serial.print("WiFi connected to: ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+  Serial.print("MAC address: ");
+  Serial.println(WiFi.macAddress());
+  Serial.print("Signal strength (RSSI): ");
+  Serial.print(WiFi.RSSI());
+  Serial.println(" dBm");
+
   ArduinoOTA.setHostname("stage1-esp32s3");
   ArduinoOTA.begin();
+  
+  Serial.println("OTA server started - ready for wireless uploads");
 }
 
 void handleOTA() {

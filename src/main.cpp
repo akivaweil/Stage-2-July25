@@ -50,7 +50,6 @@ void setup() {
     // Initialize OTA
     Serial.println("Initializing OTA...");
     setupOTA();
-    Serial.println("OTA enabled - ready for wireless uploads");
     
     // Setup hardware components
     Serial.println("Initializing hardware...");
