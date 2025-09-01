@@ -14,7 +14,7 @@ const float ALIGNMENT_INITIAL_DISTANCE = .3; // Initial distance for alignment
 const float ALIGNMENT_BACKWARD_DISTANCE = 0.2;
 const float APPROACH_DISTANCE = 4.0;  // Exact distance from offset position to approach cutting position
 const float CUTTING_DISTANCE = 6.0;   // Exact distance to cut through material (from approach position)
-const float TOTAL_FORWARD_DISTANCE = 24.4;  // Total exact distance from offset position to final position
+const float TOTAL_FORWARD_DISTANCE = 24.5;  // Total exact distance from offset position to final position
 
 // Speed Settings (steps/second)
 const float HOMING_SPEED = 150;     
