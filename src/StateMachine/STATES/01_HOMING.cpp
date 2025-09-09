@@ -30,14 +30,18 @@ void handleHomingState() {
         
         // Check if we're already at the home switch
         if (homeSwitch.read()) {
-            // Already at home switch - need to clear it first before proper homing
-            movingToHome = false;
-            movingToOffset = true;
+            // Already at home switch - set position to zero and move to offset
+            setCurrentMotorPosition(0);
+            currentPosition = 0.0;
             
-            // First, move away from the home switch to clear it
+            // Move to the home offset position
+            float offsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
-            stepper->move(50); // Move away from home switch to clear it
+            stepper->moveTo((long)offsetSteps);
+            
+            movingToHome = false;
+            movingToOffset = true;
         } else {
             // Not at home switch - start search phase
             movingToHome = true;
@@ -84,29 +88,16 @@ void handleHomingState() {
     // Check if offset movement is complete
     if (movingToOffset) {
         if (!isMotorRunning()) {
-            // Update inputs to check current home switch state
-            updateInputs();
+            // Homing sequence complete
+            stopMotor();
+            setCurrentMotorPosition(0); // Set current position as zero reference
+            currentPosition = 0.0; // Reset position tracking to 0
             
-            // Check if home switch is still active after offset move
-            if (homeSwitch.read()) {
-                // Home switch is still HIGH - continue moving away from home
-                stepper->setSpeedInHz(Motion::HOMING_SPEED);
-                stepper->setAcceleration(Motion::FORWARD_ACCEL);
-                stepper->move(50); // Move additional distance to clear switch
-                
-                // Stay in movingToOffset state to check again after this move
-            } else {
-                // Home switch is now clear - homing sequence complete
-                stopMotor();
-                setCurrentMotorPosition(0); // Set current position as zero reference
-                currentPosition = 0.0; // Reset position tracking to 0
-                
-                homingComplete = true;
-                homingStarted = false;
-                movingToOffset = false;
-                
-                currentState = IDLE;
-            }
+            homingComplete = true;
+            homingStarted = false;
+            movingToOffset = false;
+            
+            currentState = IDLE;
         }
     }
 } 
