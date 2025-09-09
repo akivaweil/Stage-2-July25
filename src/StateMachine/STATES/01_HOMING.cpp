@@ -30,15 +30,14 @@ void handleHomingState() {
         
         // Check if we're already at the home switch
         if (homeSwitch.read()) {
-            // Already at home switch - skip search phase and go directly to offset movement
+            // Already at home switch - need to clear it first before proper homing
             movingToHome = false;
             movingToOffset = true;
             
-            // Move to the home offset position (absolute position)
-            float offsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
+            // First, move away from the home switch to clear it
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
-            stepper->moveTo((long)offsetSteps);
+            stepper->move(50); // Move away from home switch to clear it
         } else {
             // Not at home switch - start search phase
             movingToHome = true;
@@ -64,6 +63,7 @@ void handleHomingState() {
             
             // Set current position as home (0)
             setCurrentMotorPosition(0);
+            currentPosition = 0.0;
             
             // First, make a small move away from the switch to ensure we're clear
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
@@ -78,7 +78,6 @@ void handleHomingState() {
             
             movingToHome = false;
             movingToOffset = true;
-            currentPosition = 0.0; // Will be set to 0 when we reach offset position
         }
     }
     
@@ -91,10 +90,9 @@ void handleHomingState() {
             // Check if home switch is still active after offset move
             if (homeSwitch.read()) {
                 // Home switch is still HIGH - continue moving away from home
-                float additionalOffset = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
                 stepper->setSpeedInHz(Motion::HOMING_SPEED);
                 stepper->setAcceleration(Motion::FORWARD_ACCEL);
-                stepper->move((long)additionalOffset); // Move additional offset distance
+                stepper->move(50); // Move additional distance to clear switch
                 
                 // Stay in movingToOffset state to check again after this move
             } else {
