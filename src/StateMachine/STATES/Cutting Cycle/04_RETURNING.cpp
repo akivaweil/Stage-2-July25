@@ -25,7 +25,7 @@ void handleReturningState() {
         //! ************************************************************************
         //! STEP 2: RETURN TO HOME OFFSET POSITION AT HIGH SPEED
         //! ************************************************************************
-        float homePosition = 0.0; // Return to offset position (now position 0)
+        float homePosition = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH; // Return to home offset position
         moveMotorToPosition(homePosition, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
         
         returnStarted = true;

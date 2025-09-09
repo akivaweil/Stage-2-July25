@@ -6,15 +6,19 @@ extern const char *BOARD_ID;
 extern const char *BOARD_DESCRIPTION;
 }  // namespace Config
 
-// Motion Parameters
+// Motion Parameters - All positions are absolute relative to home (position 0)
 namespace Motion {
 extern const float STEPS_PER_INCH;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 42.33 steps/inch
-extern const float HOME_OFFSET;        // Position offset from home switch
-extern const float ALIGNMENT_INITIAL_DISTANCE; // Initial distance for alignment
-extern const float ALIGNMENT_BACKWARD_DISTANCE;
-extern const float APPROACH_DISTANCE;  // Distance to approach cutting position
-extern const float CUTTING_DISTANCE;   // Distance to cut through material
-extern const float TOTAL_FORWARD_DISTANCE;  // Total forward distance
+
+// Absolute positions relative to home (position 0)
+extern const float HOME_POSITION;                    // Home position (where switch is triggered)
+extern const float HOME_OFFSET_POSITION;             // Position after homing (0.5" from home switch)
+extern const float ALIGNMENT_INITIAL_POSITION;       // Position after initial alignment move
+extern const float ALIGNMENT_BACKWARD_POSITION;      // Position after backward alignment move
+extern const float ALIGNMENT_FINAL_POSITION;         // Position after final alignment backward move
+extern const float APPROACH_POSITION;                // Position for cutting approach
+extern const float CUTTING_POSITION;                 // Position after cutting
+extern const float FINAL_POSITION;                   // Final position after finish move
 
 // Speed Settings (steps/second)
 extern const float HOMING_SPEED;     

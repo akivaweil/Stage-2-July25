@@ -25,8 +25,8 @@ void handleCuttingState() {
             //! ************************************************************************
             //! APPROACH: SET TARGET POSITION
             //! ************************************************************************
-            // Set target position to (approach distance)
-            targetPosition = Motion::APPROACH_DISTANCE * Motion::STEPS_PER_INCH;
+            // Set target position to approach position
+            targetPosition = Motion::APPROACH_POSITION * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
             
             stepStartTime = millis();
@@ -55,7 +55,7 @@ void handleCuttingState() {
             //! ************************************************************************
             //! CUTTING: CALCULATE TARGET
             //! ************************************************************************
-            targetPosition = (Motion::APPROACH_DISTANCE + Motion::CUTTING_DISTANCE) * Motion::STEPS_PER_INCH;
+            targetPosition = Motion::CUTTING_POSITION * Motion::STEPS_PER_INCH;
             
             // Execute slow, controlled cutting
             moveMotorToPosition(targetPosition, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL / 2);
@@ -86,7 +86,7 @@ void handleCuttingState() {
             //! ************************************************************************
             //! FINISH: SET FINAL TARGET POSITION
             //! ************************************************************************
-            targetPosition = Motion::TOTAL_FORWARD_DISTANCE * Motion::STEPS_PER_INCH;
+            targetPosition = Motion::FINAL_POSITION * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::FINISH_SPEED, Motion::FORWARD_ACCEL);
             
             stepStartTime = millis();

@@ -20,9 +20,9 @@ void handleAlignmentState() {
             //! ************************************************************************
             //! STEP 1: INITIAL FORWARD MOVEMENT
             //! ************************************************************************
-            // Move motor forward 1 inch at a specific speed for initial alignment
+            // Move motor to initial alignment position
             stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
-            stepper->move(Motion::ALIGNMENT_INITIAL_DISTANCE * Motion::STEPS_PER_INCH);
+            stepper->moveTo(Motion::ALIGNMENT_INITIAL_POSITION * Motion::STEPS_PER_INCH);
             stepStartTime = millis();
             currentStep++;
             break;
@@ -39,9 +39,9 @@ void handleAlignmentState() {
             //! ************************************************************************
             //! STEP 2: REVERSE A BIT TO MOVE OUT OF THE WAY
             //! ************************************************************************
-            // Move motor backward 0.1 inch to allow material to settle against clamps
+            // Move motor to backward alignment position
             stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED); // Assuming same speed is okay
-            stepper->move(-Motion::ALIGNMENT_BACKWARD_DISTANCE * Motion::STEPS_PER_INCH);
+            stepper->moveTo(Motion::ALIGNMENT_BACKWARD_POSITION * Motion::STEPS_PER_INCH);
             stepStartTime = millis();
             currentStep++;
             break;
@@ -145,9 +145,9 @@ void handleAlignmentState() {
         case 13:
             // Step 4.7: Wait (settle time after alignment cylinder retraction)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
-                // Step 4.8: Final backward movement of 0.3 inches after all clamp movements
+                // Step 4.8: Final backward movement to final alignment position
                 stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
-                stepper->move(-0.3 * Motion::STEPS_PER_INCH);
+                stepper->moveTo(Motion::ALIGNMENT_FINAL_POSITION * Motion::STEPS_PER_INCH);
                 stepStartTime = millis();
                 currentStep++;
             }
@@ -181,9 +181,8 @@ void handleAlignmentState() {
         case 17:
             // Step 5.3: Wait for final clamp engagement before proceeding to cutting cycle
             if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-                // ADDED: Set current position to account for relative alignment moves
-                float netAlignmentSteps = (Motion::ALIGNMENT_INITIAL_DISTANCE - Motion::ALIGNMENT_BACKWARD_DISTANCE - 0.3) * Motion::STEPS_PER_INCH;
-                setCurrentMotorPosition((long)netAlignmentSteps);
+                // Set current position to final alignment position
+                setCurrentMotorPosition((long)(Motion::ALIGNMENT_FINAL_POSITION * Motion::STEPS_PER_INCH));
 
                 // Reset static variables for next cycle
                 stepStartTime = 0;

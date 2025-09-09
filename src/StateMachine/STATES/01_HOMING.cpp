@@ -34,8 +34,8 @@ void handleHomingState() {
             movingToHome = false;
             movingToOffset = true;
             
-            // Move to the offset distance (positive direction away from home)
-            float offsetSteps = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
+            // Move to the home offset position (absolute position)
+            float offsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
             stepper->moveTo((long)offsetSteps);
@@ -71,10 +71,10 @@ void handleHomingState() {
             stepper->move(1); // Small positive move to clear the switch
             waitForMotorComplete(); // Wait for small move to complete
             
-            // Now move to the full offset distance (positive direction away from home)
-            float offsetSteps = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
+            // Now move to the home offset position (absolute position)
+            float offsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
             setCurrentMotorPosition(0); // Reset position after backup move
-            stepper->moveTo((long)offsetSteps); // Move to positive offset position
+            stepper->moveTo((long)offsetSteps); // Move to home offset position
             
             movingToHome = false;
             movingToOffset = true;
@@ -91,7 +91,7 @@ void handleHomingState() {
             // Check if home switch is still active after offset move
             if (homeSwitch.read()) {
                 // Home switch is still HIGH - continue moving away from home
-                float additionalOffset = Motion::HOME_OFFSET * Motion::STEPS_PER_INCH;
+                float additionalOffset = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
                 stepper->setSpeedInHz(Motion::HOMING_SPEED);
                 stepper->setAcceleration(Motion::FORWARD_ACCEL);
                 stepper->move((long)additionalOffset); // Move additional offset distance
