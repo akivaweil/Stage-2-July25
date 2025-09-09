@@ -20,13 +20,13 @@ const float APPROACH_POSITION = 4.65;               // Position for cutting appr
 const float CUTTING_POSITION = 11.05;               // Position after cutting (4.65" + 6.4")
 const float FINAL_POSITION = 24.55;                 // Final position after finish move (0.4" + 24.15")
 
-// Speed Settings (steps/second)
+// Speed Settings (steps/second) - X-axis speeds increased 1.5x
 const float HOMING_SPEED = 150;     
-const float ALIGNMENT_INITIAL_SPEED = 150; // Initial speed for alignment
-const float APPROACH_SPEED = 30000; 
-const float CUTTING_SPEED = 75;    
-const float FINISH_SPEED = 30000;   
-const float RETURN_SPEED = 30000;   
+const float ALIGNMENT_INITIAL_SPEED = 225; // Initial speed for alignment (150 * 1.5)
+const float APPROACH_SPEED = 45000;        // Approach speed (30000 * 1.5)
+const float CUTTING_SPEED = 75;            // Keep cutting speed same for precision
+const float FINISH_SPEED = 45000;          // Finish speed (30000 * 1.5)
+const float RETURN_SPEED = 45000;          // Return speed (30000 * 1.5)   
 
 // Acceleration Settings (steps/second²)
 const float FORWARD_ACCEL = 16000;   
