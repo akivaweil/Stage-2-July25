@@ -44,7 +44,6 @@ extern const int MOTION_SETTLE_TIME;
 extern const int ALIGN_SETTLE_TIME;
 extern const int SIGNAL_DURATION;
 extern const int MOTOR_TIMEOUT;
-extern const int START_BUTTON_COOLDOWN;
 // Alignment-specific timing (ms) to avoid magic numbers in alignment choreography
 extern const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS;    // was 50
 extern const int ALIGNMENT_ALIGNMENT_MOVE_MS;       // was 20

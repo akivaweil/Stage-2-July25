@@ -18,7 +18,7 @@ const float ALIGNMENT_BACKWARD_POSITION = 0.3;      // Position after backward a
 const float ALIGNMENT_FINAL_POSITION = 0.4;         // Position after final alignment backward move (0.7" - 0.3")
 const float APPROACH_POSITION = 5.0;               // Position for cutting approach (0.4" + 4.15" + 0.1" net alignment)
 const float CUTTING_POSITION = 12.0;               // Position after cutting (4.65" + 6.4")
-const float FINAL_POSITION = 24.0;                 // Final position after finish move (0.4" + 24.15")
+const float FINAL_POSITION = 24.2;                 // Final position after finish move (0.4" + 24.15")
 
 // Speed Settings (steps/second)
 const float HOMING_SPEED = 150;     
@@ -43,7 +43,6 @@ const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 200;
 const int SIGNAL_DURATION = 2000;
 const int MOTOR_TIMEOUT = 5000;
-const int START_BUTTON_COOLDOWN = 50;  // 50ms cooldown to prevent immediate re-triggering
 // Alignment-specific timing (ms)
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS = 50;   // allow left clamp to extend
 const int ALIGNMENT_ALIGNMENT_MOVE_MS = 270;      // allow alignment movement to complete
