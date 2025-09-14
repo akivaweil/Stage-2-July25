@@ -34,9 +34,9 @@ void setupInputs() {
     transferArmSignal.interval(25); // 25ms debounce time
     transferArmSignal.setPressedState(HIGH); // Active HIGH
     
-    // Position verification sensor - fast debounce for immediate detection
+    // Position verification sensor - ultra-fast debounce for immediate detection
     positionVerificationSensor.attach(Pins::POSITION_VERIFICATION_SENSOR);
-    positionVerificationSensor.interval(10); // 10ms debounce for reliable sensor detection
+    positionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
     positionVerificationSensor.setPressedState(LOW); // Active LOW
     
     Serial.println("Input initialization complete");
