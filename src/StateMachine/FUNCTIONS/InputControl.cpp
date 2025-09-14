@@ -100,7 +100,11 @@ bool checkStartButtonForHoming() {
     updateInputs();
     
     // Check if start button rising edge (button press) during cutting cycle
-    if (startButton.rose()) {
+    bool startButtonCurrentlyPressed = startButton.read();
+    if (startButtonCurrentlyPressed && !startButtonWasPressed) {
+        // Rising edge detected - button was just pressed
+        startButtonWasPressed = true;
+        
         // Reset cycle flags and transition to homing
         cycleInProgress = false;
         homingComplete = false; // Force homing sequence
@@ -116,6 +120,9 @@ bool checkStartButtonForHoming() {
         currentState = HOMING;
         
         return true; // Start button was pressed
+    } else if (!startButtonCurrentlyPressed) {
+        // Button is not pressed, reset the tracking variable
+        startButtonWasPressed = false;
     }
     
     return false; // No start button press

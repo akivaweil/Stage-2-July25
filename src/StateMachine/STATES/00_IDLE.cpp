@@ -37,7 +37,10 @@ void handleIdleState() {
     //! STEP 3: CHECK FOR ACTIVITY AND UPDATE TIMER
     //! ************************************************************************
     // Check for start button rising edge (button press)
-    if (startButton.rose()) {
+    bool startButtonCurrentlyPressed = startButton.read();
+    if (startButtonCurrentlyPressed && !startButtonWasPressed) {
+        // Rising edge detected - button was just pressed
+        startButtonWasPressed = true;
         lastActivityTime = millis(); // Reset activity timer
         
         // Ensure motor is enabled if we have activity
@@ -55,10 +58,16 @@ void handleIdleState() {
             idleInitialized = false; // Reset for next idle entry
             currentState = HOMING;
         }
+    } else if (!startButtonCurrentlyPressed) {
+        // Button is not pressed, reset the tracking variable
+        startButtonWasPressed = false;
     }
     
     // Check for transfer arm signal (rising edge)
-    if (transferArmSignal.rose()) {
+    bool transferArmCurrentlyActive = transferArmSignal.read();
+    if (transferArmCurrentlyActive && !transferArmSignalWasActive) {
+        // Rising edge detected - signal was just activated
+        transferArmSignalWasActive = true;
         lastActivityTime = millis(); // Reset activity timer
         
         // Ensure motor is enabled if we have activity
@@ -76,6 +85,9 @@ void handleIdleState() {
             idleInitialized = false; // Reset for next idle entry
             currentState = HOMING;
         }
+    } else if (!transferArmCurrentlyActive) {
+        // Signal is not active, reset the tracking variable
+        transferArmSignalWasActive = false;
     }
     
     //! ************************************************************************

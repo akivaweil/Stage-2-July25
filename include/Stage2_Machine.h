@@ -30,6 +30,10 @@ extern float positionVerificationDistance;
 extern unsigned long stateStartTime;
 extern unsigned long lastMotorUpdate;
 
+// Button state tracking for rising edge detection
+extern bool startButtonWasPressed;
+extern bool transferArmSignalWasActive;
+
 // Input objects
 extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;

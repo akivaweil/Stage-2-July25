@@ -41,6 +41,10 @@ FastAccelStepper *stepper = NULL;
 unsigned long stateStartTime = 0;
 unsigned long lastMotorUpdate = 0;
 
+// Button state tracking for rising edge detection
+bool startButtonWasPressed = false;
+bool transferArmSignalWasActive = false;
+
 //* ************************************************************************
 //* ************************ MAIN SETUP *******************************
 //* ************************************************************************
