@@ -133,9 +133,9 @@ void handleCuttingState() {
             //! ************************************************************************
             //! POSITION VERIFICATION: MOVE CONTINUOUSLY UNTIL SENSOR TRIGGERS
             //! ************************************************************************
-            // Check if position verification sensor is already triggered (active LOW)
-            if (positionVerificationSensor.read()) {
-                // Position verification sensor is already triggered, no movement needed
+            // Check if end position verification sensor is already triggered (active LOW)
+            if (endPositionVerificationSensor.read()) {
+                // End position verification sensor is already triggered, no movement needed
                 positionVerificationDistance = 0.0; // No verification distance
                 cuttingPhase = 8; // Skip to settle time phase
                 stepStartTime = millis();
@@ -154,8 +154,8 @@ void handleCuttingState() {
             //! ************************************************************************
             //! MONITOR POSITION VERIFICATION SENSOR - STOP WHEN TRIGGERED
             //! ************************************************************************
-            // Continuously check if position verification sensor is triggered
-            if (positionVerificationSensor.read()) {
+            // Continuously check if end position verification sensor is triggered
+            if (endPositionVerificationSensor.read()) {
                 // Sensor triggered! Stop motor immediately and calculate verification distance
                 stopMotor();
                 currentPosition = getCurrentMotorPosition();

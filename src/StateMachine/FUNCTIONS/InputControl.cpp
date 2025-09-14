@@ -16,7 +16,7 @@ void setupInputs() {
     pinMode(Pins::HOME_SWITCH, INPUT_PULLDOWN);      // Home switch is active HIGH
     pinMode(Pins::START_BUTTON, INPUT_PULLDOWN);     // Start button is active HIGH  
     pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN); // Transfer signal is active HIGH
-    pinMode(Pins::POSITION_VERIFICATION_SENSOR, INPUT_PULLUP);     // Position verification sensor is active LOW
+    pinMode(Pins::END_POSITION_VERIFICATION_SENSOR, INPUT_PULLUP);     // End position verification sensor is active LOW
     
     // Initialize Bounce2 objects for debouncing
     // Home switch - ultra-fast debounce for immediate homing response
@@ -34,10 +34,10 @@ void setupInputs() {
     transferArmSignal.interval(25); // 25ms debounce time
     transferArmSignal.setPressedState(HIGH); // Active HIGH
     
-    // Position verification sensor - ultra-fast debounce for immediate detection
-    positionVerificationSensor.attach(Pins::POSITION_VERIFICATION_SENSOR);
-    positionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
-    positionVerificationSensor.setPressedState(LOW); // Active LOW
+    // End position verification sensor - ultra-fast debounce for immediate detection
+    endPositionVerificationSensor.attach(Pins::END_POSITION_VERIFICATION_SENSOR);
+    endPositionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
+    endPositionVerificationSensor.setPressedState(LOW); // Active LOW
     
     Serial.println("Input initialization complete");
 }
@@ -51,7 +51,7 @@ void updateInputs() {
     homeSwitch.update();
     startButton.update();
     transferArmSignal.update();
-    positionVerificationSensor.update();
+    endPositionVerificationSensor.update();
 }
 
 bool checkInputs() {
@@ -72,7 +72,7 @@ bool checkInputs() {
         anyActive = true;
     }
     
-    if (positionVerificationSensor.read()) {
+    if (endPositionVerificationSensor.read()) {
         anyActive = true;
     }
     
