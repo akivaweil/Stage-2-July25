@@ -23,10 +23,10 @@ void handleReturningState() {
         retractAlignmentCylinder();
         
         //! ************************************************************************
-        //! STEP 2: MOVE 24.0 INCHES TOWARD HOME SWITCH AT FULL SPEED
+        //! STEP 2: MOVE FINAL_POSITION DISTANCE TOWARD HOME SWITCH AT FULL SPEED
         //! ************************************************************************
-        // Move 24.0 inches toward home switch at full speed (negative = toward home)
-        float returnDistanceSteps = -24.0 * Motion::STEPS_PER_INCH; // Negative = move toward home
+        // Move FINAL_POSITION distance toward home switch at full speed (negative = toward home)
+        float returnDistanceSteps = -Motion::FINAL_POSITION * Motion::STEPS_PER_INCH; // Negative = move toward home
         moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
         
         returnStarted = true;
