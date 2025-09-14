@@ -27,7 +27,7 @@ const float APPROACH_SPEED = 30000;
 const float CUTTING_SPEED = 75;    
 const float FINISH_SPEED = 30000;   
 const float RETURN_SPEED = 30000;   
-const float FINAL_SPEED = 500;   
+const float FINAL_SPEED = 5000;   
 
 // Acceleration Settings (steps/second²)
 const float FORWARD_ACCEL = 10000;   

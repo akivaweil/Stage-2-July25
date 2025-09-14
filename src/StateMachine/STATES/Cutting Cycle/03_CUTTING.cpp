@@ -11,6 +11,7 @@ void handleCuttingState() {
     static bool motionComplete = false;
     static float targetPosition = 0;
     static float initialFinalPosition = 0;
+    static int positionVerificationAttempts = 0;
     
     //! ************************************************************************
     //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
@@ -23,6 +24,7 @@ void handleCuttingState() {
         motionComplete = false;
         targetPosition = 0;
         initialFinalPosition = 0;
+        positionVerificationAttempts = 0;
         return; // Exit function, state will be changed to HOMING
     }
     
@@ -133,17 +135,24 @@ void handleCuttingState() {
             //! ************************************************************************
             //! CHECK POSITION VERIFICATION SENSOR - IF NOT TRIGGERED, MOVE UNTIL IT IS
             //! ************************************************************************
+            // Update sensor reading for reliable detection
+            updateInputs();
+            
             // Check if position verification sensor is triggered (active LOW)
             if (!positionVerificationSensor.read()) {
-                // Position verification sensor is not triggered, move forward at slow speed
-                targetPosition = currentPosition + (0.1 * Motion::STEPS_PER_INCH); // Move 0.1" forward
+                // Position verification sensor is not triggered, move forward
+                // Increase movement distance after multiple attempts to prevent stuttering
+                float moveDistance = (positionVerificationAttempts < 3) ? 0.1 : 0.5; // 0.1" for first 3 attempts, then 0.5"
+                targetPosition = currentPosition + (moveDistance * Motion::STEPS_PER_INCH);
                 moveMotorToPosition(targetPosition, Motion::FINAL_SPEED, Motion::FORWARD_ACCEL);
                 
+                positionVerificationAttempts++;
                 stepStartTime = millis();
                 cuttingPhase++; // Go to next phase to wait for movement
             } else {
                 // Position verification sensor is triggered, no movement needed
                 positionVerificationDistance = 0.0; // No verification distance
+                positionVerificationAttempts = 0; // Reset for next cycle
                 cuttingPhase = 8; // Skip to settle time phase
                 stepStartTime = millis();
             }
@@ -158,13 +167,25 @@ void handleCuttingState() {
                 // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
                 
+                // Update sensor reading for reliable detection
+                updateInputs();
+                
                 // Check position verification sensor again
                 if (!positionVerificationSensor.read()) {
-                    // Still not triggered, go back to move again
-                    cuttingPhase = 6;
+                    // Still not triggered, check if we've exceeded maximum attempts
+                    if (positionVerificationAttempts >= 10) {
+                        // Maximum attempts reached, proceed anyway to prevent infinite loop
+                        positionVerificationDistance = currentPosition - initialFinalPosition;
+                        positionVerificationAttempts = 0; // Reset for next cycle
+                        cuttingPhase = 8; // Proceed to settle time
+                    } else {
+                        // Go back to move again
+                        cuttingPhase = 6;
+                    }
                 } else {
                     // Now triggered, calculate verification distance and proceed to settle time
                     positionVerificationDistance = currentPosition - initialFinalPosition;
+                    positionVerificationAttempts = 0; // Reset for next cycle
                     cuttingPhase = 8;
                 }
                 stepStartTime = millis();
@@ -260,6 +281,7 @@ void handleCuttingState() {
             cuttingPhase = 0;
             motionComplete = false;
             targetPosition = 0;
+            positionVerificationAttempts = 0;
             
             // Transition to returning state
             currentState = RETURNING;
