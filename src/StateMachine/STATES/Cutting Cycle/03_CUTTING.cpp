@@ -11,7 +11,6 @@ void handleCuttingState() {
     static bool motionComplete = false;
     static float targetPosition = 0;
     static float initialFinalPosition = 0;
-    static int positionVerificationAttempts = 0;
     
     //! ************************************************************************
     //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
@@ -24,7 +23,6 @@ void handleCuttingState() {
         motionComplete = false;
         targetPosition = 0;
         initialFinalPosition = 0;
-        positionVerificationAttempts = 0;
         return; // Exit function, state will be changed to HOMING
     }
     
@@ -133,63 +131,40 @@ void handleCuttingState() {
         
         case 6:
             //! ************************************************************************
-            //! CHECK POSITION VERIFICATION SENSOR - IF NOT TRIGGERED, MOVE UNTIL IT IS
+            //! POSITION VERIFICATION: MOVE CONTINUOUSLY UNTIL SENSOR TRIGGERS
             //! ************************************************************************
-            // Update sensor reading for reliable detection
-            updateInputs();
-            
-            // Check if position verification sensor is triggered (active LOW)
-            if (!positionVerificationSensor.read()) {
-                // Position verification sensor is not triggered, move forward
-                // Increase movement distance after multiple attempts to prevent stuttering
-                float moveDistance = (positionVerificationAttempts < 3) ? 0.1 : 0.5; // 0.1" for first 3 attempts, then 0.5"
-                targetPosition = currentPosition + (moveDistance * Motion::STEPS_PER_INCH);
-                moveMotorToPosition(targetPosition, Motion::FINAL_SPEED, Motion::FORWARD_ACCEL);
-                
-                positionVerificationAttempts++;
-                stepStartTime = millis();
-                cuttingPhase++; // Go to next phase to wait for movement
-            } else {
-                // Position verification sensor is triggered, no movement needed
+            // Check if position verification sensor is already triggered (active LOW)
+            if (positionVerificationSensor.read()) {
+                // Position verification sensor is already triggered, no movement needed
                 positionVerificationDistance = 0.0; // No verification distance
-                positionVerificationAttempts = 0; // Reset for next cycle
                 cuttingPhase = 8; // Skip to settle time phase
                 stepStartTime = millis();
+            } else {
+                // Position verification sensor is not triggered, start continuous forward movement
+                // Use a large target position to ensure continuous movement until sensor triggers
+                targetPosition = currentPosition + (10.0 * Motion::STEPS_PER_INCH); // Move 10" forward (will be stopped by sensor)
+                moveMotorToPosition(targetPosition, Motion::FINAL_SPEED, Motion::FORWARD_ACCEL);
+                
+                stepStartTime = millis();
+                cuttingPhase++; // Go to next phase to monitor sensor
             }
             break;
             
         case 7:
             //! ************************************************************************
-            //! WAIT FOR POSITION VERIFICATION MOVEMENT COMPLETION
+            //! MONITOR POSITION VERIFICATION SENSOR - STOP WHEN TRIGGERED
             //! ************************************************************************
-            // Wait for position verification movement to complete
-            if (!isMotorRunning()) {
-                // Update current position from stepper
+            // Continuously check if position verification sensor is triggered
+            if (positionVerificationSensor.read()) {
+                // Sensor triggered! Stop motor immediately and calculate verification distance
+                stopMotor();
                 currentPosition = getCurrentMotorPosition();
+                positionVerificationDistance = currentPosition - initialFinalPosition;
                 
-                // Update sensor reading for reliable detection
-                updateInputs();
-                
-                // Check position verification sensor again
-                if (!positionVerificationSensor.read()) {
-                    // Still not triggered, check if we've exceeded maximum attempts
-                    if (positionVerificationAttempts >= 10) {
-                        // Maximum attempts reached, proceed anyway to prevent infinite loop
-                        positionVerificationDistance = currentPosition - initialFinalPosition;
-                        positionVerificationAttempts = 0; // Reset for next cycle
-                        cuttingPhase = 8; // Proceed to settle time
-                    } else {
-                        // Go back to move again
-                        cuttingPhase = 6;
-                    }
-                } else {
-                    // Now triggered, calculate verification distance and proceed to settle time
-                    positionVerificationDistance = currentPosition - initialFinalPosition;
-                    positionVerificationAttempts = 0; // Reset for next cycle
-                    cuttingPhase = 8;
-                }
+                cuttingPhase = 8; // Proceed to settle time phase
                 stepStartTime = millis();
             }
+            // If sensor not triggered, keep moving (motor continues at set speed)
             break;
             
         //* ************************************************************************
@@ -281,7 +256,6 @@ void handleCuttingState() {
             cuttingPhase = 0;
             motionComplete = false;
             targetPosition = 0;
-            positionVerificationAttempts = 0;
             
             // Transition to returning state
             currentState = RETURNING;
