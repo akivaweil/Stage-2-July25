@@ -11,6 +11,17 @@ void handleReturningState() {
     static bool returnStarted = false;
     static unsigned long returnStartTime = 0;
     
+    //! ************************************************************************
+    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
+    //! ************************************************************************
+    // Check if start button is pressed during returning - return to home
+    if (checkStartButtonForHoming()) {
+        // Reset static variables for next cycle
+        returnStarted = false;
+        returnStartTime = 0;
+        return; // Exit function, state will be changed to HOMING
+    }
+    
     if (!returnStarted) {
         //! ************************************************************************
         //! PHASE 6: RETURN MOVEMENT - MOVE BACK TOWARD HOME SWITCH FOR SAFE HOMING

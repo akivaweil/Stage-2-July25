@@ -12,6 +12,20 @@ void handleCuttingState() {
     static float targetPosition = 0;
     static float initialFinalPosition = 0;
     
+    //! ************************************************************************
+    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
+    //! ************************************************************************
+    // Check if start button is pressed during cutting - return to home
+    if (checkStartButtonForHoming()) {
+        // Reset static variables for next cycle
+        stepStartTime = 0;
+        cuttingPhase = 0;
+        motionComplete = false;
+        targetPosition = 0;
+        initialFinalPosition = 0;
+        return; // Exit function, state will be changed to HOMING
+    }
+    
     // Initialize step timing
     if (stepStartTime == 0) {
         stepStartTime = millis();

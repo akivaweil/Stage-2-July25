@@ -89,4 +89,34 @@ float inchesToSteps(float inches) {
 
 float stepsToInches(float steps) {
     return steps / Motion::STEPS_PER_INCH;
+}
+
+//* ************************************************************************
+//* ************************ CUTTING CYCLE INTERRUPTION ******************
+//* ************************************************************************
+
+bool checkStartButtonForHoming() {
+    // Update inputs for reliable button detection
+    updateInputs();
+    
+    // Check if start button is pressed during cutting cycle
+    if (startButton.read()) {
+        // Reset cycle flags and transition to homing
+        cycleInProgress = false;
+        homingComplete = false; // Force homing sequence
+        
+        // Stop any running motor movement
+        stopMotor();
+        
+        // Keep both clamps extended for safe material handling
+        // Only retract alignment cylinder for safe homing
+        retractAlignmentCylinder();
+        
+        // Transition to homing state
+        currentState = HOMING;
+        
+        return true; // Start button was pressed
+    }
+    
+    return false; // No start button press
 } 

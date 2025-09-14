@@ -76,6 +76,7 @@ void signalTransferArm();
 void setupInputs();
 void updateInputs();
 bool checkInputs();
+bool checkStartButtonForHoming();
 float inchesToSteps(float inches);
 float stepsToInches(float steps);
 

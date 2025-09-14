@@ -10,6 +10,17 @@ void handleAlignmentState() {
     static unsigned long stepStartTime = 0;
     static int currentStep = 0;
     
+    //! ************************************************************************
+    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
+    //! ************************************************************************
+    // Check if start button is pressed during alignment - return to home
+    if (checkStartButtonForHoming()) {
+        // Reset static variables for next cycle
+        stepStartTime = 0;
+        currentStep = 0;
+        return; // Exit function, state will be changed to HOMING
+    }
+    
     // Initialize step timing
     if (stepStartTime == 0) {
         stepStartTime = millis();
