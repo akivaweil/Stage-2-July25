@@ -27,6 +27,7 @@ extern const float APPROACH_SPEED;
 extern const float CUTTING_SPEED;    
 extern const float FINISH_SPEED;   
 extern const float RETURN_SPEED;   
+extern const float FINAL_SPEED;   
 
 // Acceleration Settings (steps/second²)
 extern const float FORWARD_ACCEL;   

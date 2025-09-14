@@ -28,6 +28,7 @@ bool emergencyStop = false;
 Bounce2::Button homeSwitch;
 Bounce2::Button startButton;
 Bounce2::Button transferArmSignal;
+Bounce2::Button positionVerificationSensor;
 
 // FastAccelStepper objects
 FastAccelStepperEngine engine = FastAccelStepperEngine();

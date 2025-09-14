@@ -33,6 +33,7 @@ extern unsigned long lastMotorUpdate;
 extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;
 extern Bounce2::Button transferArmSignal;
+extern Bounce2::Button positionVerificationSensor;
 
 // FastAccelStepper objects
 extern FastAccelStepperEngine engine;
