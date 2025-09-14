@@ -27,7 +27,7 @@ const float APPROACH_SPEED = 30000;
 const float CUTTING_SPEED = 75;    
 const float FINISH_SPEED = 30000;   
 const float RETURN_SPEED = 30000;   
-const float FINAL_SPEED = 500;   
+const float FINAL_SPEED = 50;   
 
 // Acceleration Settings (steps/second²)
 const float FORWARD_ACCEL = 10000;   
@@ -43,6 +43,7 @@ const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 200;
 const int SIGNAL_DURATION = 2000;
 const int MOTOR_TIMEOUT = 5000;
+const int START_BUTTON_COOLDOWN = 50;  // 50ms cooldown to prevent immediate re-triggering
 // Alignment-specific timing (ms)
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS = 50;   // allow left clamp to extend
 const int ALIGNMENT_ALIGNMENT_MOVE_MS = 270;      // allow alignment movement to complete

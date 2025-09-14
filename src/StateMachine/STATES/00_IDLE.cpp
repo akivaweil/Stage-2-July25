@@ -36,8 +36,33 @@ void handleIdleState() {
     //! ************************************************************************
     //! STEP 3: CHECK FOR ACTIVITY AND UPDATE TIMER
     //! ************************************************************************
-    // Check for any input activity - reset timer if detected
-    if (startButton.read() || transferArmSignal.read()) {
+    // Check for start button with cooldown period
+    if (startButton.read()) {
+        // Check if enough time has passed since last start button press
+        if (millis() - lastStartButtonPress >= Timing::START_BUTTON_COOLDOWN) {
+            lastStartButtonPress = millis(); // Update last press time
+            lastActivityTime = millis(); // Reset activity timer
+            
+            // Ensure motor is enabled if we have activity
+            if (!motorCurrentlyEnabled) {
+                enableMotor();
+                motorCurrentlyEnabled = true;
+            }
+            
+            // Only start cycle if homing is complete
+            if (homingComplete) {
+                cycleInProgress = true;
+                idleInitialized = false; // Reset for next idle entry
+                currentState = ALIGNMENT;
+            } else {
+                idleInitialized = false; // Reset for next idle entry
+                currentState = HOMING;
+            }
+        }
+    }
+    
+    // Check for transfer arm signal (no cooldown needed)
+    if (transferArmSignal.read()) {
         lastActivityTime = millis(); // Reset activity timer
         
         // Ensure motor is enabled if we have activity

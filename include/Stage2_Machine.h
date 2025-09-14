@@ -29,6 +29,7 @@ extern float positionVerificationDistance;
 // Timing variables
 extern unsigned long stateStartTime;
 extern unsigned long lastMotorUpdate;
+extern unsigned long lastStartButtonPress;
 
 // Input objects
 extern Bounce2::Button homeSwitch;

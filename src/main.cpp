@@ -40,6 +40,7 @@ FastAccelStepper *stepper = NULL;
 // Timing variables
 unsigned long stateStartTime = 0;
 unsigned long lastMotorUpdate = 0;
+unsigned long lastStartButtonPress = 0;
 
 //* ************************************************************************
 //* ************************ MAIN SETUP *******************************
