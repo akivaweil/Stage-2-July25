@@ -3,7 +3,7 @@
 //* ************************************************************************
 //* ************************ RETURNING STATE *****************************
 //* ************************************************************************
-// This state returns the motor to home offset with clamps extended.
+// This state moves the motor back toward the home switch with clamps extended for safe homing.
 // After return is complete, transitions to HOMING state for end-of-cycle homing sequence.
 // Clamps are retracted in the IDLE state after homing is complete.
 
@@ -13,7 +13,7 @@ void handleReturningState() {
     
     if (!returnStarted) {
         //! ************************************************************************
-        //! PHASE 6: RETURN MOVEMENT - RETURN TO HOME OFFSET
+        //! PHASE 6: RETURN MOVEMENT - MOVE BACK TOWARD HOME SWITCH FOR SAFE HOMING
         //! ************************************************************************
         // Transfer arm signal already set HIGH in cutting state (prevents Z-axis interference)
         
@@ -23,10 +23,11 @@ void handleReturningState() {
         retractAlignmentCylinder();
         
         //! ************************************************************************
-        //! STEP 2: RETURN TO HOME OFFSET POSITION AT HIGH SPEED
+        //! STEP 2: MOVE 24.0 INCHES TOWARD HOME SWITCH AT FULL SPEED
         //! ************************************************************************
-        float homePosition = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH; // Return to home offset position
-        moveMotorToPosition(homePosition, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
+        // Move 24.0 inches toward home switch at full speed (negative = toward home)
+        float returnDistanceSteps = -24.0 * Motion::STEPS_PER_INCH; // Negative = move toward home
+        moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
         
         returnStarted = true;
         returnStartTime = millis();

@@ -24,6 +24,9 @@ bool homingComplete = false;
 bool cycleInProgress = false;
 bool emergencyStop = false;
 
+// Position verification tracking
+float positionVerificationDistance = 0.0;
+
 // Input objects with Bounce2 library
 Bounce2::Button homeSwitch;
 Bounce2::Button startButton;

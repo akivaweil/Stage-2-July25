@@ -10,6 +10,7 @@ void handleCuttingState() {
     static int cuttingPhase = 0;
     static bool motionComplete = false;
     static float targetPosition = 0;
+    static float initialFinalPosition = 0;
     
     // Initialize step timing
     if (stepStartTime == 0) {
@@ -102,6 +103,9 @@ void handleCuttingState() {
                 // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
                 
+                // Store initial final position for verification distance calculation
+                initialFinalPosition = currentPosition;
+                
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -124,8 +128,9 @@ void handleCuttingState() {
                 stepStartTime = millis();
                 cuttingPhase++; // Go to next phase to wait for movement
             } else {
-                // Position verification sensor is triggered, proceed to settle time
-                cuttingPhase = 7; // Skip to settle time phase
+                // Position verification sensor is triggered, no movement needed
+                positionVerificationDistance = 0.0; // No verification distance
+                cuttingPhase = 8; // Skip to settle time phase
                 stepStartTime = millis();
             }
             break;
@@ -144,7 +149,8 @@ void handleCuttingState() {
                     // Still not triggered, go back to move again
                     cuttingPhase = 6;
                 } else {
-                    // Now triggered, proceed to settle time
+                    // Now triggered, calculate verification distance and proceed to settle time
+                    positionVerificationDistance = currentPosition - initialFinalPosition;
                     cuttingPhase = 8;
                 }
                 stepStartTime = millis();

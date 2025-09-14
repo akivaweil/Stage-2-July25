@@ -18,7 +18,7 @@ const float ALIGNMENT_BACKWARD_POSITION = 0.3;      // Position after backward a
 const float ALIGNMENT_FINAL_POSITION = 0.4;         // Position after final alignment backward move (0.7" - 0.3")
 const float APPROACH_POSITION = 5.0;               // Position for cutting approach (0.4" + 4.15" + 0.1" net alignment)
 const float CUTTING_POSITION = 12.0;               // Position after cutting (4.65" + 6.4")
-const float FINAL_POSITION = 24.4;                 // Final position after finish move (0.4" + 24.15")
+const float FINAL_POSITION = 24.0;                 // Final position after finish move (0.4" + 24.15")
 
 // Speed Settings (steps/second)
 const float HOMING_SPEED = 150;     
