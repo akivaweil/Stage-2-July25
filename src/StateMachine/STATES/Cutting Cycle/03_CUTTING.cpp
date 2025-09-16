@@ -11,6 +11,9 @@ void handleCuttingState() {
     static bool motionComplete = false;
     static float targetPosition = 0;
     static float initialFinalPosition = 0;
+    static float centerPosition = 0;          // Center position for oscillation
+    static int oscillationCycle = 0;          // Current oscillation cycle
+    static bool oscillatingForward = true;    // Direction of oscillation
     
     //! ************************************************************************
     //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
@@ -23,6 +26,9 @@ void handleCuttingState() {
         motionComplete = false;
         targetPosition = 0;
         initialFinalPosition = 0;
+        centerPosition = 0;
+        oscillationCycle = 0;
+        oscillatingForward = true;
         return; // Exit function, state will be changed to HOMING
     }
     
@@ -196,18 +202,67 @@ void handleCuttingState() {
             // Send high signal to pin 17 for duration of release
             digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
             
+            // Store current position as center for oscillation
+            centerPosition = getCurrentMotorPosition();
+            oscillationCycle = 0;
+            oscillatingForward = true;
+            
             stepStartTime = millis();
             cuttingPhase++;
             break;
             
         case 10:
             //! ************************************************************************
-            //! WAIT FOR CLAMP RELEASE COMPLETION
+            //! OSCILLATION DURING CLAMP RELEASE (WITHIN 400MS TOTAL TIME)
             //! ************************************************************************
-            // Wait for clamp release time (ensure full release)
-            if (millis() - stepStartTime >= Timing::CLAMP_RELEASE_TIME) {
+            // Wait 100ms for clamps to fully retract, then start oscillation
+            {
+                unsigned long elapsedTime = millis() - stepStartTime;
+            
+            if (elapsedTime >= 100) { // Start oscillation after 100ms delay
+                // Perform oscillation movement to help material settle better within remaining time
+                if (oscillationCycle < Timing::OSCILLATION_CYCLES) {
+                    // Check if current oscillation movement is complete
+                    if (!isMotorRunning()) {
+                        // Calculate next oscillation position
+                        float oscillationDistance = Timing::OSCILLATION_DISTANCE * Motion::STEPS_PER_INCH;
+                        float targetOscPos;
+                        
+                        if (oscillatingForward) {
+                            targetOscPos = centerPosition + oscillationDistance;
+                        } else {
+                            targetOscPos = centerPosition - oscillationDistance;
+                        }
+                        
+                        // Move to oscillation position
+                        moveMotorToPosition(targetOscPos, Timing::OSCILLATION_SPEED, Motion::FORWARD_ACCEL);
+                        
+                        // Toggle direction for next movement
+                        oscillatingForward = !oscillatingForward;
+                        
+                        // If we've completed a full cycle (forward and back), increment cycle count
+                        if (!oscillatingForward) {
+                            oscillationCycle++;
+                        }
+                    }
+                } else {
+                    // All oscillation cycles complete, return to center
+                    if (!isMotorRunning()) {
+                        // Return to center position
+                        moveMotorToPosition(centerPosition, Timing::OSCILLATION_SPEED, Motion::FORWARD_ACCEL);
+                        stepStartTime = millis();
+                        cuttingPhase++;
+                    }
+                }
+            }
+            
+            // Check if total clamp release time has elapsed (regardless of oscillation completion)
+            if (elapsedTime >= Timing::CLAMP_RELEASE_TIME) {
+                // Time's up - stop any oscillation and proceed
+                stopMotor();
                 cuttingPhase++;
                 stepStartTime = millis();
+            }
             }
             break;
             
@@ -256,6 +311,9 @@ void handleCuttingState() {
             cuttingPhase = 0;
             motionComplete = false;
             targetPosition = 0;
+            centerPosition = 0;
+            oscillationCycle = 0;
+            oscillatingForward = true;
             
             // Transition to returning state
             currentState = RETURNING;

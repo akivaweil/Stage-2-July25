@@ -18,7 +18,7 @@ const float ALIGNMENT_BACKWARD_POSITION = 0.3;      // Position after backward a
 const float ALIGNMENT_FINAL_POSITION = 0.4;         // Position after final alignment backward move (0.7" - 0.3")
 const float APPROACH_POSITION = 5.0;               // Position for cutting approach (0.4" + 4.15" + 0.1" net alignment)
 const float CUTTING_POSITION = 12.0;               // Position after cutting (4.65" + 6.4")
-const float FINAL_POSITION = 24.2;                 // Final position after finish move (0.4" + 24.15")
+const float FINAL_POSITION = 24.0;                 // Final position after finish move (0.4" + 24.15")
 
 // Speed Settings (steps/second)
 const float HOMING_SPEED = 150;     
@@ -36,8 +36,8 @@ const float RETURN_ACCEL = 16000;
 
 // Timing Settings (milliseconds)
 namespace Timing {
-const int CLAMP_SETTLE_TIME = 50;
-const int CLAMP_RELEASE_TIME = 350;
+const int CLAMP_SETTLE_TIME = 100;
+const int CLAMP_RELEASE_TIME = 400;
 const int HOME_SETTLE_TIME = 100;
 const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 200;
@@ -50,4 +50,9 @@ const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS = 150;   // right clamp extension time
 const int ALIGNMENT_SHORT_SETTLE_MS = 100;       // short settle/pause
 const int ALIGNMENT_LONG_SETTLE_MS = 200;        // long settle/pause
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS = 150; // 150ms for alignment cylinder to position material
-}  // namespace Timing 3
+
+// Oscillation Settings for clamp release
+const float OSCILLATION_SPEED = 1000;        // Speed for oscillation movement (steps/second)
+const float OSCILLATION_DISTANCE = 0.2;      // Distance from center position (inches)
+const int OSCILLATION_CYCLES = 3;            // Number of oscillation cycles during release
+}  // namespace Timing
