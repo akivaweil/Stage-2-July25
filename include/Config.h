@@ -54,6 +54,6 @@ extern const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS;  // 150ms for alignment cylin
 
 // Oscillation Settings for clamp release
 extern const float OSCILLATION_SPEED;        // Speed for oscillation movement (steps/second)
-extern const float OSCILLATION_ACCEL;        // Acceleration for oscillation movement (steps/second²)
 extern const float OSCILLATION_DISTANCE;     // Distance from center position (inches)
+extern const int OSCILLATION_CYCLES;         // Number of oscillation cycles during release
 }  // namespace Timing
