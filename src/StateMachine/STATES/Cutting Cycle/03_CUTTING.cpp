@@ -210,43 +210,13 @@ void handleCuttingState() {
             
         case 10:
             //! ************************************************************************
-            //! RIGHT CLAMP SHAKE SEQUENCE
+            //! OSCILLATION DURING CLAMP RELEASE (WITHIN 400MS TOTAL TIME)
             //! ************************************************************************
-            // Wait 100ms after clamp release, then extend right clamp for 100ms
-            {
-                unsigned long elapsedTime = millis() - stepStartTime;
-                
-                if (elapsedTime >= 100) {
-                    // Extend right clamp for shake
-                    extendRightClamp();
-                    cuttingPhase++;
-                    stepStartTime = millis();
-                }
-            }
-            break;
-            
-        case 11:
-            //! ************************************************************************
-            //! RIGHT CLAMP SHAKE: HOLD EXTENDED FOR 100MS
-            //! ************************************************************************
-            // Hold right clamp extended for 100ms
-            if (millis() - stepStartTime >= 100) {
-                // Retract right clamp quickly
-                retractRightClamp();
-                cuttingPhase++;
-                stepStartTime = millis();
-            }
-            break;
-            
-        case 12:
-            //! ************************************************************************
-            //! OSCILLATION DURING CLAMP RELEASE (WITHIN REMAINING TIME)
-            //! ************************************************************************
-            // Start oscillation after right clamp shake
+            // Wait 100ms for clamps to fully retract, then start oscillation
             {
                 unsigned long elapsedTime = millis() - stepStartTime;
             
-            if (elapsedTime >= 50) { // Start oscillation after 50ms delay from shake
+            if (elapsedTime >= 100) { // Start oscillation after 100ms delay
                 // Perform continuous oscillation movement until time expires
                 if (!isMotorRunning()) {
                     // Calculate next oscillation position
@@ -281,7 +251,7 @@ void handleCuttingState() {
         //* ************************ PHASE 7: RE-EXTEND CLAMPS *******************
         //* ************************************************************************
         
-        case 13:
+        case 11:
             //! ************************************************************************
             //! RE-EXTEND CLAMPS FOR RETURN JOURNEY
             //! ************************************************************************
@@ -292,7 +262,7 @@ void handleCuttingState() {
             cuttingPhase++;
             break;
             
-        case 14:
+        case 12:
             //! ************************************************************************
             //! WAIT FOR CLAMP RE-EXTENSION
             //! ************************************************************************
@@ -307,7 +277,7 @@ void handleCuttingState() {
         //* ************************ PHASE 8: PREPARE FOR RETURN *****************
         //* ************************************************************************
         
-        case 15:
+        case 13:
             //! ************************************************************************
             //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
             //! ************************************************************************

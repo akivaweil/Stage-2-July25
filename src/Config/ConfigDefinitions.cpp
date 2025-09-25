@@ -37,7 +37,7 @@ const float RETURN_ACCEL = 16000;
 // Timing Settings (milliseconds)
 namespace Timing {
 const int CLAMP_SETTLE_TIME = 100;
-const int CLAMP_RELEASE_TIME = 500;
+const int CLAMP_RELEASE_TIME = 400;
 const int HOME_SETTLE_TIME = 100;
 const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 200;
@@ -54,5 +54,5 @@ const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS = 150; // 150ms for alignment cylinde
 // Oscillation Settings for clamp release
 const float OSCILLATION_SPEED = 2000;        // Speed for oscillation movement (steps/second)
 const float OSCILLATION_ACCEL = 5000;       // Acceleration for oscillation movement (steps/second²)
-const float OSCILLATION_DISTANCE = 0.3;      // Distance from center position (inches)
+const float OSCILLATION_DISTANCE = 0.1;      // Distance from center position (inches)
 }  // namespace Timing
