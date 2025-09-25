@@ -53,6 +53,7 @@ void handleAlignmentState() {
             // Move motor to backward alignment position
             stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED); // Assuming same speed is okay
             stepper->moveTo(Motion::ALIGNMENT_BACKWARD_POSITION * Motion::STEPS_PER_INCH);
+            extendLeftClamp();
             stepStartTime = millis();
             currentStep++;
             break;
@@ -60,6 +61,7 @@ void handleAlignmentState() {
         case 3:
             // Wait for the reverse movement to complete
             if (!stepper->isRunning()) {
+                retractLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
@@ -83,7 +85,6 @@ void handleAlignmentState() {
             // Step 3.2: Wait for alignment cylinder to position material
             if (millis() - stepStartTime >= Timing::ALIGNMENT_CYLINDER_PRE_EXTEND_MS) {
                 // Step 3.3: Extend left clamp (secure material after alignment)
-                extendLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
@@ -93,7 +94,6 @@ void handleAlignmentState() {
             // Step 3.4: Wait (allow left clamp to fully extend)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_LEFT_CLAMP_EXTEND_MS) {
                 // Step 3.5: Retract left clamp (release to allow fine adjustment)
-                retractLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
