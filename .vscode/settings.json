@@ -1,34 +1,19 @@
 {
-    "folderColorizer.pathColors": [
-        {
-            "folderPath": "src/",
-            "color": "foldercolorizer.color_0066cc",
-            "badge": "🏠"
-        },
-        {
-            "folderPath": "src/Config/",
-            "color": "foldercolorizer.color_00cc33", 
-            "badge": "⚙️"
-        },
-        {
-            "folderPath": "src/StateMachine/",
-            "color": "foldercolorizer.color_9933ff",
-            "badge": "🔄"
-        },
-        {
-            "folderPath": "src/StateMachine/STATES/",
-            "color": "foldercolorizer.color_ffcc00",
-            "badge": "🎨"
-        },
-        {
-            "folderPath": "src/StateMachine/FUNCTIONS/",
-            "color": "foldercolorizer.color_ff6600",
-            "badge": "🔌"
-        },
-        {
-            "folderPath": "include/",
-            "color": "foldercolorizer.color_cc00ff",
-            "badge": "��"
-        }
-    ]
-} 
+    "workbench.iconTheme": "material-icon-theme",
+    "folder-path-color.folders": [
+        { "path": "src", "color": "blue", "symbol": "🏠", "tooltip": "Main source files" },
+        { "path": "src/Config", "color": "green", "symbol": "⚙️", "tooltip": "Configuration files" },
+        { "path": "src/StateMachine", "color": "magenta", "symbol": "🔄", "tooltip": "State machine logic" },
+        { "path": "src/StateMachine/STATES", "color": "yellow", "symbol": "🎨", "tooltip": "State definitions" },
+        { "path": "src/StateMachine/FUNCTIONS", "color": "cyan", "symbol": "🔌", "tooltip": "State machine functions" },
+        { "path": "include", "color": "red", "symbol": "💾", "tooltip": "Header files" }
+    ],
+    "workbench.colorCustomizations": {
+        "folderPathColor.custom1": "#0066cc",
+        "folderPathColor.custom2": "#00cc33",
+        "folderPathColor.custom3": "#9933ff",
+        "folderPathColor.custom4": "#ffcc00",
+        "folderPathColor.custom5": "#ff6600",
+        "folderPathColor.custom6": "#cc00ff"
+    }
+}
