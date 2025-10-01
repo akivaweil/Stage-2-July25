@@ -130,73 +130,17 @@ void handleCuttingState() {
             break;
             
         //* ************************************************************************
-        //* ************************ PHASE 4.5: POSITION VERIFICATION CHECK *******
+        //* ************************ PHASE 4.3: DROP-OFF HOLD SENSOR CHECK *********
         //* ************************************************************************
         
         case 6:
             //! ************************************************************************
-            //! POSITION VERIFICATION: MOVE CONTINUOUSLY UNTIL SENSOR TRIGGERS
+            //! CHECK DROP-OFF HOLD SENSOR AT FINAL POSITION
             //! ************************************************************************
-            // Check if end position verification sensor is already triggered (active LOW)
-            if (endPositionVerificationSensor.read()) {
-                // End position verification sensor is already triggered, no movement needed
-                positionVerificationDistance = 0.0; // No verification distance
-                cuttingPhase = 8; // Skip to settle time phase
-                stepStartTime = millis();
-            } else {
-                // Position verification sensor is not triggered, start continuous forward movement
-                // Use a large target position to ensure continuous movement until sensor triggers
-                targetPosition = currentPosition + (10.0 * Motion::STEPS_PER_INCH); // Move 10" forward (will be stopped by sensor)
-                moveMotorToPosition(targetPosition, Motion::FINAL_SPEED, Motion::FORWARD_ACCEL);
-                
-                stepStartTime = millis();
-                cuttingPhase++; // Go to next phase to monitor sensor
-            }
-            break;
-            
-        case 7:
-            //! ************************************************************************
-            //! MONITOR POSITION VERIFICATION SENSOR - STOP WHEN TRIGGERED
-            //! ************************************************************************
-            // Continuously check if end position verification sensor is triggered
-            if (endPositionVerificationSensor.read()) {
-                // Sensor triggered! Stop motor immediately and calculate verification distance
-                stopMotor();
-                currentPosition = getCurrentMotorPosition();
-                positionVerificationDistance = currentPosition - initialFinalPosition;
-                
-                cuttingPhase = 8; // Proceed to settle time phase
-                stepStartTime = millis();
-            }
-            // If sensor not triggered, keep moving (motor continues at set speed)
-            break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 5: SETTLE TIME *************************
-        //* ************************************************************************
-        
-        case 8:
-            //! ************************************************************************
-            //! SETTLE TIME: WAIT 150MS
-            //! ************************************************************************
-            // Wait for settle time to ensure motion has fully stabilized
-            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-                cuttingPhase++;
-                stepStartTime = millis();
-            }
-            break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 6: CLAMP RELEASE **********************
-        //* ************************************************************************
-        
-        case 9:
-            //! ************************************************************************
-            //! CHECK DROP-OFF HOLD SENSOR - WAIT IF ACTIVE (BEFORE RELEASING CLAMPS)
-            //! ************************************************************************
-            // Check if drop-off hold sensor is active (LOW)
+            // Check if drop-off hold sensor is active (LOW) at final position
             if (dropoffHoldSensor.read()) {
-                // Sensor is active - hold at drop-off position with clamps EXTENDED
+                // Sensor is active - hold at drop-off position
+                
                 // Check if start button is pressed to reset machine
                 bool startButtonCurrentlyPressed = startButton.read();
                 if (startButtonCurrentlyPressed && !startButtonWasPressed) {
@@ -231,14 +175,75 @@ void handleCuttingState() {
                 } else if (!startButtonCurrentlyPressed) {
                     startButtonWasPressed = false;
                 }
-                // Stay in this case until start button is pressed (clamps remain extended)
+                // Stay in this case until start button is pressed
             } else {
-                // Sensor is not active - proceed to retract clamps
+                // Sensor is not active - proceed to position verification
                 cuttingPhase++;
                 stepStartTime = millis();
             }
             break;
             
+        //* ************************************************************************
+        //* ************************ PHASE 4.5: POSITION VERIFICATION CHECK *******
+        //* ************************************************************************
+        
+        case 7:
+            //! ************************************************************************
+            //! POSITION VERIFICATION: MOVE CONTINUOUSLY UNTIL SENSOR TRIGGERS
+            //! ************************************************************************
+            // Check if end position verification sensor is already triggered (active LOW)
+            if (endPositionVerificationSensor.read()) {
+                // End position verification sensor is already triggered, no movement needed
+                positionVerificationDistance = 0.0; // No verification distance
+                cuttingPhase = 9; // Skip to settle time phase
+                stepStartTime = millis();
+            } else {
+                // Position verification sensor is not triggered, start continuous forward movement
+                // Use a large target position to ensure continuous movement until sensor triggers
+                targetPosition = currentPosition + (10.0 * Motion::STEPS_PER_INCH); // Move 10" forward (will be stopped by sensor)
+                moveMotorToPosition(targetPosition, Motion::FINAL_SPEED, Motion::FORWARD_ACCEL);
+                
+                stepStartTime = millis();
+                cuttingPhase++; // Go to next phase to monitor sensor
+            }
+            break;
+            
+        case 8:
+            //! ************************************************************************
+            //! MONITOR POSITION VERIFICATION SENSOR - STOP WHEN TRIGGERED
+            //! ************************************************************************
+            // Continuously check if end position verification sensor is triggered
+            if (endPositionVerificationSensor.read()) {
+                // Sensor triggered! Stop motor immediately and calculate verification distance
+                stopMotor();
+                currentPosition = getCurrentMotorPosition();
+                positionVerificationDistance = currentPosition - initialFinalPosition;
+                
+                cuttingPhase = 9; // Proceed to settle time phase
+                stepStartTime = millis();
+            }
+            // If sensor not triggered, keep moving (motor continues at set speed)
+            break;
+            
+        //* ************************************************************************
+        //* ************************ PHASE 5: SETTLE TIME *************************
+        //* ************************************************************************
+        
+        case 9:
+            //! ************************************************************************
+            //! SETTLE TIME: WAIT 150MS
+            //! ************************************************************************
+            // Wait for settle time to ensure motion has fully stabilized
+            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
+                cuttingPhase++;
+                stepStartTime = millis();
+            }
+            break;
+            
+        //* ************************************************************************
+        //* ************************ PHASE 6: CLAMP RELEASE **********************
+        //* ************************************************************************
+        
         case 10:
             //! ************************************************************************
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
