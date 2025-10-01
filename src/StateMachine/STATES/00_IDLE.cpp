@@ -11,6 +11,8 @@ void handleIdleState() {
     static bool idleInitialized = false;
     static unsigned long lastActivityTime = 0;
     static bool motorCurrentlyEnabled = false;
+    static bool sensorTestActive = false;
+    static int sensorTestPhase = 0;
     
     // Ensure inputs are updated for reliable Bounce2 operation
     updateInputs();
@@ -88,6 +90,57 @@ void handleIdleState() {
     } else if (!transferArmCurrentlyActive) {
         // Signal is not active, reset the tracking variable
         transferArmSignalWasActive = false;
+    }
+    
+    //! ************************************************************************
+    //! STEP 3.5: DROP-OFF HOLD SENSOR TEST
+    //! ************************************************************************
+    // Check for drop-off hold sensor trigger (test function)
+    if (dropoffHoldSensor.read() && !sensorTestActive && homingComplete) {
+        // Sensor is active - start test movement
+        sensorTestActive = true;
+        sensorTestPhase = 0;
+        lastActivityTime = millis(); // Reset activity timer
+        
+        // Ensure motor is enabled
+        if (!motorCurrentlyEnabled) {
+            enableMotor();
+            motorCurrentlyEnabled = true;
+        }
+    }
+    
+    // Execute sensor test sequence
+    if (sensorTestActive) {
+        switch (sensorTestPhase) {
+            case 0:
+                // Move 5 inches forward
+                moveMotor(5.0 * Motion::STEPS_PER_INCH, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
+                sensorTestPhase++;
+                break;
+                
+            case 1:
+                // Wait for movement to complete
+                if (!isMotorRunning()) {
+                    sensorTestPhase++;
+                }
+                break;
+                
+            case 2:
+                // Move back 5 inches (return to starting position)
+                moveMotor(-5.0 * Motion::STEPS_PER_INCH, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
+                sensorTestPhase++;
+                break;
+                
+            case 3:
+                // Wait for return movement to complete
+                if (!isMotorRunning()) {
+                    // Test complete - reset flags
+                    sensorTestActive = false;
+                    sensorTestPhase = 0;
+                }
+                break;
+        }
+        return; // Skip remaining idle checks while test is active
     }
     
     //! ************************************************************************
