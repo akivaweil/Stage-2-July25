@@ -39,6 +39,7 @@ extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;
 extern Bounce2::Button transferArmSignal;
 extern Bounce2::Button endPositionVerificationSensor;
+extern Bounce2::Button dropoffHoldSensor;
 
 // FastAccelStepper objects
 extern FastAccelStepperEngine engine;

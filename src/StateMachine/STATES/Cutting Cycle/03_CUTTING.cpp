@@ -210,6 +210,58 @@ void handleCuttingState() {
             
         case 10:
             //! ************************************************************************
+            //! CHECK DROP-OFF HOLD SENSOR - WAIT IF ACTIVE
+            //! ************************************************************************
+            // Check if drop-off hold sensor is active (LOW)
+            if (dropoffHoldSensor.read()) {
+                // Sensor is active - hold at drop-off position and wait for start button
+                // Check if start button is pressed to reset machine
+                bool startButtonCurrentlyPressed = startButton.read();
+                if (startButtonCurrentlyPressed && !startButtonWasPressed) {
+                    // Start button pressed - reset machine
+                    startButtonWasPressed = true;
+                    
+                    // Turn off clamp release signal
+                    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                    
+                    // Reset cycle flags
+                    cycleInProgress = false;
+                    homingComplete = false;
+                    
+                    // Stop motor and disable
+                    stopMotor();
+                    disableMotor();
+                    delay(100);
+                    enableMotor();
+                    
+                    // Retract alignment cylinder
+                    retractAlignmentCylinder();
+                    
+                    // Reset static variables
+                    stepStartTime = 0;
+                    cuttingPhase = 0;
+                    motionComplete = false;
+                    targetPosition = 0;
+                    initialFinalPosition = 0;
+                    centerPosition = 0;
+                    oscillatingForward = true;
+                    
+                    // Transition to homing state
+                    currentState = HOMING;
+                    return;
+                } else if (!startButtonCurrentlyPressed) {
+                    startButtonWasPressed = false;
+                }
+                // Stay in this case until start button is pressed
+            } else {
+                // Sensor is not active - proceed with normal oscillation
+                cuttingPhase++;
+                stepStartTime = millis();
+            }
+            break;
+            
+        case 11:
+            //! ************************************************************************
             //! OSCILLATION DURING CLAMP RELEASE (WITHIN 400MS TOTAL TIME)
             //! ************************************************************************
             // Wait 100ms for clamps to fully retract, then start oscillation
@@ -251,7 +303,7 @@ void handleCuttingState() {
         //* ************************ PHASE 7: RE-EXTEND CLAMPS *******************
         //* ************************************************************************
         
-        case 11:
+        case 12:
             //! ************************************************************************
             //! RE-EXTEND CLAMPS FOR RETURN JOURNEY
             //! ************************************************************************
@@ -262,7 +314,7 @@ void handleCuttingState() {
             cuttingPhase++;
             break;
             
-        case 12:
+        case 13:
             //! ************************************************************************
             //! WAIT FOR CLAMP RE-EXTENSION
             //! ************************************************************************
@@ -277,7 +329,7 @@ void handleCuttingState() {
         //* ************************ PHASE 8: PREPARE FOR RETURN *****************
         //* ************************************************************************
         
-        case 13:
+        case 14:
             //! ************************************************************************
             //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
             //! ************************************************************************
