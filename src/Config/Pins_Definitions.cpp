@@ -7,7 +7,7 @@ const int HOME_SWITCH = 1;
 const int START_BUTTON = 2;                 
 const int TRANSFER_ARM_START_SIGNAL = 47;
 const int END_POSITION_VERIFICATION_SENSOR = 35;
-const int DROPOFF_HOLD_SENSOR = 12;  
+const int DROPOFF_HOLD_SENSOR = 13;  
 
 // Output pins (using safe output pins)
 const int STEP = 38;                        
