@@ -192,37 +192,16 @@ void handleCuttingState() {
         
         case 9:
             //! ************************************************************************
-            //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
-            //! ************************************************************************
-            // Retract both clamps temporarily to release material
-            retractBothClamps();
-            
-            // Send high signal to pin 17 for duration of release
-            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
-            
-            // Store current position as center for oscillation
-            centerPosition = getCurrentMotorPosition();
-            oscillatingForward = true;
-            
-            stepStartTime = millis();
-            cuttingPhase++;
-            break;
-            
-        case 10:
-            //! ************************************************************************
-            //! CHECK DROP-OFF HOLD SENSOR - WAIT IF ACTIVE
+            //! CHECK DROP-OFF HOLD SENSOR - WAIT IF ACTIVE (BEFORE RELEASING CLAMPS)
             //! ************************************************************************
             // Check if drop-off hold sensor is active (LOW)
             if (dropoffHoldSensor.read()) {
-                // Sensor is active - hold at drop-off position and wait for start button
+                // Sensor is active - hold at drop-off position with clamps EXTENDED
                 // Check if start button is pressed to reset machine
                 bool startButtonCurrentlyPressed = startButton.read();
                 if (startButtonCurrentlyPressed && !startButtonWasPressed) {
                     // Start button pressed - reset machine
                     startButtonWasPressed = true;
-                    
-                    // Turn off clamp release signal
-                    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
                     
                     // Reset cycle flags
                     cycleInProgress = false;
@@ -252,12 +231,30 @@ void handleCuttingState() {
                 } else if (!startButtonCurrentlyPressed) {
                     startButtonWasPressed = false;
                 }
-                // Stay in this case until start button is pressed
+                // Stay in this case until start button is pressed (clamps remain extended)
             } else {
-                // Sensor is not active - proceed with normal oscillation
+                // Sensor is not active - proceed to retract clamps
                 cuttingPhase++;
                 stepStartTime = millis();
             }
+            break;
+            
+        case 10:
+            //! ************************************************************************
+            //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
+            //! ************************************************************************
+            // Retract both clamps temporarily to release material
+            retractBothClamps();
+            
+            // Send high signal to pin 17 for duration of release
+            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+            
+            // Store current position as center for oscillation
+            centerPosition = getCurrentMotorPosition();
+            oscillatingForward = true;
+            
+            stepStartTime = millis();
+            cuttingPhase++;
             break;
             
         case 11:
