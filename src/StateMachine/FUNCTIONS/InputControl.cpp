@@ -17,7 +17,7 @@ void setupInputs() {
     pinMode(Pins::START_BUTTON, INPUT_PULLDOWN);     // Start button is active HIGH  
     pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN); // Transfer signal is active HIGH
     pinMode(Pins::END_POSITION_VERIFICATION_SENSOR, INPUT_PULLUP);     // End position verification sensor is active LOW
-    pinMode(Pins::ROUTER_JAMMED_SENSOR, INPUT);     // Router jammed sensor is active LOW (external pullup)
+    pinMode(Pins::ROUTER_JAMMED_SENSOR, INPUT_PULLUP);     // Router jammed sensor is active LOW (internal pullup)
     
     // Initialize Bounce2 objects for debouncing
     // Home switch - ultra-fast debounce for immediate homing response
