@@ -181,16 +181,6 @@ void handleCuttingState() {
             //! ************************************************************************
             // Wait for settle time to ensure motion has fully stabilized
             if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-                //! ************************************************************************
-                //! ROUTER JAMMED SENSOR CHECK AT FINAL POSITION
-                //! ************************************************************************
-                // Check router jammed sensor only when machine is at final position
-                if (routerJammedSensor.read()) {
-                    // Router jammed detected - transition to error state
-                    currentState = ERROR;
-                    return; // Exit function immediately
-                }
-                
                 cuttingPhase++;
                 stepStartTime = millis();
             }
@@ -201,6 +191,16 @@ void handleCuttingState() {
         //* ************************************************************************
         
         case 9:
+            //! ************************************************************************
+            //! ROUTER JAMMED SENSOR CHECK BEFORE CLAMP RELEASE
+            //! ************************************************************************
+            // Check router jammed sensor only when machine is at final position and ready to release clamps
+            if (routerJammedSensor.read()) {
+                // Router jammed detected - transition to error state
+                currentState = ERROR;
+                return; // Exit function immediately
+            }
+            
             //! ************************************************************************
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
             //! ************************************************************************
