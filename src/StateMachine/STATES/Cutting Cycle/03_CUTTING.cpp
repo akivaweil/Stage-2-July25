@@ -192,6 +192,16 @@ void handleCuttingState() {
         
         case 9:
             //! ************************************************************************
+            //! ROUTER JAMMED SENSOR CHECK BEFORE CLAMP RELEASE
+            //! ************************************************************************
+            // Check router jammed sensor before releasing clamps
+            if (routerJammedSensor.read()) {
+                // Router jammed detected - transition to error state
+                currentState = ERROR;
+                return; // Exit function immediately
+            }
+            
+            //! ************************************************************************
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
             //! ************************************************************************
             // Retract both clamps temporarily to release material

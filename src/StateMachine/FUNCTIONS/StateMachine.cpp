@@ -32,6 +32,10 @@ void runStateMachine() {
         case RETURNING:
             handleReturningState();
             break;
+            
+        case ERROR:
+            handleErrorState();
+            break;
     }
 }
 

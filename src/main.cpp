@@ -32,6 +32,7 @@ Bounce2::Button homeSwitch;
 Bounce2::Button startButton;
 Bounce2::Button transferArmSignal;
 Bounce2::Button endPositionVerificationSensor;
+Bounce2::Button routerJammedSensor;
 
 // FastAccelStepper objects
 FastAccelStepperEngine engine = FastAccelStepperEngine();

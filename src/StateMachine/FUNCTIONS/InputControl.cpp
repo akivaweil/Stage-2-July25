@@ -17,6 +17,7 @@ void setupInputs() {
     pinMode(Pins::START_BUTTON, INPUT_PULLDOWN);     // Start button is active HIGH  
     pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN); // Transfer signal is active HIGH
     pinMode(Pins::END_POSITION_VERIFICATION_SENSOR, INPUT_PULLUP);     // End position verification sensor is active LOW
+    pinMode(Pins::ROUTER_JAMMED_SENSOR, INPUT_PULLUP);     // Router jammed sensor is active LOW
     
     // Initialize Bounce2 objects for debouncing
     // Home switch - ultra-fast debounce for immediate homing response
@@ -39,6 +40,11 @@ void setupInputs() {
     endPositionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
     endPositionVerificationSensor.setPressedState(LOW); // Active LOW
     
+    // Router jammed sensor - fast debounce for immediate error detection
+    routerJammedSensor.attach(Pins::ROUTER_JAMMED_SENSOR);
+    routerJammedSensor.interval(5); // 5ms debounce for fast error detection
+    routerJammedSensor.setPressedState(LOW); // Active LOW
+    
     Serial.println("Input initialization complete");
 }
 
@@ -52,6 +58,7 @@ void updateInputs() {
     startButton.update();
     transferArmSignal.update();
     endPositionVerificationSensor.update();
+    routerJammedSensor.update();
 }
 
 bool checkInputs() {
@@ -73,6 +80,10 @@ bool checkInputs() {
     }
     
     if (endPositionVerificationSensor.read()) {
+        anyActive = true;
+    }
+    
+    if (routerJammedSensor.read()) {
         anyActive = true;
     }
     

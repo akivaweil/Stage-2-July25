@@ -14,7 +14,8 @@ enum MachineState {
     HOMING,
     ALIGNMENT,
     CUTTING,
-    RETURNING
+    RETURNING,
+    ERROR
 };
 
 // Global variables
@@ -39,6 +40,7 @@ extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;
 extern Bounce2::Button transferArmSignal;
 extern Bounce2::Button endPositionVerificationSensor;
+extern Bounce2::Button routerJammedSensor;
 
 // FastAccelStepper objects
 extern FastAccelStepperEngine engine;
@@ -90,5 +92,6 @@ void handleHomingState();
 void handleAlignmentState();
 void handleCuttingState();
 void handleReturningState();
+void handleErrorState();
 
 // OTA function declarations are in OTA/OTA_Upload.h 
