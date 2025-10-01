@@ -112,6 +112,11 @@ bool checkStartButtonForHoming() {
         // Stop any running motor movement
         stopMotor();
         
+        // Disable and re-enable motor to clear any jams
+        disableMotor();
+        delay(100); // Brief pause while motor is disabled
+        enableMotor();
+        
         // Keep both clamps extended for safe material handling
         // Only retract alignment cylinder for safe homing
         retractAlignmentCylinder();
