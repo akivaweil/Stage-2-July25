@@ -17,9 +17,27 @@ void handleErrorState() {
     // Stop any running motor movement
     stopMotor();
     
-    // Keep clamps in current state (don't change them)
-    // Machine remains frozen until manual intervention
+    //! ************************************************************************
+    //! CHECK FOR START BUTTON PRESS - EXIT ERROR STATE
+    //! ************************************************************************
+    // Check if start button is pressed to exit error state and return to homing
+    if (checkStartButtonForHoming()) {
+        // Reset cycle flags and transition to homing
+        cycleInProgress = false;
+        homingComplete = false; // Force homing sequence
+        
+        // Re-enable motor for homing
+        enableMotor();
+        
+        // Keep both clamps extended for safe material handling
+        // Only retract alignment cylinder for safe homing
+        retractAlignmentCylinder();
+        
+        // Transition to homing state
+        currentState = HOMING;
+        return; // Exit function, state will be changed to HOMING
+    }
     
-    // No state transitions - machine stays in ERROR state
-    // Requires manual reset or power cycle to recover
+    // Keep clamps in current state (don't change them)
+    // Machine remains frozen until start button is pressed
 }
