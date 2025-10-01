@@ -5,28 +5,59 @@
 //* ************************************************************************
 // This state performs the complete cutting sequence: approach, cut, finish, temporarily release clamps, then re-extend for return
 
+//! ************************************************************************
+//! CUTTING PHASE CONSTANTS
+//! ************************************************************************
+#define PHASE_APPROACH_SET_TARGET      0
+#define PHASE_APPROACH_VERIFY          1
+#define PHASE_CUTTING_SET_TARGET       2
+#define PHASE_CUTTING_VERIFY           3
+#define PHASE_FINISH_SET_TARGET        4
+#define PHASE_FINISH_VERIFY            5
+#define PHASE_POSITION_CHECK           6
+#define PHASE_POSITION_MONITOR         7
+#define PHASE_SETTLE_TIME              8
+#define PHASE_CLAMP_RELEASE            9
+#define PHASE_OSCILLATION              10
+#define PHASE_RE_EXTEND_CLAMPS         11
+#define PHASE_WAIT_RE_EXTENSION        12
+#define PHASE_PREPARE_RETURN           13
+
+//! ************************************************************************
+//! STATIC VARIABLES FOR CUTTING STATE
+//! ************************************************************************
+static unsigned long stepStartTime = 0;
+static int cuttingPhase = 0;
+static bool motionComplete = false;
+static float targetPosition = 0;
+static float initialFinalPosition = 0;
+static float centerPosition = 0;          // Center position for oscillation
+static bool oscillatingForward = true;    // Direction of oscillation
+
+//! ************************************************************************
+//! FORWARD DECLARATIONS
+//! ************************************************************************
+void resetCuttingVariables();
+void handleApproachPhase();
+void handleCuttingPhase();
+void handleFinishPhase();
+void handlePositionVerificationPhase();
+void handleSettleTimePhase();
+void handleClampReleasePhase();
+void handleOscillationPhase();
+void handleReExtendPhase();
+void handlePrepareReturnPhase();
+
+//! ************************************************************************
+//! MAIN CUTTING STATE HANDLER
+//! ************************************************************************
 void handleCuttingState() {
-    static unsigned long stepStartTime = 0;
-    static int cuttingPhase = 0;
-    static bool motionComplete = false;
-    static float targetPosition = 0;
-    static float initialFinalPosition = 0;
-    static float centerPosition = 0;          // Center position for oscillation
-    static bool oscillatingForward = true;    // Direction of oscillation
     
     //! ************************************************************************
     //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
     //! ************************************************************************
-    // Check if start button is pressed during cutting - return to home
     if (checkStartButtonForHoming()) {
-        // Reset static variables for next cycle
-        stepStartTime = 0;
-        cuttingPhase = 0;
-        motionComplete = false;
-        targetPosition = 0;
-        initialFinalPosition = 0;
-        centerPosition = 0;
-        oscillatingForward = true;
+        resetCuttingVariables();
         return; // Exit function, state will be changed to HOMING
     }
     
@@ -35,16 +66,72 @@ void handleCuttingState() {
         stepStartTime = millis();
     }
     
+    //! ************************************************************************
+    //! PHASE ROUTING
+    //! ************************************************************************
     switch (cuttingPhase) {
-        //* ************************************************************************
-        //* ************************ PHASE 2: APPROACH MOVEMENT ******************
-        //* ************************************************************************
-        
-        case 0:
+        case PHASE_APPROACH_SET_TARGET:
+        case PHASE_APPROACH_VERIFY:
+            handleApproachPhase();
+            break;
+            
+        case PHASE_CUTTING_SET_TARGET:
+        case PHASE_CUTTING_VERIFY:
+            handleCuttingPhase();
+            break;
+            
+        case PHASE_FINISH_SET_TARGET:
+        case PHASE_FINISH_VERIFY:
+            handleFinishPhase();
+            break;
+            
+        case PHASE_POSITION_CHECK:
+        case PHASE_POSITION_MONITOR:
+            handlePositionVerificationPhase();
+            break;
+            
+        case PHASE_SETTLE_TIME:
+            handleSettleTimePhase();
+            break;
+            
+        case PHASE_CLAMP_RELEASE:
+        case PHASE_OSCILLATION:
+            handleClampReleasePhase();
+            break;
+            
+        case PHASE_RE_EXTEND_CLAMPS:
+        case PHASE_WAIT_RE_EXTENSION:
+            handleReExtendPhase();
+            break;
+            
+        case PHASE_PREPARE_RETURN:
+            handlePrepareReturnPhase();
+            break;
+    }
+}
+
+//! ************************************************************************
+//! RESET CUTTING VARIABLES
+//! ************************************************************************
+void resetCuttingVariables() {
+    stepStartTime = 0;
+    cuttingPhase = 0;
+    motionComplete = false;
+    targetPosition = 0;
+    initialFinalPosition = 0;
+    centerPosition = 0;
+    oscillatingForward = true;
+}
+
+//! ************************************************************************
+//! APPROACH PHASE HANDLER
+//! ************************************************************************
+void handleApproachPhase() {
+    switch (cuttingPhase) {
+        case PHASE_APPROACH_SET_TARGET:
             //! ************************************************************************
             //! APPROACH: SET TARGET POSITION
             //! ************************************************************************
-            // Set target position to approach position
             targetPosition = Motion::APPROACH_POSITION * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
             
@@ -52,56 +139,54 @@ void handleCuttingState() {
             cuttingPhase++;
             break;
             
-        case 1:
+        case PHASE_APPROACH_VERIFY:
             //! ************************************************************************
-            //! VERIFY APPROACH POSITION AND LOG COMPLETION
+            //! VERIFY APPROACH POSITION
             //! ************************************************************************
-            // Wait for motion to complete using FastAccelStepper status
             if (!isMotorRunning()) {
-                // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
-                
                 cuttingPhase++;
                 stepStartTime = millis();
             }
             break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 3: CUTTING MOVEMENT *******************
-        //* ************************************************************************
-        
-        case 2:
+    }
+}
+
+//! ************************************************************************
+//! CUTTING PHASE HANDLER
+//! ************************************************************************
+void handleCuttingPhase() {
+    switch (cuttingPhase) {
+        case PHASE_CUTTING_SET_TARGET:
             //! ************************************************************************
             //! CUTTING: CALCULATE TARGET
             //! ************************************************************************
             targetPosition = Motion::CUTTING_POSITION * Motion::STEPS_PER_INCH;
-            
-            // Execute slow, controlled cutting
             moveMotorToPosition(targetPosition, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL / 2);
             
             stepStartTime = millis();
             cuttingPhase++;
             break;
             
-        case 3:
+        case PHASE_CUTTING_VERIFY:
             //! ************************************************************************
             //! VERIFY CUTTING COMPLETION
             //! ************************************************************************
-            // Wait for cutting motion to complete using FastAccelStepper status
             if (!isMotorRunning()) {
-                // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
-                
                 cuttingPhase++;
                 stepStartTime = millis();
             }
             break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 4: FINISH MOVEMENT ********************
-        //* ************************************************************************
-        
-        case 4:
+    }
+}
+
+//! ************************************************************************
+//! FINISH PHASE HANDLER
+//! ************************************************************************
+void handleFinishPhase() {
+    switch (cuttingPhase) {
+        case PHASE_FINISH_SET_TARGET:
             //! ************************************************************************
             //! FINISH: SET FINAL TARGET POSITION
             //! ************************************************************************
@@ -112,95 +197,80 @@ void handleCuttingState() {
             cuttingPhase++;
             break;
             
-        case 5:
+        case PHASE_FINISH_VERIFY:
             //! ************************************************************************
             //! VERIFY FINISH COMPLETION
             //! ************************************************************************
-            // Wait for finish motion to complete using FastAccelStepper status
             if (!isMotorRunning()) {
-                // Update current position from stepper
                 currentPosition = getCurrentMotorPosition();
-                
-                // Store initial final position for verification distance calculation
                 initialFinalPosition = currentPosition;
-                
                 cuttingPhase++;
                 stepStartTime = millis();
             }
             break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 4.5: POSITION VERIFICATION CHECK *******
-        //* ************************************************************************
-        
-        case 6:
+    }
+}
+
+//! ************************************************************************
+//! POSITION VERIFICATION PHASE HANDLER
+//! ************************************************************************
+void handlePositionVerificationPhase() {
+    switch (cuttingPhase) {
+        case PHASE_POSITION_CHECK:
             //! ************************************************************************
             //! POSITION VERIFICATION: MOVE CONTINUOUSLY UNTIL SENSOR TRIGGERS
             //! ************************************************************************
-            // Check if end position verification sensor is already triggered (active LOW)
             if (endPositionVerificationSensor.read()) {
-                // End position verification sensor is already triggered, no movement needed
-                positionVerificationDistance = 0.0; // No verification distance
-                cuttingPhase = 8; // Skip to settle time phase
+                positionVerificationDistance = 0.0;
+                cuttingPhase = PHASE_SETTLE_TIME;
                 stepStartTime = millis();
             } else {
-                // Position verification sensor is not triggered, start continuous forward movement
-                // Use a large target position to ensure continuous movement until sensor triggers
-                targetPosition = currentPosition + (10.0 * Motion::STEPS_PER_INCH); // Move 10" forward (will be stopped by sensor)
+                targetPosition = currentPosition + (10.0 * Motion::STEPS_PER_INCH);
                 moveMotorToPosition(targetPosition, Motion::FINAL_SPEED, Motion::FORWARD_ACCEL);
-                
                 stepStartTime = millis();
-                cuttingPhase++; // Go to next phase to monitor sensor
+                cuttingPhase++;
             }
             break;
             
-        case 7:
+        case PHASE_POSITION_MONITOR:
             //! ************************************************************************
             //! MONITOR POSITION VERIFICATION SENSOR - STOP WHEN TRIGGERED
             //! ************************************************************************
-            // Continuously check if end position verification sensor is triggered
             if (endPositionVerificationSensor.read()) {
-                // Sensor triggered! Stop motor immediately and calculate verification distance
                 stopMotor();
                 currentPosition = getCurrentMotorPosition();
                 positionVerificationDistance = currentPosition - initialFinalPosition;
-                
-                cuttingPhase = 8; // Proceed to settle time phase
-                stepStartTime = millis();
-            }
-            // If sensor not triggered, keep moving (motor continues at set speed)
-            break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 5: SETTLE TIME *************************
-        //* ************************************************************************
-        
-        case 8:
-            //! ************************************************************************
-            //! SETTLE TIME: WAIT 150MS
-            //! ************************************************************************
-            // Wait for settle time to ensure motion has fully stabilized
-            if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-                cuttingPhase++;
+                cuttingPhase = PHASE_SETTLE_TIME;
                 stepStartTime = millis();
             }
             break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 6: CLAMP RELEASE **********************
-        //* ************************************************************************
-        
-        case 9:
+    }
+}
+
+//! ************************************************************************
+//! SETTLE TIME PHASE HANDLER
+//! ************************************************************************
+void handleSettleTimePhase() {
+    //! ************************************************************************
+    //! SETTLE TIME: WAIT 150MS
+    //! ************************************************************************
+    if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
+        cuttingPhase++;
+        stepStartTime = millis();
+    }
+}
+
+//! ************************************************************************
+//! CLAMP RELEASE PHASE HANDLER
+//! ************************************************************************
+void handleClampReleasePhase() {
+    switch (cuttingPhase) {
+        case PHASE_CLAMP_RELEASE:
             //! ************************************************************************
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
             //! ************************************************************************
-            // Retract both clamps temporarily to release material
             retractBothClamps();
-            
-            // Send high signal to pin 17 for duration of release
             digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
-            
-            // Store current position as center for oscillation
             centerPosition = getCurrentMotorPosition();
             oscillatingForward = true;
             
@@ -208,95 +278,71 @@ void handleCuttingState() {
             cuttingPhase++;
             break;
             
-        case 10:
+        case PHASE_OSCILLATION:
             //! ************************************************************************
             //! OSCILLATION DURING CLAMP RELEASE (WITHIN 400MS TOTAL TIME)
             //! ************************************************************************
-            // Wait 100ms for clamps to fully retract, then start oscillation
             {
                 unsigned long elapsedTime = millis() - stepStartTime;
-            
-            if (elapsedTime >= 100) { // Start oscillation after 100ms delay
-                // Perform continuous oscillation movement until time expires
-                if (!isMotorRunning()) {
-                    // Calculate next oscillation position
-                    float oscillationDistance = Timing::OSCILLATION_DISTANCE * Motion::STEPS_PER_INCH;
-                    float targetOscPos;
-                    
-                    if (oscillatingForward) {
-                        targetOscPos = centerPosition + oscillationDistance;
-                    } else {
-                        targetOscPos = centerPosition - oscillationDistance;
+                
+                if (elapsedTime >= 100) { // Start oscillation after 100ms delay
+                    if (!isMotorRunning()) {
+                        float oscillationDistance = Timing::OSCILLATION_DISTANCE * Motion::STEPS_PER_INCH;
+                        float targetOscPos = oscillatingForward ? 
+                            centerPosition + oscillationDistance : 
+                            centerPosition - oscillationDistance;
+                        
+                        moveMotorToPosition(targetOscPos, Timing::OSCILLATION_SPEED, Timing::OSCILLATION_ACCEL);
+                        oscillatingForward = !oscillatingForward;
                     }
-                    
-                    // Move to oscillation position
-                    moveMotorToPosition(targetOscPos, Timing::OSCILLATION_SPEED, Timing::OSCILLATION_ACCEL);
-                    
-                    // Toggle direction for next movement
-                    oscillatingForward = !oscillatingForward;
+                }
+                
+                if (elapsedTime >= Timing::CLAMP_RELEASE_TIME) {
+                    stopMotor();
+                    cuttingPhase++;
+                    stepStartTime = millis();
                 }
             }
-            
-            // Check if total clamp release time has elapsed
-            if (elapsedTime >= Timing::CLAMP_RELEASE_TIME) {
-                // Time's up - stop any oscillation and proceed
-                stopMotor();
-                cuttingPhase++;
-                stepStartTime = millis();
-            }
-            }
             break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 7: RE-EXTEND CLAMPS *******************
-        //* ************************************************************************
-        
-        case 11:
+    }
+}
+
+//! ************************************************************************
+//! RE-EXTEND PHASE HANDLER
+//! ************************************************************************
+void handleReExtendPhase() {
+    switch (cuttingPhase) {
+        case PHASE_RE_EXTEND_CLAMPS:
             //! ************************************************************************
             //! RE-EXTEND CLAMPS FOR RETURN JOURNEY
             //! ************************************************************************
-            // Extend both clamps again for the return journey
             extendBothClamps();
-            
             stepStartTime = millis();
             cuttingPhase++;
             break;
             
-        case 12:
+        case PHASE_WAIT_RE_EXTENSION:
             //! ************************************************************************
             //! WAIT FOR CLAMP RE-EXTENSION
             //! ************************************************************************
-            // Wait for clamps to fully extend before return
-            if (millis() - stepStartTime >= 0) { //skip settle time
+            if (millis() - stepStartTime >= 0) { // Skip settle time
                 cuttingPhase++;
                 stepStartTime = millis();
             }
             break;
-            
-        //* ************************************************************************
-        //* ************************ PHASE 8: PREPARE FOR RETURN *****************
-        //* ************************************************************************
-        
-        case 13:
-            //! ************************************************************************
-            //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
-            //! ************************************************************************
-            // Signal transfer arm: Set HIGH (prevent Z-axis interference)
-            digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
-            
-            // Bring pin 17 low before transitioning to returning state
-            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
-            
-            // Reset static variables for next cycle
-            stepStartTime = 0;
-            cuttingPhase = 0;
-            motionComplete = false;
-            targetPosition = 0;
-            centerPosition = 0;
-            oscillatingForward = true;
-            
-            // Transition to returning state
-            currentState = RETURNING;
-            break;
     }
+}
+
+//! ************************************************************************
+//! PREPARE RETURN PHASE HANDLER
+//! ************************************************************************
+void handlePrepareReturnPhase() {
+    //! ************************************************************************
+    //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
+    //! ************************************************************************
+    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
+    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+    
+    resetCuttingVariables();
+    currentState = RETURNING;
 } 
