@@ -256,11 +256,12 @@ void handleSettleTimePhase() {
     //! ************************************************************************
     if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
         //! ************************************************************************
-        //! CHECK IS_ROUTER_CLEAR SENSOR (ACTIVE LOW) - IF ACTIVE, TRIGGER HOMING
+        //! CHECK IS_ROUTER_CLEAR SENSOR (ACTIVE LOW) - IF ACTIVE, TRIGGER ERROR STATE
         //! ************************************************************************
         if (digitalRead(Pins::IS_ROUTER_CLEAR) == LOW) {
+            stateBeforeError = CUTTING;
             resetCuttingVariables();
-            currentState = HOMING;
+            currentState = ROUTER_CLEAR_ERROR;
             return;
         }
         

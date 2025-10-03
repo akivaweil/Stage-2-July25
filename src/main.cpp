@@ -15,6 +15,7 @@
 // State machine variables
 MachineState currentState = IDLE;
 MachineState previousState = IDLE;
+MachineState stateBeforeError = IDLE;
 
 // Motor position tracking
 float currentPosition = 0.0;

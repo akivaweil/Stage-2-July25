@@ -14,12 +14,14 @@ enum MachineState {
     HOMING,
     ALIGNMENT,
     CUTTING,
-    RETURNING
+    RETURNING,
+    ROUTER_CLEAR_ERROR
 };
 
 // Global variables
 extern MachineState currentState;
 extern MachineState previousState;
+extern MachineState stateBeforeError;
 extern float currentPosition;
 extern bool homingComplete;
 extern bool cycleInProgress;
@@ -90,5 +92,6 @@ void handleHomingState();
 void handleAlignmentState();
 void handleCuttingState();
 void handleReturningState();
+void handleRouterClearErrorState();
 
 // OTA function declarations are in OTA/OTA_Upload.h 
