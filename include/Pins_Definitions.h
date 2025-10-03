@@ -7,6 +7,7 @@ extern const int HOME_SWITCH;
 extern const int START_BUTTON;                 
 extern const int TRANSFER_ARM_START_SIGNAL;
 extern const int END_POSITION_VERIFICATION_SENSOR;  
+extern const int IS_ROUTER_CLEAR;                   
 
 // Output pins
 extern const int STEP;                        

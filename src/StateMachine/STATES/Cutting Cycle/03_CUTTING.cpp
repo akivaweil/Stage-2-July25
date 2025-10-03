@@ -255,6 +255,15 @@ void handleSettleTimePhase() {
     //! SETTLE TIME: WAIT 150MS
     //! ************************************************************************
     if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
+        //! ************************************************************************
+        //! CHECK IS_ROUTER_CLEAR SENSOR (ACTIVE LOW) - IF ACTIVE, TRIGGER HOMING
+        //! ************************************************************************
+        if (digitalRead(Pins::IS_ROUTER_CLEAR) == LOW) {
+            resetCuttingVariables();
+            currentState = HOMING;
+            return;
+        }
+        
         cuttingPhase++;
         stepStartTime = millis();
     }
