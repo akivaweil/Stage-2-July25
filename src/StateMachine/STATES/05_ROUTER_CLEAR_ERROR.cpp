@@ -27,9 +27,15 @@ void handleRouterClearErrorState() {
         unsigned long holdDuration = millis() - stateStartTime;
         
         if (holdDuration >= 1000) { // 1 second hold for homing
-            // Long press detected - go to homing state
+            // Long press detected - set flag to go to homing after cutting completes
             startButtonWasPressed = false;
-            currentState = HOMING;
+            cutToHomingFlag = true;
+            currentState = stateBeforeError;
+            
+            // If returning to cutting state, continue from where it left off
+            if (stateBeforeError == CUTTING) {
+                setCuttingPhaseToContinue();
+            }
             return;
         }
         

@@ -354,11 +354,18 @@ void handleReExtendPhase() {
 //! ************************************************************************
 void handlePrepareReturnPhase() {
     //! ************************************************************************
-    //! SIGNAL TRANSFER ARM AND TRANSITION TO RETURNING STATE
+    //! SIGNAL TRANSFER ARM AND CHECK FOR HOMING FLAG
     //! ************************************************************************
     digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
     digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
     
     resetCuttingVariables();
-    currentState = RETURNING;
+    
+    // Check if flag is set to go to homing instead of returning
+    if (cutToHomingFlag) {
+        cutToHomingFlag = false; // Reset flag
+        currentState = HOMING;
+    } else {
+        currentState = RETURNING;
+    }
 } 

@@ -27,6 +27,7 @@ extern bool homingComplete;
 extern bool cycleInProgress;
 extern bool emergencyStop;
 extern float positionVerificationDistance;
+extern bool cutToHomingFlag;
 
 // Timing variables
 extern unsigned long stateStartTime;
