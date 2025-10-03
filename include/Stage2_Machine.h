@@ -94,4 +94,7 @@ void handleCuttingState();
 void handleReturningState();
 void handleRouterClearErrorState();
 
+// Cutting state utility functions
+void setCuttingPhaseToContinue();
+
 // OTA function declarations are in OTA/OTA_Upload.h 

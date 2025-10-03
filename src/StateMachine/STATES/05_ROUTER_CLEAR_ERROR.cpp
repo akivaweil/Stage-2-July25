@@ -41,6 +41,11 @@ void handleRouterClearErrorState() {
             // Return to the state before the error occurred
             startButtonWasPressed = false;
             currentState = stateBeforeError;
+            
+            // If returning to cutting state, continue from where it left off
+            if (stateBeforeError == CUTTING) {
+                setCuttingPhaseToContinue();
+            }
             return;
         }
         

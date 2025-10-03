@@ -123,6 +123,12 @@ void resetCuttingVariables() {
     oscillatingForward = true;
 }
 
+void setCuttingPhaseToContinue() {
+    // Set phase to continue from clamp release (right after router clear check)
+    cuttingPhase = PHASE_CLAMP_RELEASE;
+    stepStartTime = millis();
+}
+
 //! ************************************************************************
 //! APPROACH PHASE HANDLER
 //! ************************************************************************
