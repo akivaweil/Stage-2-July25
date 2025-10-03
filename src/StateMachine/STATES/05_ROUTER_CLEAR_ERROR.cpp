@@ -26,7 +26,7 @@ void handleRouterClearErrorState() {
         // Button is still being held - check for hold duration
         unsigned long holdDuration = millis() - stateStartTime;
         
-        if (holdDuration >= 2000) { // 2 second hold for homing
+        if (holdDuration >= 1000) { // 1 second hold for homing
             // Long press detected - go to homing state
             startButtonWasPressed = false;
             currentState = HOMING;
