@@ -363,9 +363,11 @@ void handlePrepareReturnPhase() {
     
     // Check if flag is set to go to homing instead of returning
     if (cutToHomingFlag) {
+        Serial.println("Cutting: cutToHomingFlag is TRUE - going to HOMING");
         cutToHomingFlag = false; // Reset flag
         currentState = HOMING;
     } else {
+        Serial.println("Cutting: cutToHomingFlag is FALSE - going to RETURNING");
         currentState = RETURNING;
     }
 } 

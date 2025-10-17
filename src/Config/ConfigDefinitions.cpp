@@ -43,6 +43,7 @@ const int MOTION_SETTLE_TIME = 50;
 const int ALIGN_SETTLE_TIME = 200;
 const int SIGNAL_DURATION = 2000;
 const int MOTOR_TIMEOUT = 5000;
+const int RETURN_TIMEOUT = 5000;             // Timeout for returning state before waiting for start button
 // Alignment-specific timing (ms)
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS = 50;   // allow left clamp to extend
 const int ALIGNMENT_ALIGNMENT_MOVE_MS = 270;      // allow alignment movement to complete

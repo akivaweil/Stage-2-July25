@@ -30,6 +30,7 @@ void handleRouterClearErrorState() {
             // Long press detected - set flag to go to homing after cutting completes
             startButtonWasPressed = false;
             cutToHomingFlag = true;
+            Serial.println("Router Error: cutToHomingFlag set to TRUE");
             currentState = stateBeforeError;
             
             // If returning to cutting state, continue from where it left off
