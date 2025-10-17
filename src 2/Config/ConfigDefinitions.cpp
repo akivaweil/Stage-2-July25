@@ -12,7 +12,7 @@ const float STEPS_PER_INCH = 42.33;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25
 const float HOME_OFFSET = .6;        // Position offset from home switch (sets position 0 after homing)
 const float ALIGNMENT_INITIAL_DISTANCE = .3; // Initial distance for alignment
 const float ALIGNMENT_BACKWARD_DISTANCE = 0.2;
-const float APPROACH_DISTANCE = 4.0;  // Exact distance from offset position to approach cutting position
+const float APPROACH_DISTANCE = 4.3;  // Exact distance from offset position to approach cutting position
 const float CUTTING_DISTANCE = 6.0;   // Exact distance to cut through material (from approach position)
 const float TOTAL_FORWARD_DISTANCE = 24.4;  // Total exact distance from offset position to final position
 
@@ -20,13 +20,13 @@ const float TOTAL_FORWARD_DISTANCE = 24.4;  // Total exact distance from offset 
 const float HOMING_SPEED = 150;     
 const float ALIGNMENT_INITIAL_SPEED = 200; // Initial speed for alignment
 const float APPROACH_SPEED = 30000; 
-const float CUTTING_SPEED = 75;    
+const float CUTTING_SPEED = 80;    
 const float FINISH_SPEED = 30000;   
 const float RETURN_SPEED = 30000;   
 
 // Acceleration Settings (steps/second²)
 const float FORWARD_ACCEL = 16000;   
-const float RETURN_ACCEL = 16000;    
+const float RETURN_ACCEL = 20000;    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)

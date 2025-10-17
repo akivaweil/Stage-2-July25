@@ -298,20 +298,22 @@ void handleClampReleasePhase() {
             //! ************************************************************************
             //! OSCILLATION DURING CLAMP RELEASE (WITHIN 400MS TOTAL TIME)
             //! ************************************************************************
+            //! DISABLED: Oscillation movement is disabled but timing structure remains
             {
                 unsigned long elapsedTime = millis() - stepStartTime;
                 
-                if (elapsedTime >= 100) { // Start oscillation after 100ms delay
-                    if (!isMotorRunning()) {
-                        float oscillationDistance = Timing::OSCILLATION_DISTANCE * Motion::STEPS_PER_INCH;
-                        float targetOscPos = oscillatingForward ? 
-                            centerPosition + oscillationDistance : 
-                            centerPosition - oscillationDistance;
-                        
-                        moveMotorToPosition(targetOscPos, Timing::OSCILLATION_SPEED, Timing::OSCILLATION_ACCEL);
-                        oscillatingForward = !oscillatingForward;
-                    }
-                }
+                // DISABLED - Oscillation movement commented out
+                // if (elapsedTime >= 100) { // Start oscillation after 100ms delay
+                //     if (!isMotorRunning()) {
+                //         float oscillationDistance = Timing::OSCILLATION_DISTANCE * Motion::STEPS_PER_INCH;
+                //         float targetOscPos = oscillatingForward ? 
+                //             centerPosition + oscillationDistance : 
+                //             centerPosition - oscillationDistance;
+                //         
+                //         moveMotorToPosition(targetOscPos, Timing::OSCILLATION_SPEED, Timing::OSCILLATION_ACCEL);
+                //         oscillatingForward = !oscillatingForward;
+                //     }
+                // }
                 
                 if (elapsedTime >= Timing::CLAMP_RELEASE_TIME) {
                     stopMotor();
