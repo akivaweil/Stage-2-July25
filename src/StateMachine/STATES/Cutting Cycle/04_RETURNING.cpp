@@ -139,6 +139,7 @@ void handleReturnCompletionPhase() {
     unsigned long elapsedTime = millis() - returnStateStartTime;
     if (elapsedTime >= Timing::RETURN_TIMEOUT) {
         // Timeout reached - wait for start button press
+        startButtonWasPressed = false; // Reset button tracking for waiting phase
         currentPhase = PHASE_RETURN_WAITING;
     } else {
         // No timeout yet - transition directly to homing
