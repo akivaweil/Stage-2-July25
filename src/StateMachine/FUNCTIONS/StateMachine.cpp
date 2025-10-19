@@ -32,10 +32,6 @@ void runStateMachine() {
         case RETURNING:
             handleReturningState();
             break;
-            
-        case ROUTER_CLEAR_ERROR:
-            handleRouterClearErrorState();
-            break;
     }
 }
 

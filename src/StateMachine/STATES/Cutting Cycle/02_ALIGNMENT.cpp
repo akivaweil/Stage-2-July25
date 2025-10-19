@@ -6,195 +6,108 @@
 //* ************************************************************************
 // This state performs the complete clamp sequence with detailed material alignment choreography
 
-//! ************************************************************************
-//! ALIGNMENT STEP CONSTANTS
-//! ************************************************************************
-#define STEP_INITIAL_MOVEMENT          0
-#define STEP_WAIT_INITIAL              1
-#define STEP_REVERSE_MOVEMENT          2
-#define STEP_WAIT_REVERSE              3
-#define STEP_ALIGNMENT_CYLINDER_EXTEND 4
-#define STEP_WAIT_ALIGNMENT_PRE        5
-#define STEP_LEFT_CLAMP_EXTEND         6
-#define STEP_WAIT_LEFT_CLAMP           7
-#define STEP_LEFT_CLAMP_RETRACT        8
-#define STEP_RIGHT_CLAMP_EXTEND        9
-#define STEP_WAIT_RIGHT_EXTEND         10
-#define STEP_RIGHT_CLAMP_RETRACT       11
-#define STEP_ALIGNMENT_RIGHT_EXTEND    12
-#define STEP_WAIT_ALIGNMENT_RIGHT      13
-#define STEP_FINAL_MOVEMENT            14
-#define STEP_WAIT_FINAL_MOVEMENT       15
-#define STEP_FINAL_LEFT_CLAMP          16
-#define STEP_FINAL_RIGHT_CLAMP         17
-#define STEP_FINAL_SETTLE              18
-
-//! ************************************************************************
-//! STATIC VARIABLES FOR ALIGNMENT STATE
-//! ************************************************************************
-static unsigned long stepStartTime = 0;
-static int currentStep = 0;
-
-//! ************************************************************************
-//! FORWARD DECLARATIONS
-//! ************************************************************************
-void resetAlignmentVariables();
-void handleInitialMovementPhase();
-void handleAlignmentSequencePhase();
-void handleFinalClampPhase();
-
-//! ************************************************************************
-//! MAIN ALIGNMENT STATE HANDLER
-//! ************************************************************************
 void handleAlignmentState() {
-    
-    //! ************************************************************************
-    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
-    //! ************************************************************************
-    if (checkStartButtonForHoming()) {
-        resetAlignmentVariables();
-        return; // Exit function, state will be changed to HOMING
-    }
+    static unsigned long stepStartTime = 0;
+    static int currentStep = 0;
     
     // Initialize step timing
     if (stepStartTime == 0) {
         stepStartTime = millis();
     }
     
-    //! ************************************************************************
-    //! STEP ROUTING
-    //! ************************************************************************
-    if (currentStep >= STEP_INITIAL_MOVEMENT && currentStep <= STEP_WAIT_REVERSE) {
-        handleInitialMovementPhase();
-    } else if (currentStep >= STEP_ALIGNMENT_CYLINDER_EXTEND && currentStep <= STEP_WAIT_FINAL_MOVEMENT) {
-        handleAlignmentSequencePhase();
-    } else if (currentStep >= STEP_FINAL_LEFT_CLAMP && currentStep <= STEP_FINAL_SETTLE) {
-        handleFinalClampPhase();
-    }
-}
-
-//! ************************************************************************
-//! RESET ALIGNMENT VARIABLES
-//! ************************************************************************
-void resetAlignmentVariables() {
-    stepStartTime = 0;
-    currentStep = 0;
-}
-
-//! ************************************************************************
-//! INITIAL MOVEMENT PHASE HANDLER
-//! ************************************************************************
-void handleInitialMovementPhase() {
     switch (currentStep) {
-        case STEP_INITIAL_MOVEMENT:
+        case 0:
             //! ************************************************************************
             //! STEP 1: INITIAL FORWARD MOVEMENT
             //! ************************************************************************
+            // Move motor forward 1 inch at a specific speed for initial alignment
             stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
-            stepper->moveTo(Motion::ALIGNMENT_INITIAL_POSITION * Motion::STEPS_PER_INCH);
+            stepper->move(Motion::ALIGNMENT_INITIAL_DISTANCE * Motion::STEPS_PER_INCH);
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_WAIT_INITIAL:
-            //! ************************************************************************
-            //! WAIT FOR INITIAL MOVEMENT
-            //! ************************************************************************
+        case 1:
+            // Wait for the initial movement to complete
             if (!stepper->isRunning()) {
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
 
-        case STEP_REVERSE_MOVEMENT:
+        case 2:
             //! ************************************************************************
             //! STEP 2: REVERSE A BIT TO MOVE OUT OF THE WAY
             //! ************************************************************************
-            stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
-            stepper->moveTo(Motion::ALIGNMENT_BACKWARD_POSITION * Motion::STEPS_PER_INCH);
-            extendLeftClamp();
+            // Move motor backward 0.1 inch to allow material to settle against clamps
+            stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED); // Assuming same speed is okay
+            stepper->move(-Motion::ALIGNMENT_BACKWARD_DISTANCE * Motion::STEPS_PER_INCH);
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_WAIT_REVERSE:
-            //! ************************************************************************
-            //! WAIT FOR REVERSE MOVEMENT
-            //! ************************************************************************
+        case 3:
+            // Wait for the reverse movement to complete
             if (!stepper->isRunning()) {
-                retractLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
-    }
-}
 
-//! ************************************************************************
-//! ALIGNMENT SEQUENCE PHASE HANDLER
-//! ************************************************************************
-void handleAlignmentSequencePhase() {
-    switch (currentStep) {
-        case STEP_ALIGNMENT_CYLINDER_EXTEND:
+        //* ************************************************************************
+        //* ************************ PHASE 1: CLAMP SEQUENCE (MATERIAL ALIGNMENT) *
+        //* ************************************************************************
+        
+        case 4:
             //! ************************************************************************
             //! STEP 3: ALIGNMENT CYLINDER FIRST, THEN LEFT CLAMP SEQUENCE
             //! ************************************************************************
+            // Step 3.1: Extend alignment cylinder first (position material precisely)
             extendAlignmentCylinder();
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_WAIT_ALIGNMENT_PRE:
-            //! ************************************************************************
-            //! WAIT FOR ALIGNMENT CYLINDER TO POSITION MATERIAL
-            //! ************************************************************************
+        case 5:
+            // Step 3.2: Wait for alignment cylinder to position material
             if (millis() - stepStartTime >= Timing::ALIGNMENT_CYLINDER_PRE_EXTEND_MS) {
+                // Step 3.3: Extend left clamp (secure material after alignment)
+                extendLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
             
-        case STEP_LEFT_CLAMP_EXTEND:
-            //! ************************************************************************
-            //! EXTEND LEFT CLAMP (SECURE MATERIAL AFTER ALIGNMENT)
-            //! ************************************************************************
-            extendLeftClamp();
-            stepStartTime = millis();
-            currentStep++;
-            break;
-            
-        case STEP_WAIT_LEFT_CLAMP:
-            //! ************************************************************************
-            //! WAIT FOR LEFT CLAMP TO FULLY EXTEND
-            //! ************************************************************************
+        case 6:
+            // Step 3.4: Wait (allow left clamp to fully extend)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_LEFT_CLAMP_EXTEND_MS) {
+                // Step 3.5: Retract left clamp (release to allow fine adjustment)
+                retractLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
             
-        case STEP_LEFT_CLAMP_RETRACT:
-            //! ************************************************************************
-            //! RETRACT LEFT CLAMP (RELEASE TO ALLOW FINE ADJUSTMENT)
-            //! ************************************************************************
-            retractLeftClamp();
-            stepStartTime = millis();
-            currentStep++;
+        case 7:
+            // Step 3.6: Wait (settle time)
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
+                currentStep++;
+                stepStartTime = millis();
+            }
             break;
             
-        case STEP_RIGHT_CLAMP_EXTEND:
+        case 8:
             //! ************************************************************************
             //! STEP 4: RIGHT CLAMP SEQUENCE WITH ALIGNMENT
             //! ************************************************************************
+            // Step 4.1: Extend right clamp first
             extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_WAIT_RIGHT_EXTEND:
-            //! ************************************************************************
-            //! WAIT, THEN RETRACT ALIGNMENT CYLINDER
-            //! ************************************************************************
+        case 9:
+            // Step 4.2: Wait, then retract alignment cylinder
             if (millis() - stepStartTime >= Timing::ALIGNMENT_SHORT_SETTLE_MS) {
                 retractAlignmentCylinder();
                 stepStartTime = millis();
@@ -202,31 +115,26 @@ void handleAlignmentSequencePhase() {
             }
             break;
             
-        case STEP_RIGHT_CLAMP_RETRACT:
-            //! ************************************************************************
-            //! WAIT (RIGHT CLAMP EXTENSION TIME)
-            //! ************************************************************************
+        case 10:
+            // Step 4.3: Wait (right clamp extension time)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_RIGHT_CLAMP_WAIT_MS) {
+                // Step 4.4: Retract right clamp (release for repositioning)
                 retractRightClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
             
-        case STEP_ALIGNMENT_RIGHT_EXTEND:
-            //! ************************************************************************
-            //! EXTEND ALIGNMENT CYLINDER AND RIGHT CLAMP (PREP FOR FINAL POSITIONING)
-            //! ************************************************************************
+        case 11:
+            // Step 4.5: Extend alignment cylinder and right clamp (prep for final positioning)
             extendAlignmentCylinder();
             extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_WAIT_ALIGNMENT_RIGHT:
-            //! ************************************************************************
-            //! WAIT, THEN RETRACT ALIGNMENT CYLINDER (CLEAR FOR CUTTING)
-            //! ************************************************************************
+        case 12:
+            // Step 4.6: Wait, then retract alignment cylinder (clear for cutting)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_SHORT_SETTLE_MS) {
                 retractAlignmentCylinder();
                 stepStartTime = millis();
@@ -234,60 +142,54 @@ void handleAlignmentSequencePhase() {
             }
             break;
             
-        case STEP_FINAL_MOVEMENT:
-            //! ************************************************************************
-            //! FINAL BACKWARD MOVEMENT TO FINAL ALIGNMENT POSITION
-            //! ************************************************************************
+        case 13:
+            // Step 4.7: Wait (settle time after alignment cylinder retraction)
             if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
+                // Step 4.8: Final backward movement of 0.3 inches after all clamp movements
                 stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
-                stepper->moveTo(Motion::ALIGNMENT_FINAL_POSITION * Motion::STEPS_PER_INCH);
+                stepper->move(-0.3 * Motion::STEPS_PER_INCH);
                 stepStartTime = millis();
                 currentStep++;
             }
             break;
             
-        case STEP_WAIT_FINAL_MOVEMENT:
-            //! ************************************************************************
-            //! WAIT FOR FINAL BACKWARD MOVEMENT TO COMPLETE
-            //! ************************************************************************
+        case 14:
+            // Step 4.9: Wait for final backward movement to complete
             if (!stepper->isRunning()) {
                 currentStep++;
                 stepStartTime = millis();
             }
             break;
-    }
-}
-
-//! ************************************************************************
-//! FINAL CLAMP PHASE HANDLER
-//! ************************************************************************
-void handleFinalClampPhase() {
-    switch (currentStep) {
-        case STEP_FINAL_LEFT_CLAMP:
+            
+        case 15:
             //! ************************************************************************
             //! STEP 5: FINAL CLAMP ENGAGEMENT FOR CUTTING
             //! ************************************************************************
+            // Step 5.1: Extend left clamp (secure for cutting)
             extendLeftClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_FINAL_RIGHT_CLAMP:
-            //! ************************************************************************
-            //! EXTEND RIGHT CLAMP (DUAL-CLAMP SECURE HOLD)
-            //! ************************************************************************
+        case 16:
+            // Step 5.2: Extend right clamp (dual-clamp secure hold)
             extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
             
-        case STEP_FINAL_SETTLE:
-            //! ************************************************************************
-            //! WAIT FOR FINAL CLAMP ENGAGEMENT BEFORE PROCEEDING TO CUTTING CYCLE
-            //! ************************************************************************
+        case 17:
+            // Step 5.3: Wait for final clamp engagement before proceeding to cutting cycle
             if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-                setCurrentMotorPosition((long)(Motion::ALIGNMENT_FINAL_POSITION * Motion::STEPS_PER_INCH));
-                resetAlignmentVariables();
+                // ADDED: Set current position to account for relative alignment moves
+                float netAlignmentSteps = (Motion::ALIGNMENT_INITIAL_DISTANCE - Motion::ALIGNMENT_BACKWARD_DISTANCE - 0.3) * Motion::STEPS_PER_INCH;
+                setCurrentMotorPosition((long)netAlignmentSteps);
+
+                // Reset static variables for next cycle
+                stepStartTime = 0;
+                currentStep = 0;
+                
+                // Transition to cutting state
                 currentState = CUTTING;
             }
             break;

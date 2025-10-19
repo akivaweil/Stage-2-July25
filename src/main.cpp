@@ -15,7 +15,6 @@
 // State machine variables
 MachineState currentState = IDLE;
 MachineState previousState = IDLE;
-MachineState stateBeforeError = IDLE;
 
 // Motor position tracking
 float currentPosition = 0.0;
@@ -24,16 +23,11 @@ float currentPosition = 0.0;
 bool homingComplete = false;
 bool cycleInProgress = false;
 bool emergencyStop = false;
-bool cutToHomingFlag = false;
-
-// Position verification tracking
-float positionVerificationDistance = 0.0;
 
 // Input objects with Bounce2 library
 Bounce2::Button homeSwitch;
 Bounce2::Button startButton;
 Bounce2::Button transferArmSignal;
-Bounce2::Button endPositionVerificationSensor;
 
 // FastAccelStepper objects
 FastAccelStepperEngine engine = FastAccelStepperEngine();
@@ -42,10 +36,6 @@ FastAccelStepper *stepper = NULL;
 // Timing variables
 unsigned long stateStartTime = 0;
 unsigned long lastMotorUpdate = 0;
-
-// Button state tracking for rising edge detection
-bool startButtonWasPressed = false;
-bool transferArmSignalWasActive = false;
 
 //* ************************************************************************
 //* ************************ MAIN SETUP *******************************

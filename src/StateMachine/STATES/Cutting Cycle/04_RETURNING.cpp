@@ -3,94 +3,17 @@
 //* ************************************************************************
 //* ************************ RETURNING STATE *****************************
 //* ************************************************************************
-// This state moves the motor back toward the home switch with clamps extended for safe homing.
+// This state returns the motor to home offset with clamps extended.
 // After return is complete, transitions to HOMING state for end-of-cycle homing sequence.
 // Clamps are retracted in the IDLE state after homing is complete.
 
-//! ************************************************************************
-//! RETURNING PHASE CONSTANTS
-//! ************************************************************************
-#define PHASE_RETURN_PREPARATION      0
-#define PHASE_RETURN_MOVEMENT         1
-#define PHASE_RETURN_COMPLETION       2
-#define PHASE_RETURN_WAITING          3
-
-//! ************************************************************************
-//! STATIC VARIABLES FOR RETURNING STATE
-//! ************************************************************************
-static bool returnStarted = false;
-static unsigned long returnStartTime = 0;
-static unsigned long returnStateStartTime = 0;
-static int currentPhase = PHASE_RETURN_PREPARATION;
-
-//! ************************************************************************
-//! FORWARD DECLARATIONS
-//! ************************************************************************
-void resetReturningVariables();
-void handleReturnPreparationPhase();
-void handleReturnMovementPhase();
-void handleReturnCompletionPhase();
-void handleReturnWaitingPhase();
-
-//! ************************************************************************
-//! MAIN RETURNING STATE HANDLER
-//! ************************************************************************
 void handleReturningState() {
+    static bool returnStarted = false;
+    static unsigned long returnStartTime = 0;
     
-    //! ************************************************************************
-    //! INITIALIZE STATE START TIME ON FIRST ENTRY
-    //! ************************************************************************
-    if (!returnStarted && returnStateStartTime == 0) {
-        returnStateStartTime = millis();
-    }
-    
-    //! ************************************************************************
-    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
-    //! ************************************************************************
-    if (checkStartButtonForHoming()) {
-        resetReturningVariables();
-        return; // Exit function, state will be changed to HOMING
-    }
-    
-    //! ************************************************************************
-    //! PHASE ROUTING
-    //! ************************************************************************
-    switch (currentPhase) {
-        case PHASE_RETURN_PREPARATION:
-            handleReturnPreparationPhase();
-            break;
-            
-        case PHASE_RETURN_MOVEMENT:
-            handleReturnMovementPhase();
-            break;
-            
-        case PHASE_RETURN_COMPLETION:
-            handleReturnCompletionPhase();
-            break;
-            
-        case PHASE_RETURN_WAITING:
-            handleReturnWaitingPhase();
-            break;
-    }
-}
-
-//! ************************************************************************
-//! RESET RETURNING VARIABLES
-//! ************************************************************************
-void resetReturningVariables() {
-    returnStarted = false;
-    returnStartTime = 0;
-    returnStateStartTime = 0;
-    currentPhase = PHASE_RETURN_PREPARATION;
-}
-
-//! ************************************************************************
-//! RETURN PREPARATION PHASE HANDLER
-//! ************************************************************************
-void handleReturnPreparationPhase() {
     if (!returnStarted) {
         //! ************************************************************************
-        //! PHASE 6: RETURN MOVEMENT - MOVE BACK TOWARD HOME SWITCH FOR SAFE HOMING
+        //! PHASE 6: RETURN MOVEMENT - RETURN TO HOME OFFSET
         //! ************************************************************************
         // Transfer arm signal already set HIGH in cutting state (prevents Z-axis interference)
         
@@ -100,88 +23,35 @@ void handleReturnPreparationPhase() {
         retractAlignmentCylinder();
         
         //! ************************************************************************
-        //! STEP 2: MOVE FINAL_POSITION DISTANCE TOWARD HOME SWITCH AT FULL SPEED
+        //! STEP 2: RETURN TO HOME OFFSET POSITION AT HIGH SPEED
         //! ************************************************************************
-        float returnDistanceSteps = -Motion::FINAL_POSITION * Motion::STEPS_PER_INCH; // Negative = move toward home
-        moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
+        float homePosition = 0.0; // Return to offset position (now position 0)
+        moveMotorToPosition(homePosition, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
         
         returnStarted = true;
         returnStartTime = millis();
-        currentPhase = PHASE_RETURN_MOVEMENT;
     }
-}
-
-//! ************************************************************************
-//! RETURN MOVEMENT PHASE HANDLER
-//! ************************************************************************
-void handleReturnMovementPhase() {
-    //! ************************************************************************
-    //! WAIT FOR RETURN MOVEMENT TO COMPLETE
-    //! ************************************************************************
+    
+    // Wait for return movement to complete using FastAccelStepper status
     if (!isMotorRunning()) {
-        currentPhase = PHASE_RETURN_COMPLETION;
-    }
-}
-
-//! ************************************************************************
-//! RETURN COMPLETION PHASE HANDLER
-//! ************************************************************************
-void handleReturnCompletionPhase() {
-    //! ************************************************************************
-    //! STEP 3: COMPLETE TRANSFER ARM SIGNAL
-    //! ************************************************************************
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
-    currentPosition = getCurrentMotorPosition();
-    
-    //! ************************************************************************
-    //! STEP 4: CHECK IF TIMEOUT HAS ELAPSED
-    //! ************************************************************************
-    unsigned long elapsedTime = millis() - returnStateStartTime;
-    if (elapsedTime >= Timing::RETURN_TIMEOUT) {
-        // Timeout reached - wait for start button press
-        currentPhase = PHASE_RETURN_WAITING;
-    } else {
-        // No timeout yet - transition directly to homing
+        //! ************************************************************************
+        //! STEP 3: COMPLETE TRANSFER ARM SIGNAL AND RETURN TO IDLE
+        //! ************************************************************************
+        // Complete the transfer arm signal pulse
+        digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
+        
+        // Update current position from stepper
+        currentPosition = getCurrentMotorPosition();
+        
+        // Reset static variables for next cycle
+        returnStarted = false;
+        returnStartTime = 0;
+        
+        //! ************************************************************************
+        //! STEP 4: TRANSITION TO HOMING FOR END-OF-CYCLE HOMING SEQUENCE
+        //! ************************************************************************
+        // After each cut cycle, perform homing sequence to ensure accuracy
         homingComplete = false; // Reset homing flag to force homing sequence
-        resetReturningVariables();
         currentState = HOMING;
-    }
-}
-
-//! ************************************************************************
-//! RETURN WAITING PHASE HANDLER
-//! ************************************************************************
-void handleReturnWaitingPhase() {
-    //! ************************************************************************
-    //! WAIT FOR START BUTTON PRESS
-    //! ************************************************************************
-    updateInputs();
-    
-    bool startButtonCurrentlyPressed = startButton.read();
-    if (startButtonCurrentlyPressed && !startButtonWasPressed) {
-        // Start button pressed - reset motor and home
-        startButtonWasPressed = true;
-        
-        // Stop any running motor movement
-        stopMotor();
-        
-        // Disable and re-enable motor to clear any jams
-        disableMotor();
-        delay(100); // Brief pause while motor is disabled
-        enableMotor();
-        
-        // Keep both clamps extended for safe material handling
-        // Only retract alignment cylinder for safe homing
-        retractAlignmentCylinder();
-        
-        // Reset homing flag to force homing sequence
-        homingComplete = false;
-        
-        // Reset variables and transition to homing
-        resetReturningVariables();
-        currentState = HOMING;
-    } else if (!startButtonCurrentlyPressed) {
-        // Button is not pressed, reset the tracking variable
-        startButtonWasPressed = false;
     }
 } 
