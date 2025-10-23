@@ -153,6 +153,14 @@ void handleReturnMovementPhase() {
     unsigned long elapsedTime = millis() - returnStartTime;
     unsigned long timeoutTime = estimatedReturnTime + 200; // Add 200ms leeway
     
+    // Check if home switch is triggered (reached the switch)
+    if (homeSwitch.read()) {
+        // Reached home switch - stop motor immediately to prevent stall
+        stopMotor();
+        currentPhase = PHASE_RETURN_COMPLETION;
+        return;
+    }
+    
     // Check if timeout elapsed without reaching switch
     if (elapsedTime >= timeoutTime) {
         // Motor hasn't reached switch after expected time - likely stalled
