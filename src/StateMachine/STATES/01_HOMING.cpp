@@ -9,6 +9,9 @@ void handleHomingState() {
     static bool homingStarted = false;
     static bool movingToHome = false;
     static bool movingToOffset = false;
+    static int retryCount = 0;
+    static float targetOffsetSteps = 0;
+    static unsigned long offsetStartTime = 0;
     
     if (!homingStarted) {
         enableMotor();
@@ -16,18 +19,20 @@ void handleHomingState() {
         setCurrentMotorPosition(0);
         currentPosition = 0.0;
         homingStarted = true;
+        retryCount = 0;
         updateInputs();
         
         if (homeSwitch.read()) {
             // Already at home switch
             setCurrentMotorPosition(0);
             currentPosition = 0.0;
-            float offsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
+            targetOffsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
-            stepper->moveTo((long)offsetSteps);
+            stepper->moveTo((long)targetOffsetSteps);
             movingToHome = false;
             movingToOffset = true;
+            offsetStartTime = millis();
         } else {
             // Search for home switch
             movingToHome = true;
@@ -54,24 +59,75 @@ void handleHomingState() {
             waitForMotorComplete();
             
             // Move to offset position
-            float offsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
+            targetOffsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
             setCurrentMotorPosition(0);
-            stepper->moveTo((long)offsetSteps);
+            stepper->moveTo((long)targetOffsetSteps);
             
             movingToHome = false;
             movingToOffset = true;
+            offsetStartTime = millis();
         }
     }
     
     if (movingToOffset) {
         if (!isMotorRunning()) {
-            stopMotor();
-            setCurrentMotorPosition(0);
-            currentPosition = 0.0;
-            homingComplete = true;
-            homingStarted = false;
-            movingToOffset = false;
-            currentState = IDLE;
+            // Check if motor reached target position
+            long currentPos = getCurrentMotorPosition();
+            long targetPos = (long)targetOffsetSteps;
+            long positionError = abs(currentPos - targetPos);
+            
+            // Allow 5 steps of tolerance
+            if (positionError <= 5) {
+                // Successfully reached target
+                setCurrentMotorPosition(0);
+                currentPosition = 0.0;
+                homingComplete = true;
+                homingStarted = false;
+                movingToOffset = false;
+                retryCount = 0;
+                currentState = IDLE;
+            } else {
+                // Did not reach target - retry
+                retryCount++;
+                
+                if (retryCount < 3) {
+                    // Re-enable motor and retry
+                    enableMotor();
+                    stepper->setSpeedInHz(Motion::HOMING_SPEED);
+                    stepper->setAcceleration(Motion::FORWARD_ACCEL);
+                    stepper->moveTo((long)targetOffsetSteps);
+                    offsetStartTime = millis();
+                } else {
+                    // Too many retries - abort and restart homing
+                    stopMotor();
+                    homingStarted = false;
+                    movingToOffset = false;
+                    retryCount = 0;
+                    // Will restart on next cycle
+                }
+            }
+        }
+        
+        // Timeout check - if motor hasn't completed in 10 seconds, retry
+        if (isMotorRunning() && (millis() - offsetStartTime > 10000)) {
+            retryCount++;
+            
+            if (retryCount < 3) {
+                // Stop and retry
+                stepper->forceStopAndNewPosition(stepper->getCurrentPosition());
+                waitForMotorComplete();
+                enableMotor();
+                stepper->setSpeedInHz(Motion::HOMING_SPEED);
+                stepper->setAcceleration(Motion::FORWARD_ACCEL);
+                stepper->moveTo((long)targetOffsetSteps);
+                offsetStartTime = millis();
+            } else {
+                // Too many retries - abort and restart homing
+                stopMotor();
+                homingStarted = false;
+                movingToOffset = false;
+                retryCount = 0;
+            }
         }
     }
 } 
