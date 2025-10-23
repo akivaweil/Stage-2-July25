@@ -58,6 +58,7 @@ void handleAlignmentState() {
     
     // Initialize step timing
     if (stepStartTime == 0) {
+        enableMotor();
         stepStartTime = millis();
     }
     

@@ -170,7 +170,7 @@ void handleReturnMovementPhase() {
         
         // Disable and re-enable motor to clear stall
         disableMotor();
-        delay(100);
+        delay(300);
         enableMotor();
         
         // Reset homing flag and transition to homing state

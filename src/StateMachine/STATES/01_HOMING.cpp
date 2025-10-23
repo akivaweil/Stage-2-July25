@@ -71,11 +71,6 @@ void handleHomingState() {
             homingComplete = true;
             homingStarted = false;
             movingToOffset = false;
-            
-            // Retract clamps before returning to IDLE
-            retractBothClamps();
-            retractAlignmentCylinder();
-            
             currentState = IDLE;
         }
     }
