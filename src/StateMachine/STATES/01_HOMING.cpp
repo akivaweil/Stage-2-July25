@@ -16,14 +16,12 @@ void handleHomingState() {
     if (!homingStarted) {
         enableMotor();
         homingComplete = false;
-        setCurrentMotorPosition(0);
-        currentPosition = 0.0;
-        homingStarted = true;
         retryCount = 0;
         updateInputs();
         
         if (homeSwitch.read()) {
-            // Already at home switch
+            // Already at home switch - reset position first
+            stepper->forceStopAndNewPosition(0);
             setCurrentMotorPosition(0);
             currentPosition = 0.0;
             targetOffsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
@@ -33,9 +31,11 @@ void handleHomingState() {
             movingToHome = false;
             movingToOffset = true;
             offsetStartTime = millis();
+            homingStarted = true;
         } else {
             // Search for home switch
             movingToHome = true;
+            homingStarted = true;
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
             stepper->move(-100000);
