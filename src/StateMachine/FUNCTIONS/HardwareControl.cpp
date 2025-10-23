@@ -143,8 +143,16 @@ bool isMotorRunning() {
 
 void waitForMotorComplete() {
     if (stepper) {
+        unsigned long startTime = millis();
         while (stepper->isRunning()) {
             delay(1); // Small delay to prevent watchdog issues
+            
+            // Timeout after 5 seconds to prevent infinite hang
+            if (millis() - startTime > 5000) {
+                Serial.println("Motor timeout - forcing stop");
+                stepper->forceStopAndNewPosition(stepper->getCurrentPosition());
+                break;
+            }
         }
     }
 }

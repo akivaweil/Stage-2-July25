@@ -134,13 +134,7 @@ void handleReturnCompletionPhase() {
     currentPosition = getCurrentMotorPosition();
     
     //! ************************************************************************
-    //! STEP 4: RETRACT CLAMPS BEFORE HOMING (CRITICAL FOR TRANSFER ARM CYCLES)
-    //! ************************************************************************
-    retractBothClamps();
-    retractAlignmentCylinder();
-    
-    //! ************************************************************************
-    //! STEP 5: CHECK IF TIMEOUT HAS ELAPSED
+    //! STEP 4: CHECK IF TIMEOUT HAS ELAPSED
     //! ************************************************************************
     unsigned long elapsedTime = millis() - returnStateStartTime;
     if (elapsedTime >= Timing::RETURN_TIMEOUT) {
@@ -177,8 +171,8 @@ void handleReturnWaitingPhase() {
         delay(100); // Brief pause while motor is disabled
         enableMotor();
         
-        // Retract all clamps and cylinders for safe homing
-        retractBothClamps();
+        // Keep both clamps extended for safe material handling
+        // Only retract alignment cylinder for safe homing
         retractAlignmentCylinder();
         
         // Reset homing flag to force homing sequence

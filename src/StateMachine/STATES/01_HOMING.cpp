@@ -18,6 +18,7 @@ void handleHomingState() {
         homingStarted = true;
         updateInputs();
         
+        
         if (homeSwitch.read()) {
             // Already at home switch
             setCurrentMotorPosition(0);
