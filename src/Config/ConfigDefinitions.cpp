@@ -25,12 +25,12 @@ const float HOMING_SPEED = 150;
 const float ALIGNMENT_INITIAL_SPEED = 150; // Initial speed for alignment
 const float APPROACH_SPEED = 30000; 
 const float CUTTING_SPEED = 70;    
-const float FINISH_SPEED = 30000;   
-const float RETURN_SPEED = 30000;   
+const float FINISH_SPEED = 20000;   
+const float RETURN_SPEED = 27000;   
 const float FINAL_SPEED = 50;   
 
 // Acceleration Settings (steps/second²)
-const float FORWARD_ACCEL = 10000;   
+const float FORWARD_ACCEL = 7000;   
 const float RETURN_ACCEL = 16000;    
 }  // namespace Motion
 

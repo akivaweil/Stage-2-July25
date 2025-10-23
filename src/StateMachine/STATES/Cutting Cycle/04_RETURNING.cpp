@@ -21,6 +21,7 @@
 static bool returnStarted = false;
 static unsigned long returnStartTime = 0;
 static unsigned long returnStateStartTime = 0;
+static unsigned long estimatedReturnTime = 0;
 static int currentPhase = PHASE_RETURN_PREPARATION;
 
 //! ************************************************************************
@@ -81,6 +82,7 @@ void resetReturningVariables() {
     returnStarted = false;
     returnStartTime = 0;
     returnStateStartTime = 0;
+    estimatedReturnTime = 0;
     currentPhase = PHASE_RETURN_PREPARATION;
 }
 
@@ -103,6 +105,14 @@ void handleReturnPreparationPhase() {
         //! STEP 2: MOVE FINAL_POSITION DISTANCE TOWARD HOME SWITCH AT FULL SPEED
         //! ************************************************************************
         float returnDistanceSteps = -Motion::FINAL_POSITION * Motion::STEPS_PER_INCH; // Negative = move toward home
+        
+        //! ************************************************************************
+        //! CALCULATE ESTIMATED TIME FOR RETURN MOVEMENT
+        //! ************************************************************************
+        // Time = distance / speed (conservative estimate without deceleration)
+        float returnDistanceAbs = abs(returnDistanceSteps);
+        estimatedReturnTime = (unsigned long)((returnDistanceAbs / Motion::RETURN_SPEED) * 1000.0); // Convert to ms
+        
         moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
         
         returnStarted = true;
@@ -115,6 +125,26 @@ void handleReturnPreparationPhase() {
 //! RETURN MOVEMENT PHASE HANDLER
 //! ************************************************************************
 void handleReturnMovementPhase() {
+    //! ************************************************************************
+    //! CHECK FOR MOTOR STALLING (STILL RUNNING AFTER EXPECTED TIME)
+    //! ************************************************************************
+    unsigned long elapsedTime = millis() - returnStartTime;
+    unsigned long timeoutTime = estimatedReturnTime + 200; // Add 200ms leeway
+    
+    if (elapsedTime >= timeoutTime && isMotorRunning()) {
+        // Motor is still running after expected time - likely stalled
+        // Disable and re-enable motor to clear stall
+        disableMotor();
+        delay(100);
+        enableMotor();
+        
+        // Reset homing flag and transition to homing state
+        homingComplete = false;
+        resetReturningVariables();
+        currentState = HOMING;
+        return;
+    }
+    
     //! ************************************************************************
     //! WAIT FOR RETURN MOVEMENT TO COMPLETE
     //! ************************************************************************
