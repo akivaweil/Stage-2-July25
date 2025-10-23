@@ -19,7 +19,6 @@ void setupHardware() {
     pinMode(Pins::LEFT_CLAMP, OUTPUT);
     pinMode(Pins::RIGHT_CLAMP, OUTPUT);
     pinMode(Pins::ALIGN_CYLINDER, OUTPUT);
-    pinMode(Pins::TRANSFER_ARM_SIGNAL, OUTPUT);
     pinMode(Pins::CLAMP_RELEASE_SIGNAL, OUTPUT);  // dedicated clamp release signal
     
     // Set initial states - all outputs OFF
@@ -29,7 +28,6 @@ void setupHardware() {
     digitalWrite(Pins::LEFT_CLAMP, LOW);
     digitalWrite(Pins::RIGHT_CLAMP, LOW);
     digitalWrite(Pins::ALIGN_CYLINDER, LOW);
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
     digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);  // start LOW
     
     Serial.println("Hardware initialization complete");
@@ -212,14 +210,3 @@ void extendAlignmentCylinder() {
 void retractAlignmentCylinder() {
     digitalWrite(Pins::ALIGN_CYLINDER, LOW);   // LOW retracts the cylinder
 }
-
-//* ************************************************************************
-//* ************************ COMMUNICATION ******************************
-//* ************************************************************************
-
-void signalTransferArm() {
-    // Send signal to transfer arm that cycle is complete
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
-    delay(100); // Brief pulse
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
-} 

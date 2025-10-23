@@ -77,7 +77,6 @@ void extendBothClamps();
 void retractBothClamps();
 void extendAlignmentCylinder();
 void retractAlignmentCylinder();
-void signalTransferArm();
 
 // Utility functions
 void setupInputs();
