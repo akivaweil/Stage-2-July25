@@ -139,6 +139,7 @@ void handleReturnCompletionPhase() {
     } else {
         // No timeout yet - transition directly to homing
         homingComplete = false; // Reset homing flag to force homing sequence
+        enableMotor(); // Ensure motor is enabled before homing
         resetReturningVariables();
         currentState = HOMING;
     }
@@ -172,6 +173,9 @@ void handleReturnWaitingPhase() {
         
         // Reset homing flag to force homing sequence
         homingComplete = false;
+        
+        // Ensure motor is enabled before homing
+        enableMotor();
         
         // Reset variables and transition to homing
         resetReturningVariables();

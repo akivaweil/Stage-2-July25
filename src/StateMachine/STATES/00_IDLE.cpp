@@ -55,6 +55,7 @@ void handleIdleState() {
             idleInitialized = false; // Reset for next idle entry
             currentState = ALIGNMENT;
         } else {
+            enableMotor(); // Ensure motor is enabled before homing
             idleInitialized = false; // Reset for next idle entry
             currentState = HOMING;
         }
@@ -82,6 +83,7 @@ void handleIdleState() {
             idleInitialized = false; // Reset for next idle entry
             currentState = ALIGNMENT;
         } else {
+            enableMotor(); // Ensure motor is enabled before homing
             idleInitialized = false; // Reset for next idle entry
             currentState = HOMING;
         }
@@ -103,6 +105,7 @@ void handleIdleState() {
     //! STEP 5: CHECK IF WE NEED TO HOME AGAIN
     //! ************************************************************************
     if (!homingComplete) {
+        enableMotor(); // Ensure motor is enabled before homing
         idleInitialized = false; // Reset for next idle entry
         currentState = HOMING;
     }

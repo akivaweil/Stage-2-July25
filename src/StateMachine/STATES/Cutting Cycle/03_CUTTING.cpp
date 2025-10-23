@@ -366,6 +366,7 @@ void handlePrepareReturnPhase() {
     if (cutToHomingFlag) {
         Serial.println("Cutting: cutToHomingFlag is TRUE - going to HOMING");
         cutToHomingFlag = false; // Reset flag
+        enableMotor(); // Ensure motor is enabled before homing
         currentState = HOMING;
     } else {
         Serial.println("Cutting: cutToHomingFlag is FALSE - going to RETURNING");
