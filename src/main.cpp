@@ -94,6 +94,6 @@ void loop() {
     // Execute state machine
     runStateMachine();
     
-    // Small delay for stability - reduced for better input responsiveness
-    delay(5);
+    // Minimal delay for stability and to prevent watchdog issues
+    delay(1);
 }
