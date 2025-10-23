@@ -92,7 +92,6 @@ void handleReturnPreparationPhase() {
         //! ************************************************************************
         //! PHASE 6: RETURN MOVEMENT - MOVE BACK TOWARD HOME SWITCH FOR SAFE HOMING
         //! ************************************************************************
-        // Transfer arm signal already set HIGH in cutting state (prevents Z-axis interference)
         
         //! ************************************************************************
         //! STEP 1: RETRACT ALIGNMENT CYLINDER (ENSURE CLEAR PATH)
@@ -127,14 +126,10 @@ void handleReturnMovementPhase() {
 //! RETURN COMPLETION PHASE HANDLER
 //! ************************************************************************
 void handleReturnCompletionPhase() {
-    //! ************************************************************************
-    //! STEP 3: COMPLETE TRANSFER ARM SIGNAL
-    //! ************************************************************************
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, LOW);
     currentPosition = getCurrentMotorPosition();
     
     //! ************************************************************************
-    //! STEP 4: CHECK IF TIMEOUT HAS ELAPSED
+    //! STEP 3: CHECK IF TIMEOUT HAS ELAPSED
     //! ************************************************************************
     unsigned long elapsedTime = millis() - returnStateStartTime;
     if (elapsedTime >= Timing::RETURN_TIMEOUT) {

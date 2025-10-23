@@ -356,9 +356,8 @@ void handleReExtendPhase() {
 //! ************************************************************************
 void handlePrepareReturnPhase() {
     //! ************************************************************************
-    //! SIGNAL TRANSFER ARM AND CHECK FOR HOMING FLAG
+    //! CHECK FOR HOMING FLAG
     //! ************************************************************************
-    digitalWrite(Pins::TRANSFER_ARM_SIGNAL, HIGH);
     digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
     
     resetCuttingVariables();
