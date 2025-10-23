@@ -164,6 +164,10 @@ void handleReturnMovementPhase() {
     // Check if timeout elapsed without reaching switch
     if (elapsedTime >= timeoutTime) {
         // Motor hasn't reached switch after expected time - likely stalled
+        // Stop motor and retract clamps before clearing stall
+        stopMotor();
+        retractBothClamps();
+        
         // Disable and re-enable motor to clear stall
         disableMotor();
         delay(100);
@@ -204,6 +208,10 @@ void handleReturnCompletionPhase() {
         currentPhase = PHASE_RETURN_WAITING;
     } else {
         // No timeout yet - transition directly to homing
+        // Retract clamps before homing
+        retractBothClamps();
+        retractAlignmentCylinder();
+        
         homingComplete = false; // Reset homing flag to force homing sequence
         resetReturningVariables();
         currentState = HOMING;
@@ -227,14 +235,14 @@ void handleReturnWaitingPhase() {
         // Stop any running motor movement
         stopMotor();
         
+        // Retract clamps before homing
+        retractBothClamps();
+        retractAlignmentCylinder();
+        
         // Disable and re-enable motor to clear any jams
         disableMotor();
         delay(100); // Brief pause while motor is disabled
         enableMotor();
-        
-        // Keep both clamps extended for safe material handling
-        // Only retract alignment cylinder for safe homing
-        retractAlignmentCylinder();
         
         // Reset homing flag to force homing sequence
         homingComplete = false;
