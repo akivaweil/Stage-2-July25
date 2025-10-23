@@ -16,12 +16,16 @@ void handleHomingState() {
     if (!homingStarted) {
         enableMotor();
         homingComplete = false;
+        setCurrentMotorPosition(0);
+        currentPosition = 0.0;
+        homingStarted = true;
         retryCount = 0;
+        movingToHome = false;
+        movingToOffset = false;
         updateInputs();
         
         if (homeSwitch.read()) {
-            // Already at home switch - reset position first
-            stepper->forceStopAndNewPosition(0);
+            // Already at home switch
             setCurrentMotorPosition(0);
             currentPosition = 0.0;
             targetOffsetSteps = Motion::HOME_OFFSET_POSITION * Motion::STEPS_PER_INCH;
@@ -31,11 +35,9 @@ void handleHomingState() {
             movingToHome = false;
             movingToOffset = true;
             offsetStartTime = millis();
-            homingStarted = true;
         } else {
             // Search for home switch
             movingToHome = true;
-            homingStarted = true;
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
             stepper->move(-100000);
@@ -83,6 +85,7 @@ void handleHomingState() {
                 currentPosition = 0.0;
                 homingComplete = true;
                 homingStarted = false;
+                movingToHome = false;
                 movingToOffset = false;
                 retryCount = 0;
                 currentState = IDLE;
@@ -101,6 +104,7 @@ void handleHomingState() {
                     // Too many retries - abort and restart homing
                     stopMotor();
                     homingStarted = false;
+                    movingToHome = false;
                     movingToOffset = false;
                     retryCount = 0;
                     // Will restart on next cycle
@@ -125,6 +129,7 @@ void handleHomingState() {
                 // Too many retries - abort and restart homing
                 stopMotor();
                 homingStarted = false;
+                movingToHome = false;
                 movingToOffset = false;
                 retryCount = 0;
             }
