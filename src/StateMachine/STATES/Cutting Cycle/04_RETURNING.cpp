@@ -102,17 +102,36 @@ void handleReturnPreparationPhase() {
         retractAlignmentCylinder();
         
         //! ************************************************************************
-        //! STEP 2: MOVE FINAL_POSITION DISTANCE TOWARD HOME SWITCH AT FULL SPEED
+        //! STEP 2: ENSURE MOTOR IS ENABLED
+        //! ************************************************************************
+        enableMotor();
+        
+        //! ************************************************************************
+        //! STEP 3: MOVE FINAL_POSITION DISTANCE TOWARD HOME SWITCH AT FULL SPEED
         //! ************************************************************************
         float returnDistanceSteps = -Motion::FINAL_POSITION * Motion::STEPS_PER_INCH; // Negative = move toward home
         
         //! ************************************************************************
         //! CALCULATE ESTIMATED TIME FOR RETURN MOVEMENT
         //! ************************************************************************
-        // Calculate time using acceleration-based motion (triangular profile)
-        // Time = 2 * sqrt(distance / acceleration) for accelerate-then-decelerate
+        // Calculate time using trapezoidal motion profile
         float returnDistanceAbs = abs(returnDistanceSteps);
-        float timeInSeconds = 2.0 * sqrt(returnDistanceAbs / Motion::RETURN_ACCEL);
+        
+        // Calculate distance and time to reach max speed
+        float distToMaxSpeed = (Motion::RETURN_SPEED * Motion::RETURN_SPEED) / (2.0 * Motion::RETURN_ACCEL);
+        float timeToMaxSpeed = Motion::RETURN_SPEED / Motion::RETURN_ACCEL;
+        
+        float timeInSeconds;
+        if (returnDistanceAbs <= distToMaxSpeed * 2.0) {
+            // Triangular profile - never reaches max speed
+            timeInSeconds = 2.0 * sqrt(returnDistanceAbs / Motion::RETURN_ACCEL);
+        } else {
+            // Trapezoidal profile - accelerates, coasts, decelerates
+            float coastDistance = returnDistanceAbs - (distToMaxSpeed * 2.0);
+            float coastTime = coastDistance / Motion::RETURN_SPEED;
+            timeInSeconds = (timeToMaxSpeed * 2.0) + coastTime;
+        }
+        
         estimatedReturnTime = (unsigned long)(timeInSeconds * 1000.0); // Convert to ms
         
         moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
@@ -128,13 +147,23 @@ void handleReturnPreparationPhase() {
 //! ************************************************************************
 void handleReturnMovementPhase() {
     //! ************************************************************************
-    //! CHECK FOR MOTOR STALLING (STILL RUNNING AFTER EXPECTED TIME)
+    //! CHECK FOR MOTOR STALLING (HASN'T REACHED SWITCH AFTER EXPECTED TIME)
     //! ************************************************************************
+    updateInputs();
     unsigned long elapsedTime = millis() - returnStartTime;
     unsigned long timeoutTime = estimatedReturnTime + 200; // Add 200ms leeway
     
-    if (elapsedTime >= timeoutTime && isMotorRunning()) {
-        // Motor is still running after expected time - likely stalled
+    // Check if home switch is triggered (reached the switch)
+    if (homeSwitch.read()) {
+        // Reached home switch - stop motor and transition to completion
+        stopMotor();
+        currentPhase = PHASE_RETURN_COMPLETION;
+        return;
+    }
+    
+    // Check if timeout elapsed without reaching switch
+    if (elapsedTime >= timeoutTime) {
+        // Motor hasn't reached switch after expected time - likely stalled
         // Disable and re-enable motor to clear stall
         disableMotor();
         delay(100);
@@ -148,7 +177,7 @@ void handleReturnMovementPhase() {
     }
     
     //! ************************************************************************
-    //! WAIT FOR RETURN MOVEMENT TO COMPLETE
+    //! WAIT FOR RETURN MOVEMENT TO COMPLETE (OR SWITCH)
     //! ************************************************************************
     if (!isMotorRunning()) {
         currentPhase = PHASE_RETURN_COMPLETION;
