@@ -14,21 +14,27 @@ void handleRouterClearErrorState() {
     // Update inputs for button detection
     updateInputs();
     
-    // Check start button state
+    // Check start button and transfer arm signal states
     bool startButtonCurrentlyPressed = startButton.read();
+    bool transferArmCurrentlyActive = transferArmSignal.read();
     
-    if (startButtonCurrentlyPressed && !startButtonWasPressed) {
-        // Rising edge detected - button was just pressed
-        startButtonWasPressed = true;
-        stateStartTime = millis(); // Start timing the button hold
+    // Handle start button or transfer arm signal input
+    if ((startButtonCurrentlyPressed && !startButtonWasPressed) || 
+        (transferArmCurrentlyActive && !transferArmSignalWasActive)) {
+        // Rising edge detected - button was just pressed or signal activated
+        startButtonWasPressed = startButtonCurrentlyPressed;
+        transferArmSignalWasActive = transferArmCurrentlyActive;
+        stateStartTime = millis(); // Start timing the input hold
         
-    } else if (startButtonCurrentlyPressed && startButtonWasPressed) {
-        // Button is still being held - check for hold duration
+    } else if ((startButtonCurrentlyPressed && startButtonWasPressed) || 
+               (transferArmCurrentlyActive && transferArmSignalWasActive)) {
+        // Input is still being held - check for hold duration
         unsigned long holdDuration = millis() - stateStartTime;
         
         if (holdDuration >= 1000) { // 1 second hold for homing
             // Long press detected - set flag to go to homing after cutting completes
             startButtonWasPressed = false;
+            transferArmSignalWasActive = false;
             cutToHomingFlag = true;
             Serial.println("Router Error: cutToHomingFlag set to TRUE");
             currentState = stateBeforeError;
@@ -40,13 +46,15 @@ void handleRouterClearErrorState() {
             return;
         }
         
-    } else if (!startButtonCurrentlyPressed && startButtonWasPressed) {
-        // Button was released - check if it was a short press
+    } else if ((!startButtonCurrentlyPressed && startButtonWasPressed) || 
+               (!transferArmCurrentlyActive && transferArmSignalWasActive)) {
+        // Input was released - check if it was a short press
         unsigned long holdDuration = millis() - stateStartTime;
         
         if (holdDuration < 1000) { // Short press - return to previous state
             // Return to the state before the error occurred
             startButtonWasPressed = false;
+            transferArmSignalWasActive = false;
             currentState = stateBeforeError;
             
             // If returning to cutting state, continue from where it left off
@@ -57,5 +65,6 @@ void handleRouterClearErrorState() {
         }
         
         startButtonWasPressed = false;
+        transferArmSignalWasActive = false;
     }
 }

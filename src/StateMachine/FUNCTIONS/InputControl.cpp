@@ -130,4 +130,41 @@ bool checkStartButtonForHoming() {
     }
     
     return false; // No start button press
+}
+
+bool checkTransferArmSignalForHoming() {
+    // Update inputs for reliable signal detection
+    updateInputs();
+    
+    // Check if transfer arm signal rising edge (signal activation) during cutting cycle
+    bool transferArmCurrentlyActive = transferArmSignal.read();
+    if (transferArmCurrentlyActive && !transferArmSignalWasActive) {
+        // Rising edge detected - signal was just activated
+        transferArmSignalWasActive = true;
+        
+        // Reset cycle flags and transition to homing
+        cycleInProgress = false;
+        homingComplete = false; // Force homing sequence
+        
+        // Stop any running motor movement
+        stopMotor();
+        
+        // Disable and re-enable motor to clear any jams
+        disableMotor();
+        enableMotor();
+        
+        // Keep both clamps extended for safe material handling
+        // Only retract alignment cylinder for safe homing
+        retractAlignmentCylinder();
+        
+        // Transition to homing state
+        currentState = HOMING;
+        
+        return true; // Transfer arm signal was activated
+    } else if (!transferArmCurrentlyActive) {
+        // Signal is not active, reset the tracking variable
+        transferArmSignalWasActive = false;
+    }
+    
+    return false; // No transfer arm signal activation
 } 

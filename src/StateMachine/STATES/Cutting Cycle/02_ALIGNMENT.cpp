@@ -49,9 +49,9 @@ void handleFinalClampPhase();
 void handleAlignmentState() {
     
     //! ************************************************************************
-    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
+    //! CHECK FOR START BUTTON OR TRANSFER ARM SIGNAL - INTERRUPT TO HOMING
     //! ************************************************************************
-    if (checkStartButtonForHoming()) {
+    if (checkStartButtonForHoming() || checkTransferArmSignalForHoming()) {
         resetAlignmentVariables();
         return; // Exit function, state will be changed to HOMING
     }
