@@ -148,9 +148,12 @@ void waitForMotorComplete() {
             delay(1); // Small delay to prevent watchdog issues
             
             // Timeout after 5 seconds to prevent infinite hang
-            if (millis() - startTime > 5000) {
+            if (millis() - startTime > 4000) {
                 Serial.println("Motor timeout - forcing stop");
                 stepper->forceStopAndNewPosition(stepper->getCurrentPosition());
+                
+                // Re-enable motor after timeout to continue operation
+                enableMotor();
                 break;
             }
         }
