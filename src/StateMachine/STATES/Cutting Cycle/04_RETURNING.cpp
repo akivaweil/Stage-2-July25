@@ -109,9 +109,11 @@ void handleReturnPreparationPhase() {
         //! ************************************************************************
         //! CALCULATE ESTIMATED TIME FOR RETURN MOVEMENT
         //! ************************************************************************
-        // Time = distance / speed (conservative estimate without deceleration)
+        // Calculate time using acceleration-based motion (triangular profile)
+        // Time = 2 * sqrt(distance / acceleration) for accelerate-then-decelerate
         float returnDistanceAbs = abs(returnDistanceSteps);
-        estimatedReturnTime = (unsigned long)((returnDistanceAbs / Motion::RETURN_SPEED) * 1000.0); // Convert to ms
+        float timeInSeconds = 2.0 * sqrt(returnDistanceAbs / Motion::RETURN_ACCEL);
+        estimatedReturnTime = (unsigned long)(timeInSeconds * 1000.0); // Convert to ms
         
         moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
         
