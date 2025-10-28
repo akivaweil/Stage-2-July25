@@ -23,15 +23,15 @@ const float FINAL_POSITION = 24.3;                 // Final position after finis
 // Speed Settings (steps/second) - Updated for 3200 steps/rev motor
 const float HOMING_SPEED = 2400;           // 150 × 16 (conservative for homing)
 const float ALIGNMENT_INITIAL_SPEED = 2400; // 150 × 16 (conservative for alignment)
-const float APPROACH_SPEED = 150000;        // Capped at 150kHz for stability
+const float APPROACH_SPEED = 200000;        // Max ~200kHz (ESP32-S3 + FastAccelStepper limit)
 const float CUTTING_SPEED = 1040;           // 65 × 16
-const float FINISH_SPEED = 150000;          // Capped at 150kHz for stability
-const float RETURN_SPEED = 150000;          // Capped at 150kHz for stability
+const float FINISH_SPEED = 200000;          // Max ~200kHz (ESP32-S3 + FastAccelStepper limit)
+const float RETURN_SPEED = 200000;          // Max ~200kHz (ESP32-S3 + FastAccelStepper limit)
 const float FINAL_SPEED = 800;              // 50 × 16
 
 // Acceleration Settings (steps/second²)
-const float FORWARD_ACCEL = 80000;    // 10000 × 8 (conservative multiplier)
-const float RETURN_ACCEL = 120000;    // Capped for stability    
+const float FORWARD_ACCEL = 100000;    // 10000 × 10 (conservative for high res motor)
+const float RETURN_ACCEL = 160000;     // 16000 × 10 (conservative for high res motor)    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
@@ -53,7 +53,7 @@ const int ALIGNMENT_LONG_SETTLE_MS = 200;        // long settle/pause
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS = 150; // 150ms for alignment cylinder to position material
 
 // Oscillation Settings for clamp release - Updated for 3200 steps/rev motor
-const float OSCILLATION_SPEED = 30000;       // Capped for stability (2000 × 15 conservative)
+const float OSCILLATION_SPEED = 32000;       // 2000 × 16
 const float OSCILLATION_ACCEL = 80000;      // Acceleration for oscillation movement (5000 × 16)
 const float OSCILLATION_DISTANCE = 0.1;      // Distance from center position (inches)
 }  // namespace Timing
