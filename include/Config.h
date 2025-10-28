@@ -8,7 +8,7 @@ extern const char *BOARD_DESCRIPTION;
 
 // Motion Parameters - All positions are absolute relative to home (position 0)
 namespace Motion {
-extern const float STEPS_PER_INCH;   // 3200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 677.33 steps/inch
+extern const float STEPS_PER_INCH;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 42.33 steps/inch
 
 // Absolute positions relative to home (position 0)
 extern const float HOME_POSITION;                    // Home position (where switch is triggered)

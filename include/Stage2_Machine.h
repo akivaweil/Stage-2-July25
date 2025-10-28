@@ -6,7 +6,6 @@
 
 // Config includes
 #include "Config.h"
-#include "MotorConversion.h"
 #include "Pins_Definitions.h"
 
 // State Machine enum

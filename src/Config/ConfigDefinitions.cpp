@@ -1,14 +1,4 @@
 #include <Config.h>
-#include <MotorConversion.h>
-
-//* ************************************************************************
-//* ************************ CONFIGURATION SUMMARY ***********************
-//* ************************************************************************
-// Motor: 3200 steps/rev (converted from 200 steps/rev base values)
-// Base values in this file are the "comfortable" values you're familiar with
-// Automatic conversion factor of 16.0 applied to all speeds and accelerations
-// See MotorConversion.h for the conversion factor
-//* ************************************************************************
 
 // Board identification
 namespace Config {
@@ -30,31 +20,18 @@ const float APPROACH_POSITION = 5.1;               // Position for cutting appro
 const float CUTTING_POSITION = 12.0;               // Position after cutting (4.65" + 6.4")
 const float FINAL_POSITION = 24.3;                 // Final position after finish move (0.4" + 24.15")
 
-// Speed Settings (steps/second) - Base values for 200 steps/rev, auto-converted for 3200 steps/rev
-const float HOMING_SPEED_BASE = 150;
-const float ALIGNMENT_INITIAL_SPEED_BASE = 150;
-const float APPROACH_SPEED_BASE = 30000;
-const float CUTTING_SPEED_BASE = 65;
-const float FINISH_SPEED_BASE = 30000;
-const float RETURN_SPEED_BASE = 25000;
-const float FINAL_SPEED_BASE = 50;
+// Speed Settings (steps/second) - Updated for 3200 steps/rev motor
+const float HOMING_SPEED = 2400;           // 150 × 16 (conservative for homing)
+const float ALIGNMENT_INITIAL_SPEED = 2400; // 150 × 16 (conservative for alignment)
+const float APPROACH_SPEED = 150000;        // Capped at 150kHz for stability
+const float CUTTING_SPEED = 1040;           // 65 × 16
+const float FINISH_SPEED = 150000;          // Capped at 150kHz for stability
+const float RETURN_SPEED = 150000;          // Capped at 150kHz for stability
+const float FINAL_SPEED = 800;              // 50 × 16
 
-// Converted speeds for 3200 steps/rev motor
-const float HOMING_SPEED = HOMING_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float ALIGNMENT_INITIAL_SPEED = ALIGNMENT_INITIAL_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float APPROACH_SPEED = APPROACH_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float CUTTING_SPEED = CUTTING_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float FINISH_SPEED = FINISH_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float RETURN_SPEED = RETURN_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float FINAL_SPEED = FINAL_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;   
-
-// Acceleration Settings (steps/second²) - Base values for 200 steps/rev, auto-converted for 3200 steps/rev
-const float FORWARD_ACCEL_BASE = 10000;
-const float RETURN_ACCEL_BASE = 16000;
-
-// Converted accelerations for 3200 steps/rev motor
-const float FORWARD_ACCEL = FORWARD_ACCEL_BASE * MotorConversion::CONVERSION_FACTOR;
-const float RETURN_ACCEL = RETURN_ACCEL_BASE * MotorConversion::CONVERSION_FACTOR;    
+// Acceleration Settings (steps/second²)
+const float FORWARD_ACCEL = 80000;    // 10000 × 8 (conservative multiplier)
+const float RETURN_ACCEL = 120000;    // Capped for stability    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
@@ -75,12 +52,8 @@ const int ALIGNMENT_SHORT_SETTLE_MS = 100;       // short settle/pause
 const int ALIGNMENT_LONG_SETTLE_MS = 200;        // long settle/pause
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS = 150; // 150ms for alignment cylinder to position material
 
-// Oscillation Settings for clamp release - Base values for 200 steps/rev, auto-converted for 3200 steps/rev
-const float OSCILLATION_SPEED_BASE = 2000;
-const float OSCILLATION_ACCEL_BASE = 5000;
+// Oscillation Settings for clamp release - Updated for 3200 steps/rev motor
+const float OSCILLATION_SPEED = 30000;       // Capped for stability (2000 × 15 conservative)
+const float OSCILLATION_ACCEL = 80000;      // Acceleration for oscillation movement (5000 × 16)
 const float OSCILLATION_DISTANCE = 0.1;      // Distance from center position (inches)
-
-// Converted oscillation settings for 3200 steps/rev motor
-const float OSCILLATION_SPEED = OSCILLATION_SPEED_BASE * MotorConversion::CONVERSION_FACTOR;
-const float OSCILLATION_ACCEL = OSCILLATION_ACCEL_BASE * MotorConversion::CONVERSION_FACTOR;
 }  // namespace Timing
