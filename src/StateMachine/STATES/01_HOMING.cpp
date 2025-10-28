@@ -78,8 +78,8 @@ void handleHomingState() {
             long targetPos = (long)targetOffsetSteps;
             long positionError = abs(currentPos - targetPos);
             
-            // Allow 320 steps of tolerance
-            if (positionError <= 320) {
+            // Allow 5 steps of tolerance
+            if (positionError <= 5) {
                 // Successfully reached target
                 setCurrentMotorPosition(0);
                 currentPosition = 0.0;

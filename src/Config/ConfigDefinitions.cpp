@@ -8,7 +8,7 @@ const char *BOARD_DESCRIPTION = "Stage 2 Cutting Machine - USB Only";
 
 // Motion Parameters - All positions are absolute relative to home (position 0)
 namespace Motion {
-const float STEPS_PER_INCH = 2709.12;   // 12800 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 2709.12 steps/inch
+const float STEPS_PER_INCH = 677.33;   // 3200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 677.33 steps/inch
 
 // Absolute positions relative to home (position 0)
 const float HOME_POSITION = 0.0;                    // Home position (where switch is triggered)
@@ -21,17 +21,17 @@ const float CUTTING_POSITION = 12.0;               // Position after cutting (4.
 const float FINAL_POSITION = 24.3;                 // Final position after finish move (0.4" + 24.15")
 
 // Speed Settings (steps/second)
-const float HOMING_SPEED = 9600;     
-const float ALIGNMENT_INITIAL_SPEED = 9600; // Initial speed for alignment
-const float APPROACH_SPEED = 1920000; 
-const float CUTTING_SPEED = 4160;    
-const float FINISH_SPEED = 1920000;   
-const float RETURN_SPEED = 1600000;   
-const float FINAL_SPEED = 3200;   
+const float HOMING_SPEED = 2400;      // 150 * 16
+const float ALIGNMENT_INITIAL_SPEED = 2400; // Initial speed for alignment (150 * 16)
+const float APPROACH_SPEED = 480000;  // 30000 * 16
+const float CUTTING_SPEED = 1040;     // 65 * 16
+const float FINISH_SPEED = 480000;    // 30000 * 16
+const float RETURN_SPEED = 400000;    // 25000 * 16
+const float FINAL_SPEED = 800;        // 50 * 16   
 
 // Acceleration Settings (steps/second²)
-const float FORWARD_ACCEL = 640000;   
-const float RETURN_ACCEL = 1024000;    
+const float FORWARD_ACCEL = 160000;   // 10000 * 16
+const float RETURN_ACCEL = 256000;    // 16000 * 16    
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
@@ -53,7 +53,7 @@ const int ALIGNMENT_LONG_SETTLE_MS = 200;        // long settle/pause
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS = 150; // 150ms for alignment cylinder to position material
 
 // Oscillation Settings for clamp release
-const float OSCILLATION_SPEED = 128000;        // Speed for oscillation movement (steps/second)
-const float OSCILLATION_ACCEL = 320000;       // Acceleration for oscillation movement (steps/second²)
+const float OSCILLATION_SPEED = 32000;       // Speed for oscillation movement (steps/second) (2000 * 16)
+const float OSCILLATION_ACCEL = 80000;      // Acceleration for oscillation movement (steps/second²) (5000 * 16)
 const float OSCILLATION_DISTANCE = 0.1;      // Distance from center position (inches)
 }  // namespace Timing
