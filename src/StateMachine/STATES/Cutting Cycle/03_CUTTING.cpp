@@ -4,6 +4,14 @@
 //* ************************ CUTTING STATE *******************************
 //* ************************************************************************
 // This state performs the complete cutting sequence: approach, cut, finish, temporarily release clamps, then re-extend for return
+ 
+//! ************************************************************************
+//! CUTTING CONFIGURATION (TIMING, ETC.)
+//! ************************************************************************
+namespace CuttingConfig {
+    const int ROUTER_SIGNAL_ON_TIME_MS  = 500;  // Router signal ON duration
+    const int ROUTER_SIGNAL_OFF_TIME_MS = 100;  // Router signal OFF duration between pulses
+}  // namespace CuttingConfig
 
 //! ************************************************************************
 //! CUTTING PHASE CONSTANTS
@@ -27,7 +35,9 @@
 //! STATIC VARIABLES FOR CUTTING STATE
 //! ************************************************************************
 static unsigned long stepStartTime = 0;
+static unsigned long routerSignalSegmentStartTime = 0;
 static int cuttingPhase = 0;
+static int routerSignalStage = 0;          // 0 = idle, 1-5 = pulse/gap sequence
 static bool motionComplete = false;
 static float targetPosition = 0;
 static float initialFinalPosition = 0;
@@ -38,6 +48,8 @@ static bool oscillatingForward = true;    // Direction of oscillation
 //! FORWARD DECLARATIONS
 //! ************************************************************************
 void resetCuttingVariables();
+void startRouterSignalPattern();
+void updateRouterSignalPattern();
 void handleApproachPhase();
 void handleCuttingPhase();
 void handleFinishPhase();
@@ -60,6 +72,9 @@ void handleCuttingState() {
         resetCuttingVariables();
         return; // Exit function, state will be changed to HOMING
     }
+    
+    // Update router signal pattern (non-blocking)
+    updateRouterSignalPattern();
     
     // Initialize step timing
     if (stepStartTime == 0) {
@@ -115,12 +130,81 @@ void handleCuttingState() {
 //! ************************************************************************
 void resetCuttingVariables() {
     stepStartTime = 0;
+    routerSignalSegmentStartTime = 0;
     cuttingPhase = 0;
+    routerSignalStage = 0;
     motionComplete = false;
     targetPosition = 0;
     initialFinalPosition = 0;
     centerPosition = 0;
     oscillatingForward = true;
+}
+
+//! ************************************************************************
+//! ROUTER SIGNAL HELPERS (NON-BLOCKING)
+//! ************************************************************************
+void startRouterSignalPattern() {
+    // Begin pattern: ON for 500ms, OFF for 100ms, repeated 3 times
+    routerSignalStage = 1;
+    routerSignalSegmentStartTime = millis();
+    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+}
+
+void updateRouterSignalPattern() {
+    if (routerSignalStage == 0) {
+        return; // No active pattern
+    }
+    
+    unsigned long now = millis();
+    unsigned long segmentElapsed = now - routerSignalSegmentStartTime;
+    
+    switch (routerSignalStage) {
+        case 1: // ON segment 1
+            if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
+                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                routerSignalStage = 2;
+                routerSignalSegmentStartTime = now;
+            }
+            break;
+            
+        case 2: // OFF segment 1
+            if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_OFF_TIME_MS) {
+                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+                routerSignalStage = 3;
+                routerSignalSegmentStartTime = now;
+            }
+            break;
+            
+        case 3: // ON segment 2
+            if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
+                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                routerSignalStage = 4;
+                routerSignalSegmentStartTime = now;
+            }
+            break;
+            
+        case 4: // OFF segment 2
+            if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_OFF_TIME_MS) {
+                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+                routerSignalStage = 5;
+                routerSignalSegmentStartTime = now;
+            }
+            break;
+            
+        case 5: // ON segment 3 (final)
+            if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
+                // End of pattern: ensure signal is LOW and stop pattern
+                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                routerSignalStage = 0;
+            }
+            break;
+            
+        default:
+            // Safety fallback: stop pattern and force LOW
+            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+            routerSignalStage = 0;
+            break;
+    }
 }
 
 void setCuttingPhaseToContinue() {
@@ -286,7 +370,8 @@ void handleClampReleasePhase() {
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
             //! ************************************************************************
             retractBothClamps();
-            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+            // Start router signal pattern (non-blocking)
+            startRouterSignalPattern();
             centerPosition = getCurrentMotorPosition();
             oscillatingForward = true;
             
@@ -296,25 +381,10 @@ void handleClampReleasePhase() {
             
         case PHASE_OSCILLATION:
             //! ************************************************************************
-            //! OSCILLATION DURING CLAMP RELEASE (WITHIN 400MS TOTAL TIME)
+            //! CLAMP RELEASE DWELL (POSITION HOLD ONLY)
             //! ************************************************************************
-            //! DISABLED: Oscillation movement is disabled but timing structure remains
             {
                 unsigned long elapsedTime = millis() - stepStartTime;
-                
-                // DISABLED - Oscillation movement commented out
-                // if (elapsedTime >= 100) { // Start oscillation after 100ms delay
-                //     if (!isMotorRunning()) {
-                //         float oscillationDistance = Timing::OSCILLATION_DISTANCE * Motion::STEPS_PER_INCH;
-                //         float targetOscPos = oscillatingForward ? 
-                //             centerPosition + oscillationDistance : 
-                //             centerPosition - oscillationDistance;
-                //         
-                //         moveMotorToPosition(targetOscPos, Timing::OSCILLATION_SPEED, Timing::OSCILLATION_ACCEL);
-                //         oscillatingForward = !oscillatingForward;
-                //     }
-                // }
-                
                 if (elapsedTime >= Timing::CLAMP_RELEASE_TIME) {
                     stopMotor();
                     cuttingPhase++;

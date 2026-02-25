@@ -18,13 +18,13 @@ const float ALIGNMENT_BACKWARD_POSITION = 0.3;      // Position after backward a
 const float ALIGNMENT_FINAL_POSITION = 0.4;         // Position after final alignment backward move (0.7" - 0.3")
 const float APPROACH_POSITION = 5.1;               // Position for cutting approach (0.4" + 4.15" + 0.1" net alignment)
 const float CUTTING_POSITION = 12.0;               // Position after cutting (4.65" + 6.4")
-const float FINAL_POSITION = 24.3;                 // Final position after finish move (0.4" + 24.15")
+const float FINAL_POSITION = 24.1;                 // Final position after finish move (0.4" + 24.15")
 
 // Speed Settings (steps/second) - Updated for 3200 steps/rev motor
 const float HOMING_SPEED = 2400;           // 150 × 16 (conservative for homing)
 const float ALIGNMENT_INITIAL_SPEED = 2400; // 150 × 16 (conservative for alignment)
 const float APPROACH_SPEED = 200000;        // Max ~200kHz (ESP32-S3 + FastAccelStepper limit)
-const float CUTTING_SPEED = 1040;           // 65 × 16
+const float CUTTING_SPEED = 1250;           // 65 × 16
 const float FINISH_SPEED = 200000;          // Max ~200kHz (ESP32-S3 + FastAccelStepper limit)
 const float RETURN_SPEED = 200000;          // Max ~200kHz (ESP32-S3 + FastAccelStepper limit)
 const float FINAL_SPEED = 800;              // 50 × 16
