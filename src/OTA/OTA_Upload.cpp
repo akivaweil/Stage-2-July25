@@ -1,14 +1,39 @@
 #include "OTA_Upload.h"
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+#include <esp_now.h>
 
 //* ************************************************************************
 //* *********************** OTA UPLOAD IMPLEMENTATION *********************
 //* ************************************************************************
-// Barebones WiFi connection and Over-The-Air updates for the ESP32.
+// WiFi connection, OTA updates, and ESP-NOW router communication.
 
 const char* ssid = "Everwood";
 const char* password = "Everwood-Staff";
+
+//* ************************************************************************
+//* *********************** ESP-NOW ROUTER COMM ************************
+//* ************************************************************************
+
+// *** REPLACE WITH ROUTER ESP MAC ADDRESS ONCE KNOWN ***
+uint8_t routerMAC[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+typedef struct { uint8_t signal; } RouterMessage;
+
+// True = router is clear, False = router is NOT clear (triggers error state)
+volatile bool isRouterClear = true;
+
+void onRouterDataReceived(const uint8_t *mac, const uint8_t *data, int len) {
+    if (len >= 1) {
+        isRouterClear = (data[0] == 1);
+    }
+}
+
+void sendRouterSignal(uint8_t value) {
+    RouterMessage msg;
+    msg.signal = value;
+    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+}
 
 void setupOTA() {
   WiFi.mode(WIFI_STA);
@@ -18,7 +43,6 @@ void setupOTA() {
     ESP.restart();
   }
 
-  // Print WiFi connection details
   Serial.print("WiFi connected to: ");
   Serial.println(ssid);
   Serial.print("IP address: ");
@@ -29,7 +53,24 @@ void setupOTA() {
   Serial.print(WiFi.RSSI());
   Serial.println(" dBm");
 
-  ArduinoOTA.setHostname("stage1-esp32s3");
+  // Init ESP-NOW (requires WiFi to be connected first)
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("ESP-NOW init failed");
+    return;
+  }
+
+  esp_now_register_recv_cb(onRouterDataReceived);
+
+  // Register router as a peer
+  esp_now_peer_info_t peer = {};
+  memcpy(peer.peer_addr, routerMAC, 6);
+  peer.channel = 0;  // 0 = use current WiFi channel
+  peer.encrypt = false;
+  esp_now_add_peer(&peer);
+
+  Serial.println("ESP-NOW initialized");
+
+  ArduinoOTA.setHostname("stage2-esp32s3");
   ArduinoOTA.begin();
   
   Serial.println("OTA server started - ready for wireless uploads");

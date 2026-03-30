@@ -1,13 +1,8 @@
-#ifndef OTA_UPLOAD_H
-#define OTA_UPLOAD_H
+#pragma once
+#include <Arduino.h>
 
-//* ************************************************************************
-//* *********************** OTA UPLOAD HEADER ***************************
-//* ************************************************************************
-// Barebones header for OTA upload functionality.
-
-// Function declarations
 void setupOTA();
 void handleOTA();
+void sendRouterSignal(uint8_t value);
 
-#endif // OTA_UPLOAD_H 
+extern volatile bool isRouterClear;

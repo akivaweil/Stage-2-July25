@@ -1,4 +1,5 @@
 #include <Stage2_Machine.h>
+#include "OTA/OTA_Upload.h"
 
 //* ************************************************************************
 //* ************************ CUTTING STATE *******************************
@@ -147,7 +148,7 @@ void startRouterSignalPattern() {
     // Begin pattern: ON for 500ms, OFF for 100ms, repeated 3 times
     routerSignalStage = 1;
     routerSignalSegmentStartTime = millis();
-    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+    sendRouterSignal(1);
 }
 
 void updateRouterSignalPattern() {
@@ -161,7 +162,7 @@ void updateRouterSignalPattern() {
     switch (routerSignalStage) {
         case 1: // ON segment 1
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
-                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                sendRouterSignal(0);
                 routerSignalStage = 2;
                 routerSignalSegmentStartTime = now;
             }
@@ -169,7 +170,7 @@ void updateRouterSignalPattern() {
             
         case 2: // OFF segment 1
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_OFF_TIME_MS) {
-                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+                sendRouterSignal(1);
                 routerSignalStage = 3;
                 routerSignalSegmentStartTime = now;
             }
@@ -177,7 +178,7 @@ void updateRouterSignalPattern() {
             
         case 3: // ON segment 2
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
-                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                sendRouterSignal(0);
                 routerSignalStage = 4;
                 routerSignalSegmentStartTime = now;
             }
@@ -185,7 +186,7 @@ void updateRouterSignalPattern() {
             
         case 4: // OFF segment 2
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_OFF_TIME_MS) {
-                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
+                sendRouterSignal(1);
                 routerSignalStage = 5;
                 routerSignalSegmentStartTime = now;
             }
@@ -193,15 +194,14 @@ void updateRouterSignalPattern() {
             
         case 5: // ON segment 3 (final)
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
-                // End of pattern: ensure signal is LOW and stop pattern
-                digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+                sendRouterSignal(0);
                 routerSignalStage = 0;
             }
             break;
             
         default:
-            // Safety fallback: stop pattern and force LOW
-            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+            // Safety fallback
+            sendRouterSignal(0);
             routerSignalStage = 0;
             break;
     }
@@ -348,7 +348,7 @@ void handleSettleTimePhase() {
         //! ************************************************************************
         //! CHECK IS_ROUTER_CLEAR SENSOR (ACTIVE LOW) - IF ACTIVE, TRIGGER ERROR STATE
         //! ************************************************************************
-        if (digitalRead(Pins::IS_ROUTER_CLEAR) == LOW) {
+        if (!isRouterClear) {
             stateBeforeError = CUTTING;
             resetCuttingVariables();
             currentState = ROUTER_CLEAR_ERROR;
@@ -428,7 +428,7 @@ void handlePrepareReturnPhase() {
     //! ************************************************************************
     //! CHECK FOR HOMING FLAG
     //! ************************************************************************
-    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+    sendRouterSignal(0);
     
     resetCuttingVariables();
     
