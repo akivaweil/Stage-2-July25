@@ -15,8 +15,7 @@ const char* password = "Everwood-Staff";
 //* *********************** ESP-NOW ROUTER COMM ************************
 //* ************************************************************************
 
-// *** REPLACE WITH ROUTER ESP MAC ADDRESS ONCE KNOWN ***
-uint8_t routerMAC[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t routerMAC[] = {0xE4, 0xB0, 0x63, 0xB4, 0x49, 0x50};
 
 typedef struct { uint8_t signal; } RouterMessage;
 
