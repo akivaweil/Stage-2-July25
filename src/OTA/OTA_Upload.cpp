@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <ArduinoOTA.h>
 #include <esp_now.h>
+#include <esp_wifi.h>
 
 //* ************************************************************************
 //* *********************** OTA UPLOAD IMPLEMENTATION *********************
@@ -31,6 +32,11 @@ void onRouterDataReceived(const uint8_t *mac, const uint8_t *data, int len) {
 void sendRouterSignal(uint8_t value) {
     RouterMessage msg;
     msg.signal = value;
+    // Send 3x for redundancy in case of packet loss
+    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+    delay(5);
+    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+    delay(5);
     esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
 }
 
@@ -51,6 +57,9 @@ void setupOTA() {
   Serial.print("Signal strength (RSSI): ");
   Serial.print(WiFi.RSSI());
   Serial.println(" dBm");
+
+  // Max TX power for strongest signal
+  esp_wifi_set_max_tx_power(84);
 
   // Init ESP-NOW (requires WiFi to be connected first)
   if (esp_now_init() != ESP_OK) {
