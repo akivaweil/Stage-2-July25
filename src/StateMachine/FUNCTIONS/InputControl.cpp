@@ -38,6 +38,10 @@ void setupInputs() {
     endPositionVerificationSensor.attach(Pins::END_POSITION_VERIFICATION_SENSOR);
     endPositionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
     endPositionVerificationSensor.setPressedState(LOW); // Active LOW
+
+    // Router clear status (ESP-NOW) - 5ms debounce as requested
+    routerClearSensor.interval(5);
+    routerClearSensor.beginDebouncer();
     
     Serial.println("Input initialization complete");
 }
@@ -52,6 +56,7 @@ void updateInputs() {
     startButton.update();
     transferArmSignal.update();
     endPositionVerificationSensor.update();
+    routerClearSensor.update();
 }
 
 bool checkInputs() {
@@ -73,6 +78,10 @@ bool checkInputs() {
     }
     
     if (endPositionVerificationSensor.read()) {
+        anyActive = true;
+    }
+
+    if (routerClearSensor.read()) {
         anyActive = true;
     }
     

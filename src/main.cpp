@@ -34,6 +34,7 @@ Bounce2::Button homeSwitch;
 Bounce2::Button startButton;
 Bounce2::Button transferArmSignal;
 Bounce2::Button endPositionVerificationSensor;
+RouterClearDebouncer routerClearSensor;
 
 // FastAccelStepper objects
 FastAccelStepperEngine engine = FastAccelStepperEngine();
@@ -46,6 +47,15 @@ unsigned long lastMotorUpdate = 0;
 // Button state tracking for rising edge detection
 bool startButtonWasPressed = false;
 bool transferArmSignalWasActive = false;
+
+void RouterClearDebouncer::beginDebouncer() {
+    begin();
+}
+
+bool RouterClearDebouncer::readCurrentState() {
+    // true means "not clear/triggered" to match existing error checks
+    return !isRouterClear;
+}
 
 //* ************************************************************************
 //* ************************ MAIN SETUP *******************************

@@ -39,6 +39,7 @@ static unsigned long stepStartTime = 0;
 static unsigned long routerSignalSegmentStartTime = 0;
 static int cuttingPhase = 0;
 static int routerSignalStage = 0;          // 0 = idle, 1-5 = pulse/gap sequence
+static bool bypassRouterClearCheckOnce = false;
 static bool motionComplete = false;
 static float targetPosition = 0;
 static float initialFinalPosition = 0;
@@ -134,6 +135,7 @@ void resetCuttingVariables() {
     routerSignalSegmentStartTime = 0;
     cuttingPhase = 0;
     routerSignalStage = 0;
+    bypassRouterClearCheckOnce = false;
     motionComplete = false;
     targetPosition = 0;
     initialFinalPosition = 0;
@@ -210,6 +212,8 @@ void updateRouterSignalPattern() {
 void setCuttingPhaseToContinue() {
     // Set phase to continue from clamp release (right after router clear check)
     cuttingPhase = PHASE_CLAMP_RELEASE;
+    // Allow one manual-recovery pass through dropoff check to prevent re-trigger loop.
+    bypassRouterClearCheckOnce = true;
     stepStartTime = millis();
 }
 
@@ -345,16 +349,6 @@ void handleSettleTimePhase() {
     //! SETTLE TIME: WAIT 150MS
     //! ************************************************************************
     if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-        //! ************************************************************************
-        //! CHECK IS_ROUTER_CLEAR SENSOR (ACTIVE LOW) - IF ACTIVE, TRIGGER ERROR STATE
-        //! ************************************************************************
-        if (!isRouterClear) {
-            stateBeforeError = CUTTING;
-            resetCuttingVariables();
-            currentState = ROUTER_CLEAR_ERROR;
-            return;
-        }
-        
         cuttingPhase++;
         stepStartTime = millis();
     }
@@ -366,6 +360,20 @@ void handleSettleTimePhase() {
 void handleClampReleasePhase() {
     switch (cuttingPhase) {
         case PHASE_CLAMP_RELEASE:
+            //! ************************************************************************
+            //! CHECK ROUTER CLEAR STATUS RIGHT BEFORE DROPOFF
+            //! ************************************************************************
+            // Active-low semantics:
+            // - routerClearSensor.read() == true means blocked (debounced value)
+            routerClearSensor.update(); // Ensure freshest debounced state at decision point
+            if (!bypassRouterClearCheckOnce && routerClearSensor.read()) {
+                stateBeforeError = CUTTING;
+                resetCuttingVariables();
+                currentState = ROUTER_CLEAR_ERROR;
+                return;
+            }
+            bypassRouterClearCheckOnce = false;
+
             //! ************************************************************************
             //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
             //! ************************************************************************
