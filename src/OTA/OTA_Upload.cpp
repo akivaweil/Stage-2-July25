@@ -3,6 +3,7 @@
 #include <ArduinoOTA.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
+#include <Pins_Definitions.h>
 
 //* ************************************************************************
 //* *********************** OTA UPLOAD IMPLEMENTATION *********************
@@ -32,6 +33,8 @@ void onRouterDataReceived(const uint8_t *mac, const uint8_t *data, int len) {
 void sendRouterSignal(uint8_t value) {
     RouterMessage msg;
     msg.signal = value;
+    // Physical signal on pin 17 mirrors the ESP-NOW signal
+    digitalWrite(Pins::ROUTER_START_SIGNAL, value ? HIGH : LOW);
     // Send 3x for redundancy in case of packet loss
     esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
     delay(5);

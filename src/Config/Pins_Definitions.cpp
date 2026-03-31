@@ -16,5 +16,5 @@ const int ENABLE = 8;
 const int LEFT_CLAMP = 46;                  
 const int RIGHT_CLAMP = 10;                 
 const int ALIGN_CYLINDER = 3;               
-const int CLAMP_RELEASE_SIGNAL = 17;        
+const int ROUTER_START_SIGNAL = 17;         // physical HIGH signal sent with ESP-NOW router start
 }  // namespace Pins 

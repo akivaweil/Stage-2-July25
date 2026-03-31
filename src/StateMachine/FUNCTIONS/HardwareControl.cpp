@@ -19,7 +19,7 @@ void setupHardware() {
     pinMode(Pins::LEFT_CLAMP, OUTPUT);
     pinMode(Pins::RIGHT_CLAMP, OUTPUT);
     pinMode(Pins::ALIGN_CYLINDER, OUTPUT);
-    pinMode(Pins::CLAMP_RELEASE_SIGNAL, OUTPUT);  // dedicated clamp release signal
+    pinMode(Pins::ROUTER_START_SIGNAL, OUTPUT);   // physical signal sent with ESP-NOW router start
     
     // Set initial states - all outputs OFF
     digitalWrite(Pins::STEP, LOW);
@@ -28,7 +28,7 @@ void setupHardware() {
     digitalWrite(Pins::LEFT_CLAMP, LOW);
     digitalWrite(Pins::RIGHT_CLAMP, LOW);
     digitalWrite(Pins::ALIGN_CYLINDER, LOW);
-    digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);  // start LOW
+    digitalWrite(Pins::ROUTER_START_SIGNAL, LOW);   // start LOW
     
     Serial.println("Hardware initialization complete");
 }

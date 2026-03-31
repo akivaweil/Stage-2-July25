@@ -16,5 +16,5 @@ extern const int ENABLE;
 extern const int LEFT_CLAMP;                  
 extern const int RIGHT_CLAMP;                 
 extern const int ALIGN_CYLINDER;               
-extern const int CLAMP_RELEASE_SIGNAL;        // dedicated output for clamp release signal (formerly pin 17)
+extern const int ROUTER_START_SIGNAL;         // physical HIGH signal sent alongside ESP-NOW router start (pin 17)
 }  // namespace Pins 
