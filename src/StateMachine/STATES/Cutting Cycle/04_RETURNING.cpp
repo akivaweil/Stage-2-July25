@@ -102,7 +102,9 @@ void handleReturnPreparationPhase() {
         //! STEP 2: MOVE FINAL_POSITION DISTANCE TOWARD HOME SWITCH AT FULL SPEED
         //! ************************************************************************
         float returnDistanceSteps = -Motion::FINAL_POSITION * Motion::STEPS_PER_INCH; // Negative = move toward home
-        moveMotor(returnDistanceSteps, Motion::RETURN_SPEED, Motion::RETURN_ACCEL);
+        float returnSpeed = fastReturnFlag ? (Motion::RETURN_SPEED * Motion::RETURN_SPEED_FAST_MULT) : Motion::RETURN_SPEED;
+        fastReturnFlag = false; // consume flag
+        moveMotor(returnDistanceSteps, returnSpeed, Motion::RETURN_ACCEL);
         
         returnStarted = true;
         returnStartTime = millis();

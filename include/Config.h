@@ -26,7 +26,8 @@ extern const float ALIGNMENT_INITIAL_SPEED; // Initial speed for alignment
 extern const float APPROACH_SPEED; 
 extern const float CUTTING_SPEED;    
 extern const float FINISH_SPEED;   
-extern const float RETURN_SPEED;   
+extern const float RETURN_SPEED;
+extern const float RETURN_SPEED_FAST_MULT;   // Multiplier for boosted return speed (IS_ROUTER_CLEAR wait path)
 extern const float FINAL_SPEED;   
 
 // Acceleration Settings (steps/second²)

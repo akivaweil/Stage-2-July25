@@ -25,6 +25,7 @@ bool homingComplete = false;
 bool cycleInProgress = false;
 bool emergencyStop = false;
 bool cutToHomingFlag = false;
+bool fastReturnFlag = false;
 
 // Position verification tracking
 float positionVerificationDistance = 0.0;

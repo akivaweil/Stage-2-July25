@@ -447,6 +447,7 @@ void handleWaitRouterClearPhase() {
         retractBothClamps();
         sendRouterSignal(0);
         
+        fastReturnFlag = true; // boost return speed for this cycle
         resetCuttingVariables();
         homingComplete = false;
         enableMotor();

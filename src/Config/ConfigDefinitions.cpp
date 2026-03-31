@@ -29,6 +29,7 @@ const float APPROACH_SPEED          = 100000;  // Full speed approach before bla
 const float CUTTING_SPEED           = 1250;    // Slow feed rate while blade is cutting
 const float FINISH_SPEED            = 100000;  // Full speed move after cut is complete
 const float RETURN_SPEED            = 100000;  // Full speed return to home
+const float RETURN_SPEED_FAST_MULT  = 1.5;     // Multiplier applied when fastReturnFlag is set (IS_ROUTER_CLEAR wait path)
 const float FINAL_SPEED             = 800;     // Creep speed for end-of-travel position verification
 
 // ── Accelerations (steps/sec²) ───────────────────────────────────────────────

@@ -28,6 +28,7 @@ extern bool cycleInProgress;
 extern bool emergencyStop;
 extern float positionVerificationDistance;
 extern bool cutToHomingFlag;
+extern bool fastReturnFlag;  // true = use boosted return speed (set when IS_ROUTER_CLEAR wait triggered)
 
 // Timing variables
 extern unsigned long stateStartTime;
