@@ -51,7 +51,11 @@ void handleIdleState() {
         }
         
         //! TESTING ONLY: Send ESP-NOW signal to router instead of running cutting cycle
-        sendRouterSignal(1);
+        // Only send start signal if router clear sensor is HIGH (clear)
+        routerClearSensor.update();
+        if (!routerClearSensor.read()) {
+            sendRouterSignal(1);
+        }
     } else if (!startButtonCurrentlyPressed) {
         // Button is not pressed, reset the tracking variable
         startButtonWasPressed = false;
