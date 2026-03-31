@@ -3,6 +3,7 @@
 #include <ArduinoOTA.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
+#include <WebServer.h>
 
 //* ************************************************************************
 //* *********************** OTA UPLOAD IMPLEMENTATION *********************
@@ -69,6 +70,81 @@ void sendRouterSignal(uint8_t value) {
     }
 }
 
+//* ************************************************************************
+//* *********************** WEB DASHBOARD ******************************
+//* ************************************************************************
+
+WebServer webServer(80);
+
+void handleDashboard() {
+    String mac = WiFi.macAddress();
+    char routerMACStr[18];
+    snprintf(routerMACStr, sizeof(routerMACStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+        routerMAC[0], routerMAC[1], routerMAC[2],
+        routerMAC[3], routerMAC[4], routerMAC[5]);
+
+    String html = R"rawhtml(<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="3">
+  <title>Stage 2 Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+    h1 { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.05em; color: #ffffff; margin-bottom: 24px; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; width: 100%; max-width: 800px; }
+    .card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 20px 24px; }
+    .card-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 8px; }
+    .card-value { font-size: 1.1rem; font-weight: 600; font-family: 'Courier New', monospace; color: #60a5fa; word-break: break-all; }
+    .card-value.green { color: #34d399; }
+    .card-value.red   { color: #f87171; }
+    .card-value.gray  { color: #9ca3af; }
+    .footer { margin-top: 20px; font-size: 0.72rem; color: #374151; }
+  </style>
+</head>
+<body>
+  <h1>Stage 2 Machine</h1>
+  <div class="grid">
+    <div class="card">
+      <div class="card-label">This Device MAC (Stage 2)</div>
+      <div class="card-value">)rawhtml";
+    html += mac;
+    html += R"rawhtml(</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Registered Router MAC</div>
+      <div class="card-value">)rawhtml";
+    html += routerMACStr;
+    html += R"rawhtml(</div>
+    </div>
+    <div class="card">
+      <div class="card-label">IP Address</div>
+      <div class="card-value gray">)rawhtml";
+    html += WiFi.localIP().toString();
+    html += R"rawhtml(</div>
+    </div>
+    <div class="card">
+      <div class="card-label">WiFi Signal (RSSI)</div>
+      <div class="card-value gray">)rawhtml";
+    html += String(WiFi.RSSI());
+    html += R"rawhtml( dBm</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Router Clear Status</div>
+      <div class="card-value )rawhtml";
+    html += isRouterClear ? "green\">CLEAR" : "red\">NOT CLEAR";
+    html += R"rawhtml(</div>
+    </div>
+  </div>
+  <div class="footer">Auto-refreshes every 3 seconds</div>
+</body>
+</html>)rawhtml";
+
+    webServer.send(200, "text/html", html);
+}
+
 void setupOTA() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -110,10 +186,16 @@ void setupOTA() {
 
   ArduinoOTA.setHostname("stage2-esp32s3");
   ArduinoOTA.begin();
-  
+
+  webServer.on("/", handleDashboard);
+  webServer.begin();
+
   Serial.println("OTA server started - ready for wireless uploads");
+  Serial.print("Dashboard: http://");
+  Serial.println(WiFi.localIP());
 }
 
 void handleOTA() {
   ArduinoOTA.handle();
+  webServer.handleClient();
 } 
