@@ -43,16 +43,6 @@ extern Bounce2::Button startButton;
 extern Bounce2::Button transferArmSignal;
 extern Bounce2::Button endPositionVerificationSensor;
 
-class RouterClearDebouncer : public Debouncer {
-public:
-    void beginDebouncer();
-
-protected:
-    bool readCurrentState() override;
-};
-
-extern RouterClearDebouncer routerClearSensor;
-
 // FastAccelStepper objects
 extern FastAccelStepperEngine engine;
 extern FastAccelStepper *stepper;

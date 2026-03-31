@@ -363,10 +363,8 @@ void handleClampReleasePhase() {
             //! ************************************************************************
             //! CHECK ROUTER CLEAR STATUS RIGHT BEFORE DROPOFF
             //! ************************************************************************
-            // Active-low semantics:
-            // - routerClearSensor.read() == true means blocked (debounced value)
-            routerClearSensor.update(); // Ensure freshest debounced state at decision point
-            if (!bypassRouterClearCheckOnce && routerClearSensor.read()) {
+            // isRouterClear == false means router is blocked
+            if (!bypassRouterClearCheckOnce && !isRouterClear) {
                 stateBeforeError = CUTTING;
                 resetCuttingVariables();
                 currentState = ROUTER_CLEAR_ERROR;

@@ -4,6 +4,7 @@
 // Functions to setup and read input devices (buttons and sensors)
 
 #include <Stage2_Machine.h>
+#include "OTA/OTA_Upload.h"
 
 //* ************************************************************************
 //* ************************ INPUT SETUP ********************************
@@ -39,10 +40,6 @@ void setupInputs() {
     endPositionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
     endPositionVerificationSensor.setPressedState(LOW); // Active LOW
 
-    // Router clear status (ESP-NOW) - 5ms debounce as requested
-    routerClearSensor.interval(5);
-    routerClearSensor.beginDebouncer();
-    
     Serial.println("Input initialization complete");
 }
 
@@ -56,7 +53,6 @@ void updateInputs() {
     startButton.update();
     transferArmSignal.update();
     endPositionVerificationSensor.update();
-    routerClearSensor.update();
 }
 
 bool checkInputs() {
@@ -81,7 +77,7 @@ bool checkInputs() {
         anyActive = true;
     }
 
-    if (routerClearSensor.read()) {
+    if (!isRouterClear) {
         anyActive = true;
     }
     

@@ -6,10 +6,7 @@
 // Motor automatically disables after 5 seconds of no activity to save power.
 
 #include <Stage2_Machine.h>
-
-namespace IdleConfig {
-    const int ROUTER_TEST_PULSE_MS = 200;  // Duration of router signal pin pulse for test
-}
+#include "OTA/OTA_Upload.h"
 
 void handleIdleState() {
     static bool idleInitialized = false;
@@ -53,13 +50,10 @@ void handleIdleState() {
             motorCurrentlyEnabled = true;
         }
         
-        //! TESTING ONLY: Pulse CLAMP_RELEASE_SIGNAL for 200ms instead of full sequence
-        // Only pulse if router clear sensor is HIGH (clear)
-        routerClearSensor.update();
-        if (!routerClearSensor.read()) {
-            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, HIGH);
-            delay(IdleConfig::ROUTER_TEST_PULSE_MS);
-            digitalWrite(Pins::CLAMP_RELEASE_SIGNAL, LOW);
+        //! TESTING ONLY: Send ESP-NOW signal to router instead of running cutting cycle
+        // Only send start signal if router is clear
+        if (isRouterClear) {
+            sendRouterSignal(1);
         }
     } else if (!startButtonCurrentlyPressed) {
         // Button is not pressed, reset the tracking variable
