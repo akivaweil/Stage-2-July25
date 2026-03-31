@@ -16,12 +16,27 @@ const char* password = "Everwood-Staff";
 //* *********************** ESP-NOW ROUTER COMM ************************
 //* ************************************************************************
 
+// Config
+static const float MAX_SEND_RETRIES     = 5;   // Max retry attempts on delivery failure
+static const float SEND_ACK_TIMEOUT_MS  = 15;  // ms to wait for MAC-layer ACK before giving up
+static const float SEND_RETRY_DELAY_MS  = 20;  // ms between retry attempts
+
 uint8_t routerMAC[] = {0xE4, 0xB0, 0x63, 0xB4, 0x49, 0x50};
 
 typedef struct { uint8_t signal; } RouterMessage;
 
 // True = router is clear, False = router is NOT clear (triggers error state)
 volatile bool isRouterClear = true;
+
+// Send callback tracking - set by onDataSent() after each esp_now_send()
+volatile bool lastSendAckReceived = false;
+volatile bool lastSendSuccess     = false;
+
+void onDataSent(const uint8_t *mac, esp_now_send_status_t status) {
+    // Called by ESP-NOW stack after MAC-layer ACK (or failure) from peer
+    lastSendSuccess     = (status == ESP_NOW_SEND_SUCCESS);
+    lastSendAckReceived = true;
+}
 
 void onRouterDataReceived(const uint8_t *mac, const uint8_t *data, int len) {
     if (len >= 1) {
@@ -32,12 +47,26 @@ void onRouterDataReceived(const uint8_t *mac, const uint8_t *data, int len) {
 void sendRouterSignal(uint8_t value) {
     RouterMessage msg;
     msg.signal = value;
-    // Send 3x for redundancy in case of packet loss
-    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
-    delay(5);
-    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
-    delay(5);
-    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+
+    for (float attempt = 0; attempt < MAX_SEND_RETRIES; attempt++) {
+        lastSendAckReceived = false;
+        lastSendSuccess     = false;
+
+        esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+
+        // Wait for MAC-layer ACK callback (or timeout)
+        unsigned long start = millis();
+        while (!lastSendAckReceived && (millis() - start) < (unsigned long)SEND_ACK_TIMEOUT_MS) {
+            delayMicroseconds(100);
+        }
+
+        if (lastSendSuccess) {
+            return; // Delivery confirmed - no need to retry
+        }
+
+        // Delivery failed or timed out - wait before next attempt
+        delay((unsigned long)SEND_RETRY_DELAY_MS);
+    }
 }
 
 void setupOTA() {
@@ -68,6 +97,7 @@ void setupOTA() {
   }
 
   esp_now_register_recv_cb(onRouterDataReceived);
+  esp_now_register_send_cb(onDataSent);
 
   // Register router as a peer
   esp_now_peer_info_t peer = {};

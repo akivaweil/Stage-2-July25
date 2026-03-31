@@ -12,7 +12,6 @@ void handleIdleState() {
     static bool idleInitialized = false;
     static unsigned long lastActivityTime = 0;
     static bool motorCurrentlyEnabled = false;
-    static unsigned long lastSignalTime = 0;
     
     // Ensure inputs are updated for reliable Bounce2 operation
     updateInputs();
@@ -51,7 +50,8 @@ void handleIdleState() {
             motorCurrentlyEnabled = true;
         }
         
-        // (start button press - no action in test mode)
+        //! TESTING ONLY: Send ESP-NOW signal to router instead of running cutting cycle
+        sendRouterSignal(1);
     } else if (!startButtonCurrentlyPressed) {
         // Button is not pressed, reset the tracking variable
         startButtonWasPressed = false;
@@ -74,14 +74,6 @@ void handleIdleState() {
         transferArmSignalWasActive = false;
     }
     
-    //! ************************************************************************
-    //! TESTING ONLY: Send ESP-NOW signal every 500ms
-    //! ************************************************************************
-    if (millis() - lastSignalTime >= 500) {
-        sendRouterSignal(1);
-        lastSignalTime = millis();
-    }
-
     //! ************************************************************************
     //! STEP 4: MOTOR TIMEOUT MANAGEMENT
     //! ************************************************************************
