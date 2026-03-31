@@ -31,6 +31,7 @@ namespace CuttingConfig {
 #define PHASE_RE_EXTEND_CLAMPS         11
 #define PHASE_WAIT_RE_EXTENSION        12
 #define PHASE_PREPARE_RETURN           13
+#define PHASE_WAIT_ROUTER_CLEAR        14  // Hold at drop-off until start button pressed
 
 //! ************************************************************************
 //! STATIC VARIABLES FOR CUTTING STATE
@@ -60,6 +61,7 @@ void handleClampReleasePhase();
 void handleOscillationPhase();
 void handleReExtendPhase();
 void handlePrepareReturnPhase();
+void handleWaitRouterClearPhase();
 
 //! ************************************************************************
 //! MAIN CUTTING STATE HANDLER
@@ -68,10 +70,13 @@ void handleCuttingState() {
     
     //! ************************************************************************
     //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
+    //! (skipped during PHASE_WAIT_ROUTER_CLEAR — that phase owns the button)
     //! ************************************************************************
-    if (checkStartButtonForHoming()) {
-        resetCuttingVariables();
-        return; // Exit function, state will be changed to HOMING
+    if (cuttingPhase != PHASE_WAIT_ROUTER_CLEAR) {
+        if (checkStartButtonForHoming()) {
+            resetCuttingVariables();
+            return; // Exit function, state will be changed to HOMING
+        }
     }
     
     // Update router signal pattern (non-blocking)
@@ -122,6 +127,10 @@ void handleCuttingState() {
             
         case PHASE_PREPARE_RETURN:
             handlePrepareReturnPhase();
+            break;
+            
+        case PHASE_WAIT_ROUTER_CLEAR:
+            handleWaitRouterClearPhase();
             break;
     }
 }
@@ -342,16 +351,16 @@ void handlePositionVerificationPhase() {
 //! ************************************************************************
 void handleSettleTimePhase() {
     //! ************************************************************************
-    //! SETTLE TIME: WAIT 150MS
+    //! SETTLE TIME: WAIT FOR CLAMP_SETTLE_TIME
     //! ************************************************************************
     if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
         //! ************************************************************************
-        //! CHECK IS_ROUTER_CLEAR SENSOR (ACTIVE LOW) - IF ACTIVE, TRIGGER ERROR STATE
+        //! CHECK IS_ROUTER_CLEAR PHYSICAL SENSOR (ACTIVE LOW)
+        //! If triggered: hold at drop-off and wait for start button
         //! ************************************************************************
-        if (!isRouterClear) {
-            stateBeforeError = CUTTING;
-            resetCuttingVariables();
-            currentState = ROUTER_CLEAR_ERROR;
+        if (digitalRead(Pins::IS_ROUTER_CLEAR) == LOW) {
+            startButtonWasPressed = false; // reset so wait phase sees a clean edge
+            cuttingPhase = PHASE_WAIT_ROUTER_CLEAR;
             return;
         }
         
@@ -418,6 +427,32 @@ void handleReExtendPhase() {
                 stepStartTime = millis();
             }
             break;
+    }
+}
+
+//! ************************************************************************
+//! WAIT ROUTER CLEAR PHASE HANDLER
+//! ************************************************************************
+// IS_ROUTER_CLEAR sensor was triggered at drop-off point.
+// Hold position with clamps extended until start button is pressed,
+// then release clamps and return home.
+void handleWaitRouterClearPhase() {
+    updateInputs();
+    
+    bool startButtonCurrentlyPressed = startButton.read();
+    if (startButtonCurrentlyPressed && !startButtonWasPressed) {
+        startButtonWasPressed = true;
+        
+        //! Release clamps and signal router OFF
+        retractBothClamps();
+        sendRouterSignal(0);
+        
+        resetCuttingVariables();
+        homingComplete = false;
+        enableMotor();
+        currentState = HOMING;
+    } else if (!startButtonCurrentlyPressed) {
+        startButtonWasPressed = false;
     }
 }
 

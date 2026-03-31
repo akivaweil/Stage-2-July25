@@ -27,7 +27,7 @@ void setupInputs() {
     
     // Start button - standard debounce for reliable button presses
     startButton.attach(Pins::START_BUTTON);
-    startButton.interval(50); // 50ms debounce for reliable button detection
+    startButton.interval(5); // 5ms debounce for reliable button detection
     startButton.setPressedState(HIGH); // Active HIGH
     
     // Transfer arm signal - moderate debounce for sensor reliability
