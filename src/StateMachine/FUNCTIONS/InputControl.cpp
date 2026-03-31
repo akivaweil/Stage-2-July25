@@ -13,10 +13,11 @@ void setupInputs() {
     Serial.println("Initializing inputs...");
     
     // Configure input pins
-    pinMode(Pins::HOME_SWITCH, INPUT_PULLDOWN);      // Home switch is active HIGH
-    pinMode(Pins::START_BUTTON, INPUT_PULLDOWN);     // Start button is active HIGH  
-    pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN); // Transfer signal is active HIGH
-    pinMode(Pins::END_POSITION_VERIFICATION_SENSOR, INPUT_PULLUP);     // End position verification sensor is active LOW
+    pinMode(Pins::HOME_SWITCH, INPUT_PULLDOWN);                        // active HIGH
+    pinMode(Pins::START_BUTTON, INPUT_PULLDOWN);                       // active HIGH
+    pinMode(Pins::TRANSFER_ARM_START_SIGNAL, INPUT_PULLDOWN);          // active HIGH
+    pinMode(Pins::END_POSITION_VERIFICATION_SENSOR, INPUT_PULLUP);     // active LOW
+    pinMode(Pins::IS_ROUTER_CLEAR, INPUT_PULLUP);                      // active LOW
     
     // Initialize Bounce2 objects for debouncing
     // Home switch - ultra-fast debounce for immediate homing response
