@@ -6,6 +6,7 @@
 // Motor automatically disables after 5 seconds of no activity to save power.
 
 #include <Stage2_Machine.h>
+#include "OTA/OTA_Upload.h"
 
 void handleIdleState() {
     static bool idleInitialized = false;
@@ -49,16 +50,8 @@ void handleIdleState() {
             motorCurrentlyEnabled = true;
         }
         
-        // Only start cycle if homing is complete
-        if (homingComplete) {
-            cycleInProgress = true;
-            idleInitialized = false; // Reset for next idle entry
-            currentState = ALIGNMENT;
-        } else {
-            enableMotor(); // Ensure motor is enabled before homing
-            idleInitialized = false; // Reset for next idle entry
-            currentState = HOMING;
-        }
+        //! TESTING ONLY: Send ESP-NOW signal to router instead of running cutting cycle
+        sendRouterSignal(1);
     } else if (!startButtonCurrentlyPressed) {
         // Button is not pressed, reset the tracking variable
         startButtonWasPressed = false;
@@ -75,17 +68,6 @@ void handleIdleState() {
         if (!motorCurrentlyEnabled) {
             enableMotor();
             motorCurrentlyEnabled = true;
-        }
-        
-        // Only start cycle if homing is complete
-        if (homingComplete) {
-            cycleInProgress = true;
-            idleInitialized = false; // Reset for next idle entry
-            currentState = ALIGNMENT;
-        } else {
-            enableMotor(); // Ensure motor is enabled before homing
-            idleInitialized = false; // Reset for next idle entry
-            currentState = HOMING;
         }
     } else if (!transferArmCurrentlyActive) {
         // Signal is not active, reset the tracking variable
