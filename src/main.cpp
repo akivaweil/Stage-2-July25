@@ -48,6 +48,9 @@ unsigned long lastMotorUpdate = 0;
 bool startButtonWasPressed = false;
 bool transferArmSignalWasActive = false;
 
+// Tracks when the current cutting cycle started (for start-button ignore window)
+unsigned long cycleStartTime = 0;
+
 //* ************************************************************************
 //* ************************ MAIN SETUP *******************************
 //* ************************************************************************

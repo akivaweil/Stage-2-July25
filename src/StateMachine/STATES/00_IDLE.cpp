@@ -52,6 +52,7 @@ void handleIdleState() {
         // Only start cycle if homing is complete
         if (homingComplete) {
             cycleInProgress = true;
+            cycleStartTime = millis(); // Record cycle start for cancel ignore window
             idleInitialized = false; // Reset for next idle entry
             currentState = ALIGNMENT;
         } else {
@@ -80,6 +81,7 @@ void handleIdleState() {
         // Only start cycle if homing is complete
         if (homingComplete) {
             cycleInProgress = true;
+            cycleStartTime = millis();
             idleInitialized = false; // Reset for next idle entry
             currentState = ALIGNMENT;
         } else {

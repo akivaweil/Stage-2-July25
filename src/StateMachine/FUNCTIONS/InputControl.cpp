@@ -100,6 +100,12 @@ bool checkStartButtonForHoming() {
     // Update inputs for reliable button detection
     updateInputs();
     
+    // Ignore cancel button for CYCLE_START_IGNORE_MS after cycle begins to prevent
+    // a held start button (from IDLE trigger) from immediately cancelling the cycle
+    if (cycleStartTime > 0 && (millis() - cycleStartTime) < (unsigned long)Timing::CYCLE_START_IGNORE_MS) {
+        return false;
+    }
+    
     // Check if start button rising edge (button press) during cutting cycle
     bool startButtonCurrentlyPressed = startButton.read();
     if (startButtonCurrentlyPressed && !startButtonWasPressed) {

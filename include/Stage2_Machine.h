@@ -38,6 +38,9 @@ extern unsigned long lastMotorUpdate;
 extern bool startButtonWasPressed;
 extern bool transferArmSignalWasActive;
 
+// Tracks when the current cutting cycle started (for start-button ignore window)
+extern unsigned long cycleStartTime;
+
 // Input objects
 extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;

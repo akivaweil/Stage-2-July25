@@ -12,7 +12,6 @@
 namespace CuttingConfig {
     const int ROUTER_SIGNAL_ON_TIME_MS  = 500;  // Router signal ON duration
     const int ROUTER_SIGNAL_OFF_TIME_MS = 100;  // Router signal OFF duration between pulses
-    const int CYCLE_START_IGNORE_MS     = 1500; // Ignore start button cancel for this long after cycle begins
 }  // namespace CuttingConfig
 
 //! ************************************************************************
@@ -39,7 +38,6 @@ namespace CuttingConfig {
 //! ************************************************************************
 static unsigned long stepStartTime = 0;
 static unsigned long routerSignalSegmentStartTime = 0;
-static unsigned long cuttingStateEntryTime = 0; // Set on first entry; used for start-button ignore window
 static int cuttingPhase = 0;
 static int routerSignalStage = 0;          // 0 = idle, 1-5 = pulse/gap sequence
 static bool motionComplete = false;
@@ -71,21 +69,11 @@ void handleWaitRouterClearPhase();
 void handleCuttingState() {
     
     //! ************************************************************************
-    //! RECORD STATE ENTRY TIME (FIRST CALL ONLY)
-    //! ************************************************************************
-    if (cuttingStateEntryTime == 0) {
-        cuttingStateEntryTime = millis();
-    }
-    
-    //! ************************************************************************
     //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
-    //! Ignored for CYCLE_START_IGNORE_MS after entry so a held start button
-    //! (from IDLE trigger) doesn't immediately cancel the cycle.
-    //! (also skipped during PHASE_WAIT_ROUTER_CLEAR — that phase owns the button)
+    //! (skipped during PHASE_WAIT_ROUTER_CLEAR — that phase owns the button)
     //! ************************************************************************
     if (cuttingPhase != PHASE_WAIT_ROUTER_CLEAR) {
-        bool inIgnoreWindow = (millis() - cuttingStateEntryTime) < CuttingConfig::CYCLE_START_IGNORE_MS;
-        if (!inIgnoreWindow && checkStartButtonForHoming()) {
+        if (checkStartButtonForHoming()) {
             resetCuttingVariables();
             return; // Exit function, state will be changed to HOMING
         }
@@ -153,7 +141,6 @@ void handleCuttingState() {
 void resetCuttingVariables() {
     stepStartTime = 0;
     routerSignalSegmentStartTime = 0;
-    cuttingStateEntryTime = 0;
     cuttingPhase = 0;
     routerSignalStage = 0;
     motionComplete = false;
