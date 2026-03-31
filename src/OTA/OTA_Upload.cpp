@@ -35,12 +35,12 @@ void sendRouterSignal(uint8_t value) {
     msg.signal = value;
     // Physical signal on pin 17 mirrors the ESP-NOW signal
     digitalWrite(Pins::ROUTER_START_SIGNAL, value ? HIGH : LOW);
-    // Send 3x for redundancy in case of packet loss
-    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
-    delay(5);
-    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
-    delay(5);
-    esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+    // ESP-NOW disabled for physical connection testing
+    // esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+    // delay(5);
+    // esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
+    // delay(5);
+    // esp_now_send(routerMAC, (uint8_t*)&msg, sizeof(msg));
 }
 
 void setupOTA() {
