@@ -21,13 +21,11 @@
 #define STEP_RIGHT_CLAMP_EXTEND        9
 #define STEP_WAIT_RIGHT_EXTEND         10
 #define STEP_RIGHT_CLAMP_RETRACT       11
-#define STEP_ALIGNMENT_RIGHT_EXTEND    12
-#define STEP_WAIT_ALIGNMENT_RIGHT      13
-#define STEP_FINAL_MOVEMENT            14
-#define STEP_WAIT_FINAL_MOVEMENT       15
-#define STEP_FINAL_LEFT_CLAMP          16
-#define STEP_FINAL_RIGHT_CLAMP         17
-#define STEP_FINAL_SETTLE              18
+#define STEP_FINAL_MOVEMENT            12
+#define STEP_WAIT_FINAL_MOVEMENT       13
+#define STEP_FINAL_LEFT_CLAMP          14
+#define STEP_FINAL_RIGHT_CLAMP         15
+#define STEP_FINAL_SETTLE              16
 
 //! ************************************************************************
 //! STATIC VARIABLES FOR ALIGNMENT STATE
@@ -204,31 +202,10 @@ void handleAlignmentSequencePhase() {
             
         case STEP_RIGHT_CLAMP_RETRACT:
             //! ************************************************************************
-            //! WAIT (RIGHT CLAMP EXTENSION TIME)
+            //! WAIT (RIGHT CLAMP EXTENSION TIME), THEN RETRACT RIGHT CLAMP
             //! ************************************************************************
             if (millis() - stepStartTime >= Timing::ALIGNMENT_RIGHT_CLAMP_WAIT_MS) {
                 retractRightClamp();
-                stepStartTime = millis();
-                currentStep++;
-            }
-            break;
-            
-        case STEP_ALIGNMENT_RIGHT_EXTEND:
-            //! ************************************************************************
-            //! EXTEND ALIGNMENT CYLINDER AND RIGHT CLAMP (PREP FOR FINAL POSITIONING)
-            //! ************************************************************************
-            extendAlignmentCylinder();
-            extendRightClamp();
-            stepStartTime = millis();
-            currentStep++;
-            break;
-            
-        case STEP_WAIT_ALIGNMENT_RIGHT:
-            //! ************************************************************************
-            //! WAIT, THEN RETRACT ALIGNMENT CYLINDER (CLEAR FOR CUTTING)
-            //! ************************************************************************
-            if (millis() - stepStartTime >= Timing::ALIGNMENT_SHORT_SETTLE_MS) {
-                retractAlignmentCylinder();
                 stepStartTime = millis();
                 currentStep++;
             }
@@ -238,12 +215,10 @@ void handleAlignmentSequencePhase() {
             //! ************************************************************************
             //! FINAL BACKWARD MOVEMENT TO FINAL ALIGNMENT POSITION
             //! ************************************************************************
-            if (millis() - stepStartTime >= Timing::ALIGNMENT_LONG_SETTLE_MS) {
-                stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
-                stepper->moveTo(Motion::ALIGNMENT_FINAL_POSITION * Motion::STEPS_PER_INCH);
-                stepStartTime = millis();
-                currentStep++;
-            }
+            stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
+            stepper->moveTo(Motion::ALIGNMENT_FINAL_POSITION * Motion::STEPS_PER_INCH);
+            stepStartTime = millis();
+            currentStep++;
             break;
             
         case STEP_WAIT_FINAL_MOVEMENT:

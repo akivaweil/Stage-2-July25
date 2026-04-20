@@ -20,7 +20,7 @@ const float ALIGNMENT_BACKWARD_POSITION= 0.3;   // Motor pulls back to here to r
 const float ALIGNMENT_FINAL_POSITION   = 0.4;   // Motor settles here after alignment is complete
 const float APPROACH_POSITION          = 4.9;   // Motor fast-travels to here before the blade enters material
 const float CUTTING_POSITION           = 12.2;  // Motor slow-cuts to here (blade fully through material)
-const float FINAL_POSITION             = 24.3;  // Motor fast-finishes to here to clear the cut piece
+const float FINAL_POSITION             = 24.4;  // Motor fast-finishes to here to clear the cut piece
 
 // ── Speeds (steps/sec) ───────────────────────────────────────────────────────
 const float HOMING_SPEED            = 2400;    // Slow crawl used during homing
