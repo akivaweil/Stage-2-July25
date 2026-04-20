@@ -23,14 +23,14 @@ const float CUTTING_POSITION           = 12.2;  // Motor slow-cuts to here (blad
 const float FINAL_POSITION             = 24.4;  // Motor fast-finishes to here to clear the cut piece
 
 // ── Speeds (steps/sec) ───────────────────────────────────────────────────────
-const float HOMING_SPEED            = 2400;    // Slow crawl used during homing
-const float ALIGNMENT_INITIAL_SPEED = 2400;    // Slow speed for alignment nudge moves
-const float APPROACH_SPEED          = 100000;  // Full speed approach before blade touches material
-const float CUTTING_SPEED           = 1313;    // Slow feed rate while blade is cutting
-const float FINISH_SPEED            = 100000;  // Full speed move after cut is complete
-const float RETURN_SPEED            = 100000;  // Full speed return to home
+const float HOMING_SPEED            = 2520;    // Slow crawl used during homing
+const float ALIGNMENT_INITIAL_SPEED = 2520;    // Slow speed for alignment nudge moves
+const float APPROACH_SPEED          = 105000;  // Full speed approach before blade touches material
+const float CUTTING_SPEED           = 1379;    // Slow feed rate while blade is cutting
+const float FINISH_SPEED            = 105000;  // Full speed move after cut is complete
+const float RETURN_SPEED            = 105000;  // Full speed return to home
 const float RETURN_SPEED_FAST_MULT  = 1.5;     // Multiplier applied when fastReturnFlag is set (IS_ROUTER_CLEAR wait path)
-const float FINAL_SPEED             = 800;     // Creep speed for end-of-travel position verification
+const float FINAL_SPEED             = 840;     // Creep speed for end-of-travel position verification
 
 // ── Accelerations (steps/sec²) ───────────────────────────────────────────────
 const float FORWARD_ACCEL = 100000;  // Ramp-up used for all forward moves
@@ -59,7 +59,7 @@ const int ALIGNMENT_LONG_SETTLE_MS            = 200;  // Longer pause for hardwa
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 150;  // Time for alignment cylinder to reach position before motor moves
 
 // ── Clamp-release oscillation ────────────────────────────────────────────────
-const float OSCILLATION_SPEED    = 32000;  // Speed for back-and-forth oscillation moves (steps/sec)
+const float OSCILLATION_SPEED    = 33600;  // Speed for back-and-forth oscillation moves (steps/sec)
 const float OSCILLATION_ACCEL    = 80000;  // Acceleration for oscillation moves (steps/sec²)
 const float OSCILLATION_DISTANCE = 0.1;   // Half-width of oscillation (inches each direction from center)
 }  // namespace Timing
