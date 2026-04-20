@@ -26,7 +26,7 @@ const float FINAL_POSITION             = 24.4;  // Motor fast-finishes to here t
 const float HOMING_SPEED            = 2400;    // Slow crawl used during homing
 const float ALIGNMENT_INITIAL_SPEED = 2400;    // Slow speed for alignment nudge moves
 const float APPROACH_SPEED          = 100000;  // Full speed approach before blade touches material
-const float CUTTING_SPEED           = 1250;    // Slow feed rate while blade is cutting
+const float CUTTING_SPEED           = 1313;    // Slow feed rate while blade is cutting
 const float FINISH_SPEED            = 100000;  // Full speed move after cut is complete
 const float RETURN_SPEED            = 100000;  // Full speed return to home
 const float RETURN_SPEED_FAST_MULT  = 1.5;     // Multiplier applied when fastReturnFlag is set (IS_ROUTER_CLEAR wait path)
@@ -41,7 +41,7 @@ const float RETURN_ACCEL  = 160000;  // Slightly higher ramp for return (no load
 // All values in milliseconds unless noted.
 namespace Timing {
 const int CLAMP_SETTLE_TIME  = 100;   // Wait after extending clamps before moving
-const int CLAMP_RELEASE_TIME = 400;   // Dwell with clamps retracted during board release
+const int CLAMP_RELEASE_TIME = 200;   // Dwell with clamps retracted during board release
 const int HOME_SETTLE_TIME   = 100;   // Wait after homing switch triggers before moving off
 const int MOTION_SETTLE_TIME = 50;    // Short pause after any general motion completes
 const int ALIGN_SETTLE_TIME  = 200;   // Pause after alignment sequence finishes
