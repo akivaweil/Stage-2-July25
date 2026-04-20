@@ -7,6 +7,8 @@
 #include <Stage2_Machine.h>
 #include <WiFi.h>
 #include "OTA/OTA_Upload.h"
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 
 //* ************************************************************************
 //* ************************ GLOBAL VARIABLES **************************
@@ -56,7 +58,11 @@ unsigned long cycleStartTime = 0;
 //* ************************************************************************
 
 void setup() {
-    // Initialize serial communication
+    //╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
+    //║ DISABLE BROWNOUT DETECTOR ║
+    //╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
+
     Serial.begin(115200);
     delay(100); // Brief delay for serial initialization
     Serial.println("Stage 2 Cutting Machine Starting...");
