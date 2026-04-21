@@ -18,7 +18,7 @@ const float HOME_OFFSET_POSITION       = 0.01;  // Tiny move off the switch afte
 const float ALIGNMENT_INITIAL_POSITION = 0.8;   // Motor moves forward to here to push material against fence
 const float ALIGNMENT_BACKWARD_POSITION= 0.3;   // Motor pulls back to here to release pressure on fence
 const float ALIGNMENT_FINAL_POSITION   = 0.4;   // Motor settles here after alignment is complete
-const float APPROACH_POSITION          = 4.9;   // Motor fast-travels to here before the blade enters material
+const float APPROACH_POSITION          = 5.4;   // Motor fast-travels to here before the blade enters material
 const float CUTTING_POSITION           = 12.2;  // Motor slow-cuts to here (blade fully through material)
 const float FINAL_POSITION             = 24.4;  // Motor fast-finishes to here to clear the cut piece
 
