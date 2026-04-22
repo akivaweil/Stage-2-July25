@@ -434,24 +434,18 @@ void handleReExtendPhase() {
 //! WAIT ROUTER CLEAR PHASE HANDLER
 //! ************************************************************************
 // IS_ROUTER_CLEAR sensor was triggered at drop-off point.
-// Hold position with clamps extended until start button is pressed,
-// then release clamps and return home.
+// Pause in place until start button is pressed, then resume the normal
+// cutting sequence exactly where it left off.
 void handleWaitRouterClearPhase() {
     updateInputs();
-    
+
     bool startButtonCurrentlyPressed = startButton.read();
     if (startButtonCurrentlyPressed && !startButtonWasPressed) {
         startButtonWasPressed = true;
-        
-        //! Release clamps and signal router OFF
-        retractBothClamps();
-        sendRouterSignal(0);
-        
-        fastReturnFlag = true; // boost return speed for this cycle
-        resetCuttingVariables();
-        homingComplete = false;
-        enableMotor();
-        currentState = HOMING;
+
+        //! Resume normal sequence from clamp release
+        cuttingPhase = PHASE_CLAMP_RELEASE;
+        stepStartTime = millis();
     } else if (!startButtonCurrentlyPressed) {
         startButtonWasPressed = false;
     }
