@@ -58,6 +58,7 @@ const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS       = 150;  // Time for right clamp to
 const int ALIGNMENT_SHORT_SETTLE_MS           = 100;  // Brief pause between alignment steps
 const int ALIGNMENT_LONG_SETTLE_MS            = 200;  // Longer pause for hardware to settle
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 250;  // Dwell after alignment cylinder extends before left clamp
+const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS = 150;  // Keep alignment cylinder extended after left clamp before retract
 const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS = 300;  // Wait after retracting alignment cylinder before right clamp (includes retract settle)
 
 // ── Clamp-release oscillation ────────────────────────────────────────────────

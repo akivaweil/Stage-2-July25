@@ -55,6 +55,7 @@ extern const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS;     // was 150
 extern const int ALIGNMENT_SHORT_SETTLE_MS;         // was 100
 extern const int ALIGNMENT_LONG_SETTLE_MS;          // was 200
 extern const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS;  // Dwell after alignment cylinder extends before left clamp
+extern const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS;  // Dwell with cylinder still extended after left clamp before retract
 extern const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS;  // Dwell after alignment cylinder retracts before right clamp
 
 // Oscillation Settings for clamp release
