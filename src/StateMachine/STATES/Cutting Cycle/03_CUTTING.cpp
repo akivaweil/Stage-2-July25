@@ -411,9 +411,9 @@ void handleReExtendPhase() {
     switch (cuttingPhase) {
         case PHASE_RE_EXTEND_CLAMPS:
             //! ************************************************************************
-            //! RE-EXTEND CLAMPS FOR RETURN JOURNEY (RIGHT CLAMP EXTEND TEMPORARILY OFF — HARDWARE SWAP)
+            //! RE-EXTEND CLAMPS FOR RETURN JOURNEY
             //! ************************************************************************
-            extendLeftClamp();
+            extendBothClamps();
             stepStartTime = millis();
             cuttingPhase++;
             break;

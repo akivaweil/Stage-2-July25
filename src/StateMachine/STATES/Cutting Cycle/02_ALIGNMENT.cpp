@@ -5,7 +5,7 @@
 //* ************************ ALIGNMENT STATE ****************************
 //* ************************************************************************
 // Short motor forward nudge, then alignment cylinder extends and dwells, left clamp extends,
-// alignment retracts, dwell (right clamp extend temporarily disabled), settle before CUTTING
+// alignment retracts, dwell, right clamp extends; settle before CUTTING
 
 //! ************************************************************************
 //! ALIGNMENT STEP CONSTANTS
@@ -17,7 +17,8 @@
 #define STEP_LEFT_CLAMP_EXTEND           4
 #define STEP_ALIGNMENT_CYLINDER_RETRACT  5
 #define STEP_WAIT_AFTER_RETRACT          6
-#define STEP_WAIT_CLAMP_SETTLE           7
+#define STEP_RIGHT_CLAMP_EXTEND          7
+#define STEP_WAIT_CLAMP_SETTLE           8
 
 //! ************************************************************************
 //! STATIC VARIABLES FOR ALIGNMENT STATE
@@ -106,7 +107,7 @@ void handleAlignmentState() {
 
         case STEP_WAIT_AFTER_RETRACT:
             //! ************************************************************************
-            //! STEP 7: DWELL WHILE ALIGNMENT CYLINDER RETRACTED (NO RIGHT CLAMP — SWAPPED HARDWARE / TEMP)
+            //! STEP 7: DWELL WHILE ALIGNMENT CYLINDER RETRACTED BEFORE RIGHT CLAMP
             //! ************************************************************************
             if (millis() - stepStartTime >= Timing::ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS) {
                 stepStartTime = millis();
@@ -114,9 +115,18 @@ void handleAlignmentState() {
             }
             break;
 
+        case STEP_RIGHT_CLAMP_EXTEND:
+            //! ************************************************************************
+            //! STEP 8: EXTEND RIGHT CLAMP
+            //! ************************************************************************
+            extendRightClamp();
+            stepStartTime = millis();
+            currentStep++;
+            break;
+
         case STEP_WAIT_CLAMP_SETTLE:
             //! ************************************************************************
-            //! STEP 8: SETTLE BEFORE CUTTING CYCLE
+            //! STEP 9: SETTLE BEFORE CUTTING CYCLE
             //! ************************************************************************
             if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
                 resetAlignmentVariables();
