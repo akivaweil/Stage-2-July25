@@ -49,7 +49,7 @@ const int ALIGN_SETTLE_TIME  = 200;   // Pause after alignment sequence finishes
 const int SIGNAL_DURATION    = 2000;  // Duration of output signals (e.g. done signal)
 const int MOTOR_TIMEOUT      = 5000;  // Max time to wait for motor to finish before giving up
 const int RETURN_TIMEOUT           = 5000;  // Max time in RETURNING state before re-checking start button
-const int CYCLE_START_IGNORE_MS    = 1500;  // Ignore start-button cancel for this long after a cycle begins
+const int CYCLE_START_IGNORE_MS    = 500;   // First half-second of cycle only: ignore start (avoids held-button cancel)
 
 // ── Alignment choreography timing ────────────────────────────────────────────
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS      = 50;   // Time for left clamp to extend before nudge move

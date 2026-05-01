@@ -47,7 +47,7 @@ extern const int ALIGN_SETTLE_TIME;
 extern const int SIGNAL_DURATION;
 extern const int MOTOR_TIMEOUT;
 extern const int RETURN_TIMEOUT;             // Timeout for returning state before waiting for start button
-extern const int CYCLE_START_IGNORE_MS;      // Ignore start-button cancel for this long after a cycle begins
+extern const int CYCLE_START_IGNORE_MS;      // Start-to-homing ignored only in first this-many ms of a cycle
 // Alignment-specific timing (ms) to avoid magic numbers in alignment choreography
 extern const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS;    // was 50
 extern const int ALIGNMENT_ALIGNMENT_MOVE_MS;       // was 20
