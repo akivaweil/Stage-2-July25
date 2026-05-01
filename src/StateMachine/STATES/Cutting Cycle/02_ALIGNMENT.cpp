@@ -117,10 +117,9 @@ void handleInitialMovementPhase() {
             
         case STEP_WAIT_REVERSE:
             //! ************************************************************************
-            //! WAIT FOR REVERSE MOVEMENT
+            //! WAIT FOR REVERSE MOVEMENT (LEFT CLAMP STAYS EXTENDED)
             //! ************************************************************************
             if (!stepper->isRunning()) {
-                retractLeftClamp();
                 stepStartTime = millis();
                 currentStep++;
             }
@@ -173,9 +172,8 @@ void handleAlignmentSequencePhase() {
             
         case STEP_LEFT_CLAMP_RETRACT:
             //! ************************************************************************
-            //! RETRACT LEFT CLAMP (RELEASE TO ALLOW FINE ADJUSTMENT)
+            //! HOLD LEFT CLAMP EXTENDED (NO RETRACT AFTER FIRST EXTENSION)
             //! ************************************************************************
-            retractLeftClamp();
             stepStartTime = millis();
             currentStep++;
             break;
