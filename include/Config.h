@@ -58,6 +58,11 @@ extern const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS;  // Dwell after alignment cyl
 extern const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS;  // Dwell with cylinder still extended after left clamp before retract
 extern const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS;  // Dwell after alignment cylinder retracts before right clamp
 
+// Drop-off release choreography timing (ms)
+extern const int DROPOFF_AFTER_RIGHT_RELEASE_MS;     // Wait after right clamp release before router start signal
+extern const int DROPOFF_AFTER_ROUTER_SIGNAL_MS;     // Wait after router start signal before left clamp release
+extern const int DROPOFF_AFTER_LEFT_RELEASE_MS;      // Wait after left clamp release before continuing
+
 // Oscillation Settings for clamp release
 extern const float OSCILLATION_SPEED;        // Speed for oscillation movement (steps/second)
 extern const float OSCILLATION_ACCEL;        // Acceleration for oscillation movement (steps/second²)

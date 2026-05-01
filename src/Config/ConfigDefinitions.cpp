@@ -61,6 +61,11 @@ const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 250;  // Dwell after alignment c
 const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS = 150;  // Keep alignment cylinder extended after left clamp before retract
 const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS = 300;  // Wait after retracting alignment cylinder before right clamp (includes retract settle)
 
+// ── Drop-off release choreography timing ─────────────────────────────────────
+const int DROPOFF_AFTER_RIGHT_RELEASE_MS = 100;  // Dwell after right clamp release before router start signal
+const int DROPOFF_AFTER_ROUTER_SIGNAL_MS = 200;  // Dwell after router start signal before left clamp release
+const int DROPOFF_AFTER_LEFT_RELEASE_MS  = 200;  // Dwell after left clamp release before continuing
+
 // ── Clamp-release oscillation ────────────────────────────────────────────────
 const float OSCILLATION_SPEED    = 33600;  // Speed for back-and-forth oscillation moves (steps/sec)
 const float OSCILLATION_ACCEL    = 80000;  // Acceleration for oscillation moves (steps/sec²)

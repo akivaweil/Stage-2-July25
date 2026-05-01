@@ -4,7 +4,7 @@
 //* ************************************************************************
 //* ************************ CUTTING STATE *******************************
 //* ************************************************************************
-// This state performs the complete cutting sequence: approach, cut, finish, temporarily release clamps, then re-extend for return
+// This state performs the complete cutting sequence: approach, cut, finish, then a staged drop-off release (right clamp → router start signal → left clamp) before returning home
  
 //! ************************************************************************
 //! CUTTING CONFIGURATION (TIMING, ETC.)
@@ -26,12 +26,14 @@ namespace CuttingConfig {
 #define PHASE_POSITION_CHECK           6
 #define PHASE_POSITION_MONITOR         7
 #define PHASE_SETTLE_TIME              8
-#define PHASE_CLAMP_RELEASE            9
-#define PHASE_OSCILLATION              10
-#define PHASE_RE_EXTEND_CLAMPS         11
-#define PHASE_WAIT_RE_EXTENSION        12
-#define PHASE_PREPARE_RETURN           13
-#define PHASE_WAIT_ROUTER_CLEAR        14  // Hold at drop-off until start button pressed
+#define PHASE_RELEASE_RIGHT_CLAMP      9   // Drop-off: retract right clamp first
+#define PHASE_WAIT_AFTER_RIGHT         10  // Drop-off: 100ms dwell before router start signal
+#define PHASE_SEND_ROUTER_START        11  // Drop-off: pulse router start signal
+#define PHASE_WAIT_AFTER_ROUTER        12  // Drop-off: 200ms dwell before left clamp release
+#define PHASE_RELEASE_LEFT_CLAMP       13  // Drop-off: retract left clamp
+#define PHASE_WAIT_AFTER_LEFT          14  // Drop-off: 200ms dwell before continuing
+#define PHASE_PREPARE_RETURN           15
+#define PHASE_WAIT_ROUTER_CLEAR        16  // Hold at drop-off until start button pressed
 
 //! ************************************************************************
 //! STATIC VARIABLES FOR CUTTING STATE
@@ -43,8 +45,6 @@ static int routerSignalStage = 0;          // 0 = idle, 1-5 = pulse/gap sequence
 static bool motionComplete = false;
 static float targetPosition = 0;
 static float initialFinalPosition = 0;
-static float centerPosition = 0;          // Center position for oscillation
-static bool oscillatingForward = true;    // Direction of oscillation
 
 //! ************************************************************************
 //! FORWARD DECLARATIONS
@@ -57,9 +57,7 @@ void handleCuttingPhase();
 void handleFinishPhase();
 void handlePositionVerificationPhase();
 void handleSettleTimePhase();
-void handleClampReleasePhase();
-void handleOscillationPhase();
-void handleReExtendPhase();
+void handleDropoffSequencePhase();
 void handlePrepareReturnPhase();
 void handleWaitRouterClearPhase();
 
@@ -114,17 +112,16 @@ void handleCuttingState() {
         case PHASE_SETTLE_TIME:
             handleSettleTimePhase();
             break;
-            
-        case PHASE_CLAMP_RELEASE:
-        case PHASE_OSCILLATION:
-            handleClampReleasePhase();
+
+        case PHASE_RELEASE_RIGHT_CLAMP:
+        case PHASE_WAIT_AFTER_RIGHT:
+        case PHASE_SEND_ROUTER_START:
+        case PHASE_WAIT_AFTER_ROUTER:
+        case PHASE_RELEASE_LEFT_CLAMP:
+        case PHASE_WAIT_AFTER_LEFT:
+            handleDropoffSequencePhase();
             break;
-            
-        case PHASE_RE_EXTEND_CLAMPS:
-        case PHASE_WAIT_RE_EXTENSION:
-            handleReExtendPhase();
-            break;
-            
+
         case PHASE_PREPARE_RETURN:
             handlePrepareReturnPhase();
             break;
@@ -146,8 +143,6 @@ void resetCuttingVariables() {
     motionComplete = false;
     targetPosition = 0;
     initialFinalPosition = 0;
-    centerPosition = 0;
-    oscillatingForward = true;
 }
 
 //! ************************************************************************
@@ -217,8 +212,8 @@ void updateRouterSignalPattern() {
 }
 
 void setCuttingPhaseToContinue() {
-    // Set phase to continue from clamp release (right after router clear check)
-    cuttingPhase = PHASE_CLAMP_RELEASE;
+    // Resume drop-off sequence (right after router clear check)
+    cuttingPhase = PHASE_RELEASE_RIGHT_CLAMP;
     stepStartTime = millis();
 }
 
@@ -369,61 +364,48 @@ void handleSettleTimePhase() {
     }
 }
 
-//! ************************************************************************
-//! CLAMP RELEASE PHASE HANDLER
-//! ************************************************************************
-void handleClampReleasePhase() {
+//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
+//║ 📦 DROP-OFF RELEASE SEQUENCE                                         ║
+//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// Right clamp release → dwell → router start signal → dwell → left clamp
+// release → dwell → continue to return-home.
+void handleDropoffSequencePhase() {
     switch (cuttingPhase) {
-        case PHASE_CLAMP_RELEASE:
-            //! ************************************************************************
-            //! CLAMP RELEASE: RETRACT BOTH CLAMPS TEMPORARILY
-            //! ************************************************************************
-            retractBothClamps();
-            // Start router signal pattern (non-blocking)
-            startRouterSignalPattern();
-            centerPosition = getCurrentMotorPosition();
-            oscillatingForward = true;
-            
+        case PHASE_RELEASE_RIGHT_CLAMP:
+            retractRightClamp();
             stepStartTime = millis();
             cuttingPhase++;
             break;
-            
-        case PHASE_OSCILLATION:
-            //! ************************************************************************
-            //! CLAMP RELEASE DWELL (POSITION HOLD ONLY)
-            //! ************************************************************************
-            {
-                unsigned long elapsedTime = millis() - stepStartTime;
-                if (elapsedTime >= Timing::CLAMP_RELEASE_TIME) {
-                    stopMotor();
-                    cuttingPhase++;
-                    stepStartTime = millis();
-                }
+
+        case PHASE_WAIT_AFTER_RIGHT:
+            if (millis() - stepStartTime >= Timing::DROPOFF_AFTER_RIGHT_RELEASE_MS) {
+                cuttingPhase++;
+                stepStartTime = millis();
             }
             break;
-    }
-}
 
-//! ************************************************************************
-//! RE-EXTEND PHASE HANDLER
-//! ************************************************************************
-void handleReExtendPhase() {
-    switch (cuttingPhase) {
-        case PHASE_RE_EXTEND_CLAMPS:
-            //! ************************************************************************
-            //! RE-EXTEND CLAMPS FOR RETURN JOURNEY
-            //! ************************************************************************
-            extendBothClamps();
+        case PHASE_SEND_ROUTER_START:
+            startRouterSignalPattern();
             stepStartTime = millis();
             cuttingPhase++;
             break;
-            
-        case PHASE_WAIT_RE_EXTENSION:
-            //! ************************************************************************
-            //! WAIT FOR CLAMP RE-EXTENSION
-            //! ************************************************************************
-            if (millis() - stepStartTime >= 0) { // Skip settle time
+
+        case PHASE_WAIT_AFTER_ROUTER:
+            if (millis() - stepStartTime >= Timing::DROPOFF_AFTER_ROUTER_SIGNAL_MS) {
                 cuttingPhase++;
+                stepStartTime = millis();
+            }
+            break;
+
+        case PHASE_RELEASE_LEFT_CLAMP:
+            retractLeftClamp();
+            stepStartTime = millis();
+            cuttingPhase++;
+            break;
+
+        case PHASE_WAIT_AFTER_LEFT:
+            if (millis() - stepStartTime >= Timing::DROPOFF_AFTER_LEFT_RELEASE_MS) {
+                cuttingPhase = PHASE_PREPARE_RETURN;
                 stepStartTime = millis();
             }
             break;
@@ -443,8 +425,8 @@ void handleWaitRouterClearPhase() {
     if (startButtonCurrentlyPressed && !startButtonWasPressed) {
         startButtonWasPressed = true;
 
-        //! Resume normal sequence from clamp release
-        cuttingPhase = PHASE_CLAMP_RELEASE;
+        //! Resume normal sequence from drop-off release
+        cuttingPhase = PHASE_RELEASE_RIGHT_CLAMP;
         stepStartTime = millis();
     } else if (!startButtonCurrentlyPressed) {
         startButtonWasPressed = false;
