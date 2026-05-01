@@ -15,6 +15,7 @@ const float STEPS_PER_INCH = 677.33;
 // ── Positions (inches) ───────────────────────────────────────────────────────
 const float HOME_POSITION              = 0.0;   // Where the home switch triggers
 const float HOME_OFFSET_POSITION       = 0.01;  // Tiny move off the switch after homing
+const float ALIGNMENT_SHORT_FORWARD_POSITION = 0.15f;  // Short forward nudge before pneumatic alignment sequence
 const float ALIGNMENT_INITIAL_POSITION = 0.8;   // Motor moves forward to here to push material against fence
 const float ALIGNMENT_BACKWARD_POSITION= 0.3;   // Motor pulls back to here to release pressure on fence
 const float ALIGNMENT_FINAL_POSITION   = 0.4;   // Motor settles here after alignment is complete
@@ -56,7 +57,7 @@ const int ALIGNMENT_ALIGNMENT_MOVE_MS         = 270;  // Time allowed for the al
 const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS       = 150;  // Time for right clamp to extend after nudge
 const int ALIGNMENT_SHORT_SETTLE_MS           = 100;  // Brief pause between alignment steps
 const int ALIGNMENT_LONG_SETTLE_MS            = 200;  // Longer pause for hardware to settle
-const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 150;  // Time for alignment cylinder to reach position before motor moves
+const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 250;  // Dwell after alignment cylinder extends before left clamp
 const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS = 300;  // Wait after retracting alignment cylinder before right clamp (includes retract settle)
 
 // ── Clamp-release oscillation ────────────────────────────────────────────────

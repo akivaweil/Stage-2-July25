@@ -4,15 +4,21 @@
 //* ************************************************************************
 //* ************************ ALIGNMENT STATE ****************************
 //* ************************************************************************
-// Alignment cylinder extends and dwells, then left and right clamps extend; no stepper choreography
+// Short motor forward nudge, then alignment cylinder extends and dwells, left clamp extends,
+// alignment retracts, dwell, right clamp extends; then settle before CUTTING
 
 //! ************************************************************************
 //! ALIGNMENT STEP CONSTANTS
 //! ************************************************************************
-#define STEP_ALIGNMENT_CYLINDER_EXTEND 0
-#define STEP_WAIT_ALIGNMENT_PRE        1
-#define STEP_BOTH_CLAMPS_EXTEND        2
-#define STEP_WAIT_CLAMP_SETTLE         3
+#define STEP_SHORT_FORWARD_MOVE          0
+#define STEP_WAIT_SHORT_FORWARD          1
+#define STEP_ALIGNMENT_CYLINDER_EXTEND   2
+#define STEP_WAIT_ALIGNMENT_PRE          3
+#define STEP_LEFT_CLAMP_EXTEND           4
+#define STEP_ALIGNMENT_CYLINDER_RETRACT  5
+#define STEP_WAIT_AFTER_RETRACT          6
+#define STEP_RIGHT_CLAMP_EXTEND          7
+#define STEP_WAIT_CLAMP_SETTLE           8
 
 //! ************************************************************************
 //! STATIC VARIABLES FOR ALIGNMENT STATE
@@ -42,9 +48,29 @@ void handleAlignmentState() {
     //! STEP SEQUENCE
     //! ************************************************************************
     switch (currentStep) {
+        case STEP_SHORT_FORWARD_MOVE:
+            //! ************************************************************************
+            //! STEP 1: SHORT FORWARD MOTOR NUDGE
+            //! ************************************************************************
+            stepper->setSpeedInHz(Motion::ALIGNMENT_INITIAL_SPEED);
+            stepper->moveTo((long)(Motion::ALIGNMENT_SHORT_FORWARD_POSITION * Motion::STEPS_PER_INCH));
+            stepStartTime = millis();
+            currentStep++;
+            break;
+
+        case STEP_WAIT_SHORT_FORWARD:
+            //! ************************************************************************
+            //! STEP 2: WAIT FOR SHORT FORWARD MOVE TO FINISH
+            //! ************************************************************************
+            if (!stepper->isRunning()) {
+                stepStartTime = millis();
+                currentStep++;
+            }
+            break;
+
         case STEP_ALIGNMENT_CYLINDER_EXTEND:
             //! ************************************************************************
-            //! STEP 1: EXTEND ALIGNMENT CYLINDER
+            //! STEP 3: EXTEND ALIGNMENT CYLINDER
             //! ************************************************************************
             extendAlignmentCylinder();
             stepStartTime = millis();
@@ -53,7 +79,7 @@ void handleAlignmentState() {
 
         case STEP_WAIT_ALIGNMENT_PRE:
             //! ************************************************************************
-            //! STEP 2: WAIT FOR ALIGNMENT CYLINDER TO POSITION MATERIAL
+            //! STEP 4: WAIT FOR ALIGNMENT CYLINDER TO POSITION MATERIAL
             //! ************************************************************************
             if (millis() - stepStartTime >= Timing::ALIGNMENT_CYLINDER_PRE_EXTEND_MS) {
                 stepStartTime = millis();
@@ -61,18 +87,46 @@ void handleAlignmentState() {
             }
             break;
 
-        case STEP_BOTH_CLAMPS_EXTEND:
+        case STEP_LEFT_CLAMP_EXTEND:
             //! ************************************************************************
-            //! STEP 3: EXTEND LEFT AND RIGHT CLAMPS
+            //! STEP 5: EXTEND LEFT CLAMP
             //! ************************************************************************
-            extendBothClamps();
+            extendLeftClamp();
+            stepStartTime = millis();
+            currentStep++;
+            break;
+
+        case STEP_ALIGNMENT_CYLINDER_RETRACT:
+            //! ************************************************************************
+            //! STEP 6: RETRACT ALIGNMENT CYLINDER
+            //! ************************************************************************
+            retractAlignmentCylinder();
+            stepStartTime = millis();
+            currentStep++;
+            break;
+
+        case STEP_WAIT_AFTER_RETRACT:
+            //! ************************************************************************
+            //! STEP 7: DWELL AFTER RETRACT BEFORE RIGHT CLAMP
+            //! ************************************************************************
+            if (millis() - stepStartTime >= Timing::ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS) {
+                stepStartTime = millis();
+                currentStep++;
+            }
+            break;
+
+        case STEP_RIGHT_CLAMP_EXTEND:
+            //! ************************************************************************
+            //! STEP 8: EXTEND RIGHT CLAMP
+            //! ************************************************************************
+            extendRightClamp();
             stepStartTime = millis();
             currentStep++;
             break;
 
         case STEP_WAIT_CLAMP_SETTLE:
             //! ************************************************************************
-            //! STEP 4: SETTLE BEFORE CUTTING CYCLE
+            //! STEP 9: SETTLE BEFORE CUTTING CYCLE
             //! ************************************************************************
             if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
                 resetAlignmentVariables();

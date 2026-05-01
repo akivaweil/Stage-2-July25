@@ -13,6 +13,7 @@ extern const float STEPS_PER_INCH;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.
 // Absolute positions relative to home (position 0)
 extern const float HOME_POSITION;                    // Home position (where switch is triggered)
 extern const float HOME_OFFSET_POSITION;             // Position after homing (0.5" from home switch)
+extern const float ALIGNMENT_SHORT_FORWARD_POSITION;    // Short forward motor position at start of alignment (inches from home)
 extern const float ALIGNMENT_INITIAL_POSITION;       // Position after initial alignment move
 extern const float ALIGNMENT_BACKWARD_POSITION;      // Position after backward alignment move
 extern const float ALIGNMENT_FINAL_POSITION;         // Position after final alignment backward move
@@ -53,7 +54,8 @@ extern const int ALIGNMENT_ALIGNMENT_MOVE_MS;       // was 20
 extern const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS;     // was 150
 extern const int ALIGNMENT_SHORT_SETTLE_MS;         // was 100
 extern const int ALIGNMENT_LONG_SETTLE_MS;          // was 200
-extern const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS;  // 150ms for alignment cylinder to position material
+extern const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS;  // Dwell after alignment cylinder extends before left clamp
+extern const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS;  // Dwell after alignment cylinder retracts before right clamp
 
 // Oscillation Settings for clamp release
 extern const float OSCILLATION_SPEED;        // Speed for oscillation movement (steps/second)
