@@ -2,9 +2,7 @@
 #include <Arduino.h>
 #include <WebServer.h>
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 🌐 MACHINE CONFIG API (SHARED DASHBOARD REST CONTRACT)               ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// MACHINE CONFIG API (SHARED DASHBOARD REST CONTRACT)
 // Implements the canonical cross-machine REST config + status API for Stage 2.
 // Stage 2 uses the SYNC WebServer (WebServer.h), so handlers run from loop()
 // via dashboardServer.handleClient() and MUST be short and non-blocking.

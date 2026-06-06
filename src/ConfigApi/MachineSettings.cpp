@@ -2,9 +2,7 @@
 #include <Preferences.h>
 #include <Config.h>
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 💾 MACHINE SETTINGS IMPLEMENTATION                                   ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// MACHINE SETTINGS IMPLEMENTATION
 
 namespace {
 // NVS namespace + per-key names. Keys must stay <= 15 chars for Preferences.

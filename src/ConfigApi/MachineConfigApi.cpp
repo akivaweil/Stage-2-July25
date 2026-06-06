@@ -9,9 +9,7 @@
 #include <Stage2_Machine.h>      // currentState, MachineState
 #include "../OTA/OTA_Upload.h"   // isRouterClear
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 🌐 MACHINE CONFIG API IMPLEMENTATION                                 ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// MACHINE CONFIG API IMPLEMENTATION
 
 namespace {
 constexpr char MACHINE_ID[]   = "stage2";
@@ -95,9 +93,7 @@ const char* currentStateName() {
 
 volatile bool configDirty = false;
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ ✅ SAFETY GATE                                                       ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// SAFETY GATE
 
 bool isSafeToApplyConfig() {
     return currentState == IDLE;
@@ -110,9 +106,7 @@ void applyConfigIfDirty() {
     }
 }
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 📊 GET /api/status                                                   ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// GET /api/status
 
 String buildStatusJson() {
     JsonDocument doc;
@@ -145,9 +139,7 @@ String buildStatusJson() {
     return out;
 }
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ ⚙️ GET /api/config                                                   ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// GET /api/config
 
 String buildConfigJson() {
     JsonDocument doc;
@@ -179,9 +171,7 @@ String buildConfigJson() {
     return out;
 }
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 📝 POST /api/config CORE                                             ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// POST /api/config CORE
 
 bool applyConfigJson(const String& body, bool& outDeferred, String& outMsg) {
     outDeferred = false;
@@ -199,7 +189,7 @@ bool applyConfigJson(const String& body, bool& outDeferred, String& outMsg) {
         return false;
     }
 
-    // ── Validate EVERYTHING first; change nothing until all keys pass. ──
+    // Validate EVERYTHING first; change nothing until all keys pass.
     for (JsonPair kv : root) {
         const char* key = kv.key().c_str();
         const FieldDef* f = findField(key);
@@ -218,16 +208,16 @@ bool applyConfigJson(const String& body, bool& outDeferred, String& outMsg) {
         }
     }
 
-    // ── All valid: write into the persisted struct. ──
+    // All valid: write into the persisted struct.
     for (JsonPair kv : root) {
         const FieldDef* f = findField(kv.key().c_str());
         f->set(kv.value().as<float>());
     }
 
-    // ── ALWAYS persist accepted values immediately. ──
+    // ALWAYS persist accepted values immediately.
     saveSettings();
 
-    // ── Apply live now if safe; otherwise defer to next IDLE entry. ──
+    // Apply live now if safe; otherwise defer to next IDLE entry.
     if (isSafeToApplyConfig()) {
         applySettings();
         configDirty = false;
@@ -241,9 +231,7 @@ bool applyConfigJson(const String& body, bool& outDeferred, String& outMsg) {
     return true;
 }
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 🔌 ROUTE REGISTRATION (SYNC WebServer)                               ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// ROUTE REGISTRATION (SYNC WebServer)
 
 namespace {
 void sendJson(WebServer& server, int code, const String& body) {

@@ -1,9 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 💾 MACHINE SETTINGS (NVS-PERSISTED, DASHBOARD-EDITABLE)              ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// MACHINE SETTINGS (NVS-PERSISTED, DASHBOARD-EDITABLE)
 // Owns the persisted copy of the dashboard-editable motion/timing settings for
 // Stage 2. Persistence backend is NVS via the Preferences library, namespace
 // "dashcfg". On first boot (sentinel absent) the struct is seeded from the

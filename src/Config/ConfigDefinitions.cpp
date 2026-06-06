@@ -5,14 +5,14 @@ const char *BOARD_ID = "STAGE2_001";
 const char *BOARD_DESCRIPTION = "Stage 2 Cutting Machine - USB Only";
 }  // namespace Config
 
-// ─── MOTION ──────────────────────────────────────────────────────────────────
+// MOTION
 // All positions are absolute inches from home (0.0).
 // All speeds are in steps/sec; all accelerations in steps/sec².
 // Motor: 3200 steps/rev, 60-tooth pulley, 2mm pitch belt → 677.33 steps/inch
 namespace Motion {
 const float STEPS_PER_INCH = 677.33;
 
-// ── Positions (inches) ───────────────────────────────────────────────────────
+// Positions (inches)
 const float HOME_POSITION              = 0.0;   // Where the home switch triggers
 const float HOME_OFFSET_POSITION       = 0.01;  // Tiny move off the switch after homing
 float ALIGNMENT_SHORT_FORWARD_POSITION = 0.3f;   // Short forward nudge before pneumatic alignment sequence — dashboard-editable
@@ -20,7 +20,7 @@ float APPROACH_POSITION          = 5.1;   // Motor fast-travels to here before t
 float CUTTING_POSITION           = 11.0;  // Motor slow-cuts to here (blade fully through material) — dashboard-editable
 float FINAL_POSITION             = 24.5;  // Motor fast-finishes to here to clear the cut piece — dashboard-editable
 
-// ── Speeds (steps/sec) ───────────────────────────────────────────────────────
+// Speeds (steps/sec)
 float HOMING_SPEED            = 2520;    // Slow crawl used during homing — dashboard-editable
 const float ALIGNMENT_INITIAL_SPEED = 2520;    // Slow speed for alignment nudge moves
 float APPROACH_SPEED          = 105000;  // Full speed approach before blade touches material — dashboard-editable
@@ -30,12 +30,12 @@ float RETURN_SPEED            = 105000;  // Full speed return to home — dashbo
 const float RETURN_SPEED_FAST_MULT  = 1.5;     // Multiplier applied when fastReturnFlag is set (IS_ROUTER_CLEAR wait path)
 const float FINAL_SPEED             = 840;     // Creep speed for end-of-travel position verification
 
-// ── Accelerations (steps/sec²) ───────────────────────────────────────────────
+// Accelerations (steps/sec²)
 const float FORWARD_ACCEL = 100000;  // Ramp-up used for all forward moves
 const float RETURN_ACCEL  = 160000;  // Slightly higher ramp for return (no load)
 }  // namespace Motion
 
-// ─── TIMING ──────────────────────────────────────────────────────────────────
+// TIMING
 // All values in milliseconds unless noted.
 namespace Timing {
 const int CLAMP_SETTLE_TIME  = 100;   // Wait after extending clamps before moving
@@ -49,7 +49,7 @@ const int RETURN_TIMEOUT           = 5000;  // Max time in RETURNING state befor
 const int CYCLE_START_IGNORE_MS    = 500;   // First half-second of cycle only: ignore start (avoids held-button cancel)
 int CYCLE_COOLDOWN_MS              = 1500;  // Minimum wait in IDLE after a cycle finishes before another can start — dashboard-editable
 
-// ── Alignment choreography timing ────────────────────────────────────────────
+// Alignment choreography timing
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS      = 50;   // Time for left clamp to extend before nudge move
 const int ALIGNMENT_ALIGNMENT_MOVE_MS         = 270;  // Time allowed for the alignment nudge move
 const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS       = 150;  // Time for right clamp to extend after nudge
@@ -59,12 +59,12 @@ const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 250;  // Dwell after alignment c
 const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS = 250;  // Keep alignment cylinder extended after left clamp before retract
 const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS = 300;  // Wait after retracting alignment cylinder before right clamp (includes retract settle)
 
-// ── Drop-off release choreography timing ─────────────────────────────────────
+// Drop-off release choreography timing
 const int DROPOFF_AFTER_RIGHT_RELEASE_MS = 100;  // Dwell after right clamp release before router start signal
 const int DROPOFF_AFTER_ROUTER_SIGNAL_MS = 300;  // Dwell after router start signal before left clamp release
 const int DROPOFF_AFTER_LEFT_RELEASE_MS  = 200;  // Dwell after left clamp release before continuing
 
-// ── Clamp-release oscillation ────────────────────────────────────────────────
+// Clamp-release oscillation
 const float OSCILLATION_SPEED    = 33600;  // Speed for back-and-forth oscillation moves (steps/sec)
 const float OSCILLATION_ACCEL    = 80000;  // Acceleration for oscillation moves (steps/sec²)
 const float OSCILLATION_DISTANCE = 0.1;   // Half-width of oscillation (inches each direction from center)
