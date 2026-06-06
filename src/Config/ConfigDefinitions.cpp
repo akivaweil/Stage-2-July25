@@ -15,13 +15,10 @@ const float STEPS_PER_INCH = 677.33;
 // ── Positions (inches) ───────────────────────────────────────────────────────
 const float HOME_POSITION              = 0.0;   // Where the home switch triggers
 const float HOME_OFFSET_POSITION       = 0.01;  // Tiny move off the switch after homing
-const float ALIGNMENT_SHORT_FORWARD_POSITION = 0.15f;  // Short forward nudge before pneumatic alignment sequence
-const float ALIGNMENT_INITIAL_POSITION = 0.8;   // Motor moves forward to here to push material against fence
-const float ALIGNMENT_BACKWARD_POSITION= 0.3;   // Motor pulls back to here to release pressure on fence
-const float ALIGNMENT_FINAL_POSITION   = 0.4;   // Motor settles here after alignment is complete
+const float ALIGNMENT_SHORT_FORWARD_POSITION = 0.3f;   // Short forward nudge before pneumatic alignment sequence
 const float APPROACH_POSITION          = 5.1;   // Motor fast-travels to here before the blade enters material
 const float CUTTING_POSITION           = 11.0;  // Motor slow-cuts to here (blade fully through material)
-const float FINAL_POSITION             = 24.4;  // Motor fast-finishes to here to clear the cut piece
+const float FINAL_POSITION             = 24.5;  // Motor fast-finishes to here to clear the cut piece
 
 // ── Speeds (steps/sec) ───────────────────────────────────────────────────────
 const float HOMING_SPEED            = 2520;    // Slow crawl used during homing
@@ -50,6 +47,7 @@ const int SIGNAL_DURATION    = 2000;  // Duration of output signals (e.g. done s
 const int MOTOR_TIMEOUT      = 5000;  // Max time to wait for motor to finish before giving up
 const int RETURN_TIMEOUT           = 5000;  // Max time in RETURNING state before re-checking start button
 const int CYCLE_START_IGNORE_MS    = 500;   // First half-second of cycle only: ignore start (avoids held-button cancel)
+const int CYCLE_COOLDOWN_MS        = 1500;  // Minimum wait in IDLE after a cycle finishes before another can start
 
 // ── Alignment choreography timing ────────────────────────────────────────────
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS      = 50;   // Time for left clamp to extend before nudge move
@@ -58,12 +56,12 @@ const int ALIGNMENT_RIGHT_CLAMP_WAIT_MS       = 150;  // Time for right clamp to
 const int ALIGNMENT_SHORT_SETTLE_MS           = 100;  // Brief pause between alignment steps
 const int ALIGNMENT_LONG_SETTLE_MS            = 200;  // Longer pause for hardware to settle
 const int ALIGNMENT_CYLINDER_PRE_EXTEND_MS    = 250;  // Dwell after alignment cylinder extends before left clamp
-const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS = 150;  // Keep alignment cylinder extended after left clamp before retract
+const int ALIGNMENT_CYLINDER_EXTENDED_BEFORE_RETRACT_MS = 250;  // Keep alignment cylinder extended after left clamp before retract
 const int ALIGNMENT_AFTER_RETRACT_BEFORE_RIGHT_CLAMP_MS = 300;  // Wait after retracting alignment cylinder before right clamp (includes retract settle)
 
 // ── Drop-off release choreography timing ─────────────────────────────────────
 const int DROPOFF_AFTER_RIGHT_RELEASE_MS = 100;  // Dwell after right clamp release before router start signal
-const int DROPOFF_AFTER_ROUTER_SIGNAL_MS = 200;  // Dwell after router start signal before left clamp release
+const int DROPOFF_AFTER_ROUTER_SIGNAL_MS = 300;  // Dwell after router start signal before left clamp release
 const int DROPOFF_AFTER_LEFT_RELEASE_MS  = 200;  // Dwell after left clamp release before continuing
 
 // ── Clamp-release oscillation ────────────────────────────────────────────────

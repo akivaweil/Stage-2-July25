@@ -208,6 +208,8 @@ void setupOTA() {
 }
 
 void handleOTA() {
-  ArduinoOTA.handle();
+  if (currentState == IDLE) {
+    ArduinoOTA.handle();
+  }
   dashboardServer.handleClient();
 }

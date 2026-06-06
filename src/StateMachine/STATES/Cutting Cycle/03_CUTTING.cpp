@@ -385,7 +385,9 @@ void handleDropoffSequencePhase() {
             break;
 
         case PHASE_SEND_ROUTER_START:
-            startRouterSignalPattern();
+            // Single rising edge — router treats each rising edge as one cycle start.
+            // Driven back LOW by handlePrepareReturnPhase() at end of drop-off sequence.
+            sendRouterSignal(1);
             stepStartTime = millis();
             cuttingPhase++;
             break;

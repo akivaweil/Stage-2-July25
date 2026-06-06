@@ -36,9 +36,14 @@ void handleIdleState() {
     //! ************************************************************************
     //! STEP 3: CHECK FOR ACTIVITY AND UPDATE TIMER
     //! ************************************************************************
+    // Enforce inter-cycle cooldown: ignore start triggers for CYCLE_COOLDOWN_MS
+    // after a cycle finishes. cycleEndTime == 0 means no cycle has run yet.
+    bool cooldownActive = (cycleEndTime != 0) &&
+                          ((millis() - cycleEndTime) < (unsigned long)Timing::CYCLE_COOLDOWN_MS);
+
     // Check for start button rising edge (button press)
     bool startButtonCurrentlyPressed = startButton.read();
-    if (startButtonCurrentlyPressed && !startButtonWasPressed) {
+    if (!cooldownActive && startButtonCurrentlyPressed && !startButtonWasPressed) {
         // Rising edge detected - button was just pressed
         startButtonWasPressed = true;
         lastActivityTime = millis(); // Reset activity timer
@@ -67,7 +72,7 @@ void handleIdleState() {
     
     // Check for transfer arm signal (rising edge)
     bool transferArmCurrentlyActive = transferArmSignal.read();
-    if (transferArmCurrentlyActive && !transferArmSignalWasActive) {
+    if (!cooldownActive && transferArmCurrentlyActive && !transferArmSignalWasActive) {
         // Rising edge detected - signal was just activated
         transferArmSignalWasActive = true;
         lastActivityTime = millis(); // Reset activity timer

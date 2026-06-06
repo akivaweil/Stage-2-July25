@@ -7,8 +7,6 @@
 #include <Stage2_Machine.h>
 #include <WiFi.h>
 #include "OTA/OTA_Upload.h"
-#include "soc/soc.h"
-#include "soc/rtc_cntl_reg.h"
 
 //* ************************************************************************
 //* ************************ GLOBAL VARIABLES **************************
@@ -53,16 +51,14 @@ bool transferArmSignalWasActive = false;
 // Tracks when the current cutting cycle started (for start-button ignore window)
 unsigned long cycleStartTime = 0;
 
+// Tracks when the last cycle finished (for inter-cycle cooldown enforced in IDLE)
+unsigned long cycleEndTime = 0;
+
 //* ************************************************************************
 //* ************************ MAIN SETUP *******************************
 //* ************************************************************************
 
 void setup() {
-    //╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-    //║ DISABLE BROWNOUT DETECTOR ║
-    //╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
-    WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
-
     Serial.begin(115200);
     delay(100); // Brief delay for serial initialization
     Serial.println("Stage 2 Cutting Machine Starting...");

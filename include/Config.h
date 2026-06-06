@@ -14,9 +14,6 @@ extern const float STEPS_PER_INCH;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.
 extern const float HOME_POSITION;                    // Home position (where switch is triggered)
 extern const float HOME_OFFSET_POSITION;             // Position after homing (0.5" from home switch)
 extern const float ALIGNMENT_SHORT_FORWARD_POSITION;    // Short forward motor position at start of alignment (inches from home)
-extern const float ALIGNMENT_INITIAL_POSITION;       // Position after initial alignment move
-extern const float ALIGNMENT_BACKWARD_POSITION;      // Position after backward alignment move
-extern const float ALIGNMENT_FINAL_POSITION;         // Position after final alignment backward move
 extern const float APPROACH_POSITION;                // Position for cutting approach
 extern const float CUTTING_POSITION;                 // Position after cutting
 extern const float FINAL_POSITION;                   // Final position after finish move
@@ -48,6 +45,7 @@ extern const int SIGNAL_DURATION;
 extern const int MOTOR_TIMEOUT;
 extern const int RETURN_TIMEOUT;             // Timeout for returning state before waiting for start button
 extern const int CYCLE_START_IGNORE_MS;      // Start-to-homing ignored only in first this-many ms of a cycle
+extern const int CYCLE_COOLDOWN_MS;          // Minimum delay in IDLE after a cycle finishes before another can start
 // Alignment-specific timing (ms) to avoid magic numbers in alignment choreography
 extern const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS;    // was 50
 extern const int ALIGNMENT_ALIGNMENT_MOVE_MS;       // was 20

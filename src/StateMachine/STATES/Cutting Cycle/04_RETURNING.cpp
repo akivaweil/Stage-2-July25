@@ -142,6 +142,7 @@ void handleReturnCompletionPhase() {
         // No timeout yet - transition directly to homing
         homingComplete = false; // Reset homing flag to force homing sequence
         enableMotor(); // Ensure motor is enabled before homing
+        cycleEndTime = millis(); // Stamp for inter-cycle cooldown in IDLE
         resetReturningVariables();
         currentState = HOMING;
     }
@@ -180,6 +181,7 @@ void handleReturnWaitingPhase() {
         enableMotor();
         
         // Reset variables and transition to homing
+        cycleEndTime = millis(); // Stamp for inter-cycle cooldown in IDLE
         resetReturningVariables();
         currentState = HOMING;
     } else if (!startButtonCurrentlyPressed) {
