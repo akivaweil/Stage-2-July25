@@ -1,13 +1,9 @@
-//* ************************************************************************
-//* ************************ INPUT CONTROL ******************************
-//* ************************************************************************
+// Input control
 // Functions to setup and read input devices (buttons and sensors)
 
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 
-//* ************************************************************************
-//* ************************ INPUT SETUP ********************************
-//* ************************************************************************
+// Input setup
 
 void setupInputs() {
     Serial.println("Initializing inputs...");
@@ -43,9 +39,7 @@ void setupInputs() {
     Serial.println("Input initialization complete");
 }
 
-//* ************************************************************************
-//* ************************ INPUT READING ******************************
-//* ************************************************************************
+// Input reading
 
 void updateInputs() {
     // Update all input objects - must be called regularly for proper debouncing
@@ -80,9 +74,7 @@ bool checkInputs() {
     return anyActive;
 }
 
-//* ************************************************************************
-//* ************************ UTILITY FUNCTIONS *************************
-//* ************************************************************************
+// Utility functions
 
 float inchesToSteps(float inches) {
     return inches * Motion::STEPS_PER_INCH;
@@ -92,9 +84,7 @@ float stepsToInches(float steps) {
     return steps / Motion::STEPS_PER_INCH;
 }
 
-//* ************************************************************************
-//* ************************ CUTTING CYCLE INTERRUPTION ******************
-//* ************************************************************************
+// Cutting cycle interruption
 
 bool checkStartButtonForHoming() {
     // Update inputs for reliable button detection
@@ -128,7 +118,7 @@ bool checkStartButtonForHoming() {
         retractAlignmentCylinder();
         
         // Transition to homing state
-        currentState = HOMING;
+        currentState = STATE_HOMING;
         
         return true; // Start button was pressed
     } else if (!startButtonCurrentlyPressed) {

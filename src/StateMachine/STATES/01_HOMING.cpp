@@ -1,9 +1,7 @@
-//* ************************************************************************
-//* ************************ HOMING ***********************************
-//* ************************************************************************
+// Homing
 // Homing sequence: find home switch, set position to 0, move to offset
 
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 
 void handleHomingState() {
     static bool homingStarted = false;
@@ -88,7 +86,7 @@ void handleHomingState() {
                 movingToHome = false;
                 movingToOffset = false;
                 retryCount = 0;
-                currentState = IDLE;
+                currentState = STATE_IDLE;
             } else {
                 // Did not reach target - retry
                 retryCount++;

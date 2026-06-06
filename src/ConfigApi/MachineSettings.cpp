@@ -1,6 +1,6 @@
-#include "MachineSettings.h"
+#include "ConfigApi/MachineSettings.h"
 #include <Preferences.h>
-#include <Config.h>
+#include "Config/Config.h"
 
 // MACHINE SETTINGS IMPLEMENTATION
 

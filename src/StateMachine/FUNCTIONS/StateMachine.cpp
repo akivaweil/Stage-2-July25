@@ -1,49 +1,43 @@
-//* ************************************************************************
-//* ************************ STATE MACHINE FUNCTIONS ******************
-//* ************************************************************************
+// State machine functions
 // Core state machine execution and state transition management
 
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 
-//* ************************************************************************
-//* ************************ STATE MACHINE HANDLER **********************
-//* ************************************************************************
+// State machine handler
 // Main state machine execution function
 
 void runStateMachine() {
     // Execute state machine
     switch (currentState) {
-        case IDLE:
+        case STATE_IDLE:
             handleIdleState();
             break;
-            
-        case HOMING:
+
+        case STATE_HOMING:
             handleHomingState();
             break;
-            
-        case ALIGNMENT:
+
+        case STATE_ALIGNMENT:
             handleAlignmentState();
             break;
-            
-        case CUTTING:
+
+        case STATE_CUTTING:
             handleCuttingState();
             break;
-            
-        case RETURNING:
+
+        case STATE_RETURNING:
             handleReturningState();
             break;
-            
-        case ROUTER_CLEAR_ERROR:
+
+        case STATE_ROUTER_CLEAR_ERROR:
             handleRouterClearErrorState();
             break;
     }
 }
 
-//* ************************************************************************
-//* ************************ STATE TRANSITION ***************************
-//* ************************************************************************
+// State transition
 
-void changeState(MachineState newState) {
+void changeState(SystemState newState) {
     // Only change if different state
     if (newState != currentState) {
         previousState = currentState;

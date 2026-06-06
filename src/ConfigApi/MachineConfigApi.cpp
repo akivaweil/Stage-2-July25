@@ -1,13 +1,13 @@
-#include "MachineConfigApi.h"
-#include "MachineSettings.h"
+#include "ConfigApi/MachineConfigApi.h"
+#include "ConfigApi/MachineSettings.h"
 
 #include <ArduinoJson.h>
 #include <WiFi.h>
 
-#include <Config.h>
-#include <Pins_Definitions.h>
-#include <Stage2_Machine.h>      // currentState, MachineState
-#include "../OTA/OTA_Upload.h"   // isRouterClear
+#include "Config/Config.h"
+#include "Config/Pins_Definitions.h"
+#include "StateMachine/StateMachine.h"   // currentState, SystemState
+#include "OTA/OTA_Upload.h"              // isRouterClear
 
 // MACHINE CONFIG API IMPLEMENTATION
 
@@ -80,12 +80,12 @@ const FieldDef* findField(const char* key) {
 
 const char* currentStateName() {
     switch (currentState) {
-        case IDLE:               return "IDLE";
-        case HOMING:             return "HOMING";
-        case ALIGNMENT:          return "ALIGNMENT";
-        case CUTTING:            return "CUTTING";
-        case RETURNING:          return "RETURNING";
-        case ROUTER_CLEAR_ERROR: return "ROUTER_CLEAR_ERROR";
+        case STATE_IDLE:               return "IDLE";
+        case STATE_HOMING:             return "HOMING";
+        case STATE_ALIGNMENT:          return "ALIGNMENT";
+        case STATE_CUTTING:            return "CUTTING";
+        case STATE_RETURNING:          return "RETURNING";
+        case STATE_ROUTER_CLEAR_ERROR: return "ROUTER_CLEAR_ERROR";
     }
     return "UNKNOWN";
 }
@@ -96,7 +96,7 @@ volatile bool configDirty = false;
 // SAFETY GATE
 
 bool isSafeToApplyConfig() {
-    return currentState == IDLE;
+    return currentState == STATE_IDLE;
 }
 
 void applyConfigIfDirty() {
@@ -115,7 +115,7 @@ String buildStatusJson() {
     doc["state"]    = currentStateName();
     // HEALTHY normally; WARNING until homed; ERROR while in the router-clear error state.
     const char* health = "HEALTHY";
-    if (currentState == ROUTER_CLEAR_ERROR) {
+    if (currentState == STATE_ROUTER_CLEAR_ERROR) {
         health = "ERROR";
     } else if (!homingComplete) {
         health = "WARNING";

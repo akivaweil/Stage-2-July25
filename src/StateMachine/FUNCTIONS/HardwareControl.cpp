@@ -1,13 +1,9 @@
-//* ************************************************************************
-//* ************************ HARDWARE CONTROL **************************
-//* ************************************************************************
+// Hardware control
 // Functions to control motor, clamps, cylinders, and other hardware using FastAccelStepper
 
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 
-//* ************************************************************************
-//* ************************ HARDWARE SETUP ****************************
-//* ************************************************************************
+// Hardware setup
 
 void setupHardware() {
     Serial.println("Initializing hardware...");
@@ -33,9 +29,7 @@ void setupHardware() {
     Serial.println("Hardware initialization complete");
 }
 
-//* ************************************************************************
-//* ************************ MOTOR CONTROL ******************************
-//* ************************************************************************
+// Motor control
 
 void setupMotor() {
     Serial.println("Setting up FastAccelStepper motor...");
@@ -147,9 +141,7 @@ void waitForMotorComplete() {
     }
 }
 
-//* ************************************************************************
-//* ************************ ADVANCED MOTOR CONTROL *********************
-//* ************************************************************************
+// Advanced motor control
 
 // Get current motor position from FastAccelStepper
 long getCurrentMotorPosition() {
@@ -167,9 +159,7 @@ void setCurrentMotorPosition(long position) {
     }
 }
 
-//* ************************************************************************
-//* ************************ CLAMP CONTROL FUNCTIONS ********************
-//* ************************************************************************
+// Clamp control functions
 // Controls for left and right clamps (LOW = extended, HIGH = retracted)
 
 void extendLeftClamp() {
@@ -198,9 +188,7 @@ void retractBothClamps() {
     digitalWrite(Pins::RIGHT_CLAMP, HIGH);  // HIGH retracts the clamp
 }
 
-//* ************************************************************************
-//* ************************ ALIGNMENT CYLINDER FUNCTIONS ***************
-//* ************************************************************************
+// Alignment cylinder functions
 // Controls for alignment cylinder (LOW = retracted, HIGH = extended)
 
 void extendAlignmentCylinder() {

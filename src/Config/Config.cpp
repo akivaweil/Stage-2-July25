@@ -1,4 +1,4 @@
-#include <Config.h>
+#include "Config/Config.h"
 
 namespace Config {
 const char *BOARD_ID = "STAGE2_001";

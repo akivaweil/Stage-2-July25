@@ -1,4 +1,4 @@
-#include <Pins_Definitions.h>
+#include "Config/Pins_Definitions.h"
 
 // Pin Configuration - Using ESP32-S3 GPIO pins (Freenove ESP32-S3 board)
 namespace Pins {

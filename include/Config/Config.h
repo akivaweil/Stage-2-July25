@@ -34,7 +34,7 @@ extern const float RETURN_ACCEL;
 }  // namespace Motion
 
 // Timing Settings (milliseconds)
-//! NOTE: Use integer millisecond timing constants. Avoid floats unless absolutely necessary.
+// NOTE: Use integer millisecond timing constants. Avoid floats unless absolutely necessary.
 namespace Timing {
 extern const int CLAMP_SETTLE_TIME;
 extern const int CLAMP_RELEASE_TIME;

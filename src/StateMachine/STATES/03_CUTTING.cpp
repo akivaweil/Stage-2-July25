@@ -1,22 +1,16 @@
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 #include "OTA/OTA_Upload.h"
 
-//* ************************************************************************
-//* ************************ CUTTING STATE *******************************
-//* ************************************************************************
+// Cutting state
 // This state performs the complete cutting sequence: approach, cut, finish, then a staged drop-off release (right clamp → router start signal → left clamp) before returning home
- 
-//! ************************************************************************
-//! CUTTING CONFIGURATION (TIMING, ETC.)
-//! ************************************************************************
+
+// Cutting configuration (timing, etc.)
 namespace CuttingConfig {
     const int ROUTER_SIGNAL_ON_TIME_MS  = 500;  // Router signal ON duration
     const int ROUTER_SIGNAL_OFF_TIME_MS = 100;  // Router signal OFF duration between pulses
 }  // namespace CuttingConfig
 
-//! ************************************************************************
-//! CUTTING PHASE CONSTANTS
-//! ************************************************************************
+// Cutting phase constants
 #define PHASE_APPROACH_SET_TARGET      0
 #define PHASE_APPROACH_VERIFY          1
 #define PHASE_CUTTING_SET_TARGET       2
@@ -35,9 +29,7 @@ namespace CuttingConfig {
 #define PHASE_PREPARE_RETURN           15
 #define PHASE_WAIT_ROUTER_CLEAR        16  // Hold at drop-off until start button pressed
 
-//! ************************************************************************
-//! STATIC VARIABLES FOR CUTTING STATE
-//! ************************************************************************
+// Static variables for cutting state
 static unsigned long stepStartTime = 0;
 static unsigned long routerSignalSegmentStartTime = 0;
 static int cuttingPhase = 0;
@@ -46,9 +38,7 @@ static bool motionComplete = false;
 static float targetPosition = 0;
 static float initialFinalPosition = 0;
 
-//! ************************************************************************
-//! FORWARD DECLARATIONS
-//! ************************************************************************
+// Forward declarations
 void resetCuttingVariables();
 void startRouterSignalPattern();
 void updateRouterSignalPattern();
@@ -61,54 +51,48 @@ void handleDropoffSequencePhase();
 void handlePrepareReturnPhase();
 void handleWaitRouterClearPhase();
 
-//! ************************************************************************
-//! MAIN CUTTING STATE HANDLER
-//! ************************************************************************
+// Main cutting state handler
 void handleCuttingState() {
-    
-    //! ************************************************************************
-    //! CHECK FOR START BUTTON PRESS - INTERRUPT TO HOMING
-    //! (skipped during PHASE_WAIT_ROUTER_CLEAR — that phase owns the button)
-    //! ************************************************************************
+
+    // Check for start button press - interrupt to homing
+    // (skipped during PHASE_WAIT_ROUTER_CLEAR — that phase owns the button)
     if (cuttingPhase != PHASE_WAIT_ROUTER_CLEAR) {
         if (checkStartButtonForHoming()) {
             resetCuttingVariables();
             return; // Exit function, state will be changed to HOMING
         }
     }
-    
+
     // Update router signal pattern (non-blocking)
     updateRouterSignalPattern();
-    
+
     // Initialize step timing
     if (stepStartTime == 0) {
         stepStartTime = millis();
     }
-    
-    //! ************************************************************************
-    //! PHASE ROUTING
-    //! ************************************************************************
+
+    // Phase routing
     switch (cuttingPhase) {
         case PHASE_APPROACH_SET_TARGET:
         case PHASE_APPROACH_VERIFY:
             handleApproachPhase();
             break;
-            
+
         case PHASE_CUTTING_SET_TARGET:
         case PHASE_CUTTING_VERIFY:
             handleCuttingPhase();
             break;
-            
+
         case PHASE_FINISH_SET_TARGET:
         case PHASE_FINISH_VERIFY:
             handleFinishPhase();
             break;
-            
+
         case PHASE_POSITION_CHECK:
         case PHASE_POSITION_MONITOR:
             handlePositionVerificationPhase();
             break;
-            
+
         case PHASE_SETTLE_TIME:
             handleSettleTimePhase();
             break;
@@ -125,16 +109,14 @@ void handleCuttingState() {
         case PHASE_PREPARE_RETURN:
             handlePrepareReturnPhase();
             break;
-            
+
         case PHASE_WAIT_ROUTER_CLEAR:
             handleWaitRouterClearPhase();
             break;
     }
 }
 
-//! ************************************************************************
-//! RESET CUTTING VARIABLES
-//! ************************************************************************
+// Reset cutting variables
 void resetCuttingVariables() {
     stepStartTime = 0;
     routerSignalSegmentStartTime = 0;
@@ -145,9 +127,7 @@ void resetCuttingVariables() {
     initialFinalPosition = 0;
 }
 
-//! ************************************************************************
-//! ROUTER SIGNAL HELPERS (NON-BLOCKING)
-//! ************************************************************************
+// Router signal helpers (non-blocking)
 void startRouterSignalPattern() {
     // Begin pattern: ON for 500ms, OFF for 100ms, repeated 3 times
     routerSignalStage = 1;
@@ -159,10 +139,10 @@ void updateRouterSignalPattern() {
     if (routerSignalStage == 0) {
         return; // No active pattern
     }
-    
+
     unsigned long now = millis();
     unsigned long segmentElapsed = now - routerSignalSegmentStartTime;
-    
+
     switch (routerSignalStage) {
         case 1: // ON segment 1
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
@@ -171,7 +151,7 @@ void updateRouterSignalPattern() {
                 routerSignalSegmentStartTime = now;
             }
             break;
-            
+
         case 2: // OFF segment 1
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_OFF_TIME_MS) {
                 sendRouterSignal(1);
@@ -179,7 +159,7 @@ void updateRouterSignalPattern() {
                 routerSignalSegmentStartTime = now;
             }
             break;
-            
+
         case 3: // ON segment 2
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
                 sendRouterSignal(0);
@@ -187,7 +167,7 @@ void updateRouterSignalPattern() {
                 routerSignalSegmentStartTime = now;
             }
             break;
-            
+
         case 4: // OFF segment 2
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_OFF_TIME_MS) {
                 sendRouterSignal(1);
@@ -195,14 +175,14 @@ void updateRouterSignalPattern() {
                 routerSignalSegmentStartTime = now;
             }
             break;
-            
+
         case 5: // ON segment 3 (final)
             if (segmentElapsed >= CuttingConfig::ROUTER_SIGNAL_ON_TIME_MS) {
                 sendRouterSignal(0);
                 routerSignalStage = 0;
             }
             break;
-            
+
         default:
             // Safety fallback
             sendRouterSignal(0);
@@ -217,26 +197,20 @@ void setCuttingPhaseToContinue() {
     stepStartTime = millis();
 }
 
-//! ************************************************************************
-//! APPROACH PHASE HANDLER
-//! ************************************************************************
+// Approach phase handler
 void handleApproachPhase() {
     switch (cuttingPhase) {
         case PHASE_APPROACH_SET_TARGET:
-            //! ************************************************************************
-            //! APPROACH: SET TARGET POSITION
-            //! ************************************************************************
+            // Approach: set target position
             targetPosition = Motion::APPROACH_POSITION * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::APPROACH_SPEED, Motion::FORWARD_ACCEL);
-            
+
             stepStartTime = millis();
             cuttingPhase++;
             break;
-            
+
         case PHASE_APPROACH_VERIFY:
-            //! ************************************************************************
-            //! VERIFY APPROACH POSITION
-            //! ************************************************************************
+            // Verify approach position
             if (!isMotorRunning()) {
                 currentPosition = getCurrentMotorPosition();
                 cuttingPhase++;
@@ -246,26 +220,20 @@ void handleApproachPhase() {
     }
 }
 
-//! ************************************************************************
-//! CUTTING PHASE HANDLER
-//! ************************************************************************
+// Cutting phase handler
 void handleCuttingPhase() {
     switch (cuttingPhase) {
         case PHASE_CUTTING_SET_TARGET:
-            //! ************************************************************************
-            //! CUTTING: CALCULATE TARGET
-            //! ************************************************************************
+            // Cutting: calculate target
             targetPosition = Motion::CUTTING_POSITION * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::CUTTING_SPEED, Motion::FORWARD_ACCEL / 2);
-            
+
             stepStartTime = millis();
             cuttingPhase++;
             break;
-            
+
         case PHASE_CUTTING_VERIFY:
-            //! ************************************************************************
-            //! VERIFY CUTTING COMPLETION
-            //! ************************************************************************
+            // Verify cutting completion
             if (!isMotorRunning()) {
                 currentPosition = getCurrentMotorPosition();
                 cuttingPhase++;
@@ -275,26 +243,20 @@ void handleCuttingPhase() {
     }
 }
 
-//! ************************************************************************
-//! FINISH PHASE HANDLER
-//! ************************************************************************
+// Finish phase handler
 void handleFinishPhase() {
     switch (cuttingPhase) {
         case PHASE_FINISH_SET_TARGET:
-            //! ************************************************************************
-            //! FINISH: SET FINAL TARGET POSITION
-            //! ************************************************************************
+            // Finish: set final target position
             targetPosition = Motion::FINAL_POSITION * Motion::STEPS_PER_INCH;
             moveMotorToPosition(targetPosition, Motion::FINISH_SPEED, Motion::FORWARD_ACCEL);
-            
+
             stepStartTime = millis();
             cuttingPhase++;
             break;
-            
+
         case PHASE_FINISH_VERIFY:
-            //! ************************************************************************
-            //! VERIFY FINISH COMPLETION
-            //! ************************************************************************
+            // Verify finish completion
             if (!isMotorRunning()) {
                 currentPosition = getCurrentMotorPosition();
                 initialFinalPosition = currentPosition;
@@ -305,15 +267,11 @@ void handleFinishPhase() {
     }
 }
 
-//! ************************************************************************
-//! POSITION VERIFICATION PHASE HANDLER
-//! ************************************************************************
+// Position verification phase handler
 void handlePositionVerificationPhase() {
     switch (cuttingPhase) {
         case PHASE_POSITION_CHECK:
-            //! ************************************************************************
-            //! POSITION VERIFICATION: MOVE CONTINUOUSLY UNTIL SENSOR TRIGGERS
-            //! ************************************************************************
+            // Position verification: move continuously until sensor triggers
             if (endPositionVerificationSensor.read()) {
                 positionVerificationDistance = 0.0;
                 cuttingPhase = PHASE_SETTLE_TIME;
@@ -325,11 +283,9 @@ void handlePositionVerificationPhase() {
                 cuttingPhase++;
             }
             break;
-            
+
         case PHASE_POSITION_MONITOR:
-            //! ************************************************************************
-            //! MONITOR POSITION VERIFICATION SENSOR - STOP WHEN TRIGGERED
-            //! ************************************************************************
+            // Monitor position verification sensor - stop when triggered
             if (endPositionVerificationSensor.read()) {
                 stopMotor();
                 currentPosition = getCurrentMotorPosition();
@@ -341,30 +297,24 @@ void handlePositionVerificationPhase() {
     }
 }
 
-//! ************************************************************************
-//! SETTLE TIME PHASE HANDLER
-//! ************************************************************************
+// Settle time phase handler
 void handleSettleTimePhase() {
-    //! ************************************************************************
-    //! SETTLE TIME: WAIT FOR CLAMP_SETTLE_TIME
-    //! ************************************************************************
+    // Settle time: wait for CLAMP_SETTLE_TIME
     if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-        //! ************************************************************************
-        //! CHECK IS_ROUTER_CLEAR PHYSICAL SENSOR (ACTIVE LOW)
-        //! If triggered: hold at drop-off and wait for start button
-        //! ************************************************************************
+        // Check IS_ROUTER_CLEAR physical sensor (active LOW)
+        // If triggered: hold at drop-off and wait for start button
         if (digitalRead(Pins::IS_ROUTER_CLEAR) == LOW) {
             startButtonWasPressed = false; // reset so wait phase sees a clean edge
             cuttingPhase = PHASE_WAIT_ROUTER_CLEAR;
             return;
         }
-        
+
         cuttingPhase++;
         stepStartTime = millis();
     }
 }
 
-// DROP-OFF RELEASE SEQUENCE
+// Drop-off release sequence
 // Right clamp release → dwell → router start signal → dwell → left clamp
 // release → dwell → continue to return-home.
 void handleDropoffSequencePhase() {
@@ -412,9 +362,7 @@ void handleDropoffSequencePhase() {
     }
 }
 
-//! ************************************************************************
-//! WAIT ROUTER CLEAR PHASE HANDLER
-//! ************************************************************************
+// Wait router clear phase handler
 // IS_ROUTER_CLEAR sensor was triggered at drop-off point.
 // Pause in place until start button is pressed, then resume the normal
 // cutting sequence exactly where it left off.
@@ -425,7 +373,7 @@ void handleWaitRouterClearPhase() {
     if (startButtonCurrentlyPressed && !startButtonWasPressed) {
         startButtonWasPressed = true;
 
-        //! Resume normal sequence from drop-off release
+        // Resume normal sequence from drop-off release
         cuttingPhase = PHASE_RELEASE_RIGHT_CLAMP;
         stepStartTime = millis();
     } else if (!startButtonCurrentlyPressed) {
@@ -433,25 +381,21 @@ void handleWaitRouterClearPhase() {
     }
 }
 
-//! ************************************************************************
-//! PREPARE RETURN PHASE HANDLER
-//! ************************************************************************
+// Prepare return phase handler
 void handlePrepareReturnPhase() {
-    //! ************************************************************************
-    //! CHECK FOR HOMING FLAG
-    //! ************************************************************************
+    // Check for homing flag
     sendRouterSignal(0);
-    
+
     resetCuttingVariables();
-    
+
     // Check if flag is set to go to homing instead of returning
     if (cutToHomingFlag) {
         Serial.println("Cutting: cutToHomingFlag is TRUE - going to HOMING");
         cutToHomingFlag = false; // Reset flag
         enableMotor(); // Ensure motor is enabled before homing
-        currentState = HOMING;
+        currentState = STATE_HOMING;
     } else {
         Serial.println("Cutting: cutToHomingFlag is FALSE - going to RETURNING");
-        currentState = RETURNING;
+        currentState = STATE_RETURNING;
     }
-} 
+}

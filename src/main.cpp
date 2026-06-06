@@ -1,21 +1,17 @@
-//* ************************************************************************
-//* ************************ STAGE 2 SAW MACHINE **********************
-//* ************************************************************************
+// Stage 2 saw machine
 // This code controls a Stage 2 cutting machine with pneumatic clamps,
 // alignment cylinder, and stepper motor for precise cutting operations.
 
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 #include <WiFi.h>
 #include "OTA/OTA_Upload.h"
 
-//* ************************************************************************
-//* ************************ GLOBAL VARIABLES **************************
-//* ************************************************************************
+// Global variables
 
 // State machine variables
-MachineState currentState = IDLE;
-MachineState previousState = IDLE;
-MachineState stateBeforeError = IDLE;
+SystemState currentState = STATE_IDLE;
+SystemState previousState = STATE_IDLE;
+SystemState stateBeforeError = STATE_IDLE;
 
 // Motor position tracking
 float currentPosition = 0.0;
@@ -54,9 +50,7 @@ unsigned long cycleStartTime = 0;
 // Tracks when the last cycle finished (for inter-cycle cooldown enforced in IDLE)
 unsigned long cycleEndTime = 0;
 
-//* ************************************************************************
-//* ************************ MAIN SETUP *******************************
-//* ************************************************************************
+// Main setup
 
 void setup() {
     Serial.begin(115200);
@@ -81,14 +75,12 @@ void setup() {
     Serial.println("Motor initialization complete");
     
     // Set initial state
-    changeState(HOMING);
+    changeState(STATE_HOMING);
     
     Serial.println("Setup complete - machine ready for operation");
 }
 
-//* ************************************************************************
-//* ************************ MAIN LOOP ********************************
-//* ************************************************************************
+// Main loop
 
 void loop() {
     // Handle OTA updates first

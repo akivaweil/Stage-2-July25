@@ -1,16 +1,12 @@
-#include <Stage2_Machine.h>
+#include "StateMachine/StateMachine.h"
 
-//* ************************************************************************
-//* ************************ ROUTER CLEAR ERROR STATE ********************
-//* ************************************************************************
+// Router clear error state
 // This state handles the error condition when the router is not clear
 // during the cutting sequence. Waits for user intervention or automatic recovery.
 
 void handleRouterClearErrorState() {
-    //! ************************************************************************
-    //! ROUTER ERROR STATE: HANDLE USER INPUT FOR ERROR RECOVERY
-    //! ************************************************************************
-    
+    // Router error state: handle user input for error recovery
+
     // Update inputs for button detection
     updateInputs();
     
@@ -34,7 +30,7 @@ void handleRouterClearErrorState() {
             currentState = stateBeforeError;
             
             // If returning to cutting state, continue from where it left off
-            if (stateBeforeError == CUTTING) {
+            if (stateBeforeError == STATE_CUTTING) {
                 setCuttingPhaseToContinue();
             }
             return;
@@ -50,7 +46,7 @@ void handleRouterClearErrorState() {
             currentState = stateBeforeError;
             
             // If returning to cutting state, continue from where it left off
-            if (stateBeforeError == CUTTING) {
+            if (stateBeforeError == STATE_CUTTING) {
                 setCuttingPhaseToContinue();
             }
             return;

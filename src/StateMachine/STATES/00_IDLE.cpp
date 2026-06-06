@@ -1,12 +1,10 @@
-//* ************************************************************************
-//* ************************ IDLE STATE ********************************
-//* ************************************************************************
+// Idle state
 // The machine waits in this state with motor disabled for either a start button press or
 // transfer arm signal to begin a cutting cycle. Motor is re-enabled when entering cutting cycle.
 // Motor automatically disables after 5 seconds of no activity to save power.
 
-#include <Stage2_Machine.h>
-#include "../../ConfigApi/MachineConfigApi.h"
+#include "StateMachine/StateMachine.h"
+#include "ConfigApi/MachineConfigApi.h"
 
 void handleIdleState() {
     static bool idleInitialized = false;
@@ -18,32 +16,24 @@ void handleIdleState() {
     
     // Initialize idle state on first entry
     if (!idleInitialized) {
-        //! ************************************************************************
-        //! STEP 1: ENSURE SAFE STATE - MOTOR ENABLED, CLAMPS RETRACTED
-        //! ************************************************************************
+        // Step 1: ensure safe state - motor enabled, clamps retracted
         enableMotor(); // Motor initially enabled in idle state
         motorCurrentlyEnabled = true;
         retractBothClamps();
         retractAlignmentCylinder();
-        
-        //! ************************************************************************
-        //! STEP 2: RESET CYCLE FLAGS AND ACTIVITY TIMER
-        //! ************************************************************************
+
+        // Step 2: reset cycle flags and activity timer
         cycleInProgress = false;
         lastActivityTime = millis(); // Reset activity timer
         idleInitialized = true;
 
-        //! ************************************************************************
-        //! STEP 2b: APPLY ANY DASHBOARD CONFIG CHANGES DEFERRED DURING A CYCLE
-        //! ************************************************************************
+        // Step 2b: apply any dashboard config changes deferred during a cycle
         // A POST /api/config that arrived mid-cycle set configDirty; now that we
         // are safely idle, push the persisted settings into the live globals.
         applyConfigIfDirty();
     }
-    
-    //! ************************************************************************
-    //! STEP 3: CHECK FOR ACTIVITY AND UPDATE TIMER
-    //! ************************************************************************
+
+    // Step 3: check for activity and update timer
     // Enforce inter-cycle cooldown: ignore start triggers for CYCLE_COOLDOWN_MS
     // after a cycle finishes. cycleEndTime == 0 means no cycle has run yet.
     bool cooldownActive = (cycleEndTime != 0) &&
@@ -67,11 +57,11 @@ void handleIdleState() {
             cycleInProgress = true;
             cycleStartTime = millis(); // Record cycle start for cancel ignore window
             idleInitialized = false; // Reset for next idle entry
-            currentState = ALIGNMENT;
+            currentState = STATE_ALIGNMENT;
         } else {
             enableMotor(); // Ensure motor is enabled before homing
             idleInitialized = false; // Reset for next idle entry
-            currentState = HOMING;
+            currentState = STATE_HOMING;
         }
     } else if (!startButtonCurrentlyPressed) {
         // Button is not pressed, reset the tracking variable
@@ -96,32 +86,28 @@ void handleIdleState() {
             cycleInProgress = true;
             cycleStartTime = millis();
             idleInitialized = false; // Reset for next idle entry
-            currentState = ALIGNMENT;
+            currentState = STATE_ALIGNMENT;
         } else {
             enableMotor(); // Ensure motor is enabled before homing
             idleInitialized = false; // Reset for next idle entry
-            currentState = HOMING;
+            currentState = STATE_HOMING;
         }
     } else if (!transferArmCurrentlyActive) {
         // Signal is not active, reset the tracking variable
         transferArmSignalWasActive = false;
     }
     
-    //! ************************************************************************
-    //! STEP 4: MOTOR TIMEOUT MANAGEMENT
-    //! ************************************************************************
+    // Step 4: motor timeout management
     // Check if 5 seconds have passed without activity
     if (motorCurrentlyEnabled && (millis() - lastActivityTime >= Timing::MOTOR_TIMEOUT)) {
         //disableMotor(); // Disable motor after timeout
         motorCurrentlyEnabled = false;
     }
-    
-    //! ************************************************************************
-    //! STEP 5: CHECK IF WE NEED TO HOME AGAIN
-    //! ************************************************************************
+
+    // Step 5: check if we need to home again
     if (!homingComplete) {
         enableMotor(); // Ensure motor is enabled before homing
         idleInitialized = false; // Reset for next idle entry
-        currentState = HOMING;
+        currentState = STATE_HOMING;
     }
 } 

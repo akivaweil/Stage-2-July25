@@ -5,7 +5,7 @@
 // Owns the persisted copy of the dashboard-editable motion/timing settings for
 // Stage 2. Persistence backend is NVS via the Preferences library, namespace
 // "dashcfg". On first boot (sentinel absent) the struct is seeded from the
-// current compile-time defaults in ConfigDefinitions.cpp and persisted.
+// current compile-time defaults in Config.cpp and persisted.
 
 struct MachineSettings {
     // Positions (inches)

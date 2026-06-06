@@ -5,23 +5,23 @@
 #include <FastAccelStepper.h>
 
 // Config includes
-#include "Config.h"
-#include "Pins_Definitions.h"
+#include "Config/Config.h"
+#include "Config/Pins_Definitions.h"
 
 // State Machine enum
-enum MachineState {
-    IDLE,
-    HOMING,
-    ALIGNMENT,
-    CUTTING,
-    RETURNING,
-    ROUTER_CLEAR_ERROR
+enum SystemState {
+    STATE_IDLE,
+    STATE_HOMING,
+    STATE_ALIGNMENT,
+    STATE_CUTTING,
+    STATE_RETURNING,
+    STATE_ROUTER_CLEAR_ERROR
 };
 
 // Global variables
-extern MachineState currentState;
-extern MachineState previousState;
-extern MachineState stateBeforeError;
+extern SystemState currentState;
+extern SystemState previousState;
+extern SystemState stateBeforeError;
 extern float currentPosition;
 extern bool homingComplete;
 extern bool cycleInProgress;
@@ -60,7 +60,7 @@ void loop();
 
 // State machine functions
 void runStateMachine();
-void changeState(MachineState newState);
+void changeState(SystemState newState);
 
 // Motor control functions
 void setupMotor();
