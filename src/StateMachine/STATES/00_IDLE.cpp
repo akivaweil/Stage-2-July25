@@ -6,6 +6,7 @@
 // Motor automatically disables after 5 seconds of no activity to save power.
 
 #include <Stage2_Machine.h>
+#include "../../ConfigApi/MachineConfigApi.h"
 
 void handleIdleState() {
     static bool idleInitialized = false;
@@ -31,6 +32,13 @@ void handleIdleState() {
         cycleInProgress = false;
         lastActivityTime = millis(); // Reset activity timer
         idleInitialized = true;
+
+        //! ************************************************************************
+        //! STEP 2b: APPLY ANY DASHBOARD CONFIG CHANGES DEFERRED DURING A CYCLE
+        //! ************************************************************************
+        // A POST /api/config that arrived mid-cycle set configDirty; now that we
+        // are safely idle, push the persisted settings into the live globals.
+        applyConfigIfDirty();
     }
     
     //! ************************************************************************

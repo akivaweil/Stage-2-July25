@@ -364,9 +364,7 @@ void handleSettleTimePhase() {
     }
 }
 
-//╔═══╗ ════════════════════════════════════════════════════════════════ ╔═══╗
-//║ 📦 DROP-OFF RELEASE SEQUENCE                                         ║
-//╚═══╝ ════════════════════════════════════════════════════════════════ ╚═══╝
+// DROP-OFF RELEASE SEQUENCE
 // Right clamp release → dwell → router start signal → dwell → left clamp
 // release → dwell → continue to return-home.
 void handleDropoffSequencePhase() {

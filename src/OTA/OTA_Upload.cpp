@@ -6,6 +6,8 @@
 #include <Pins_Definitions.h>
 #include <WebServer.h>
 #include <Stage2_Machine.h>
+#include "../ConfigApi/MachineConfigApi.h"
+#include "../ConfigApi/MachineSettings.h"
 
 //* ************************************************************************
 //* *********************** OTA UPLOAD IMPLEMENTATION *********************
@@ -194,9 +196,15 @@ void setupOTA() {
 
   Serial.println("ESP-NOW initialized");
 
+  // Load dashboard-editable settings from NVS and apply them to the live globals
+  // before the cutting cycle can run (overrides compile-time defaults).
+  loadSettings();
+
   // Web dashboard
   dashboardServer.on("/", handleDashboardRoot);
   dashboardServer.on("/status", handleDashboardStatus);
+  // Shared cross-machine REST config + status API (/api/status, /api/config).
+  setupConfigApi(dashboardServer);
   dashboardServer.begin();
   Serial.print("Dashboard: http://");
   Serial.println(WiFi.localIP());

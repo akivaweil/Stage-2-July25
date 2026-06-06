@@ -15,18 +15,18 @@ const float STEPS_PER_INCH = 677.33;
 // ── Positions (inches) ───────────────────────────────────────────────────────
 const float HOME_POSITION              = 0.0;   // Where the home switch triggers
 const float HOME_OFFSET_POSITION       = 0.01;  // Tiny move off the switch after homing
-const float ALIGNMENT_SHORT_FORWARD_POSITION = 0.3f;   // Short forward nudge before pneumatic alignment sequence
-const float APPROACH_POSITION          = 5.1;   // Motor fast-travels to here before the blade enters material
-const float CUTTING_POSITION           = 11.0;  // Motor slow-cuts to here (blade fully through material)
-const float FINAL_POSITION             = 24.5;  // Motor fast-finishes to here to clear the cut piece
+float ALIGNMENT_SHORT_FORWARD_POSITION = 0.3f;   // Short forward nudge before pneumatic alignment sequence — dashboard-editable
+float APPROACH_POSITION          = 5.1;   // Motor fast-travels to here before the blade enters material — dashboard-editable
+float CUTTING_POSITION           = 11.0;  // Motor slow-cuts to here (blade fully through material) — dashboard-editable
+float FINAL_POSITION             = 24.5;  // Motor fast-finishes to here to clear the cut piece — dashboard-editable
 
 // ── Speeds (steps/sec) ───────────────────────────────────────────────────────
-const float HOMING_SPEED            = 2520;    // Slow crawl used during homing
+float HOMING_SPEED            = 2520;    // Slow crawl used during homing — dashboard-editable
 const float ALIGNMENT_INITIAL_SPEED = 2520;    // Slow speed for alignment nudge moves
-const float APPROACH_SPEED          = 105000;  // Full speed approach before blade touches material
-const float CUTTING_SPEED           = 1379;    // Slow feed rate while blade is cutting
+float APPROACH_SPEED          = 105000;  // Full speed approach before blade touches material — dashboard-editable
+float CUTTING_SPEED           = 1379;    // Slow feed rate while blade is cutting — dashboard-editable
 const float FINISH_SPEED            = 105000;  // Full speed move after cut is complete
-const float RETURN_SPEED            = 105000;  // Full speed return to home
+float RETURN_SPEED            = 105000;  // Full speed return to home — dashboard-editable
 const float RETURN_SPEED_FAST_MULT  = 1.5;     // Multiplier applied when fastReturnFlag is set (IS_ROUTER_CLEAR wait path)
 const float FINAL_SPEED             = 840;     // Creep speed for end-of-travel position verification
 
@@ -47,7 +47,7 @@ const int SIGNAL_DURATION    = 2000;  // Duration of output signals (e.g. done s
 const int MOTOR_TIMEOUT      = 5000;  // Max time to wait for motor to finish before giving up
 const int RETURN_TIMEOUT           = 5000;  // Max time in RETURNING state before re-checking start button
 const int CYCLE_START_IGNORE_MS    = 500;   // First half-second of cycle only: ignore start (avoids held-button cancel)
-const int CYCLE_COOLDOWN_MS        = 1500;  // Minimum wait in IDLE after a cycle finishes before another can start
+int CYCLE_COOLDOWN_MS              = 1500;  // Minimum wait in IDLE after a cycle finishes before another can start — dashboard-editable
 
 // ── Alignment choreography timing ────────────────────────────────────────────
 const int ALIGNMENT_LEFT_CLAMP_EXTEND_MS      = 50;   // Time for left clamp to extend before nudge move
