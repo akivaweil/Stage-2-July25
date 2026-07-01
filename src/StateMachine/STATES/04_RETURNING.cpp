@@ -5,6 +5,11 @@
 // After return is complete, transitions to HOMING state for end-of-cycle homing sequence.
 // Clamps are retracted in the IDLE state after homing is complete.
 
+// Returning configuration — named constants to avoid magic numbers
+namespace ReturningConfig {
+    const unsigned long MOTOR_RESET_DISABLE_PAUSE_MS = 100;  // Brief pause while motor is disabled to clear jams
+}  // namespace ReturningConfig
+
 // Returning phase constants
 #define PHASE_RETURN_PREPARATION      0
 #define PHASE_RETURN_MOVEMENT         1
@@ -129,7 +134,7 @@ void handleReturnWaitingPhase() {
 
         // Disable and re-enable motor to clear any jams
         disableMotor();
-        delay(100); // Brief pause while motor is disabled
+        delay(ReturningConfig::MOTOR_RESET_DISABLE_PAUSE_MS); // Brief pause while motor is disabled
         enableMotor();
 
         // Keep both clamps extended for safe material handling

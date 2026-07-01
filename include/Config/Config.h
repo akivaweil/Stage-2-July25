@@ -8,7 +8,7 @@ extern const char *BOARD_DESCRIPTION;
 
 // Motion Parameters - All positions are absolute relative to home (position 0)
 namespace Motion {
-extern const float STEPS_PER_INCH;   // 200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 42.33 steps/inch
+extern const float STEPS_PER_INCH;   // 3200 steps/rev ÷ (60 teeth × 2mm ÷ 25.4mm/inch) = 677.33 steps/inch
 
 // Absolute positions relative to home (position 0)
 extern const float HOME_POSITION;                    // Home position (where switch is triggered)
@@ -29,8 +29,8 @@ extern const float RETURN_SPEED_FAST_MULT;   // Multiplier for boosted return sp
 extern const float FINAL_SPEED;   
 
 // Acceleration Settings (steps/second²)
-extern const float FORWARD_ACCEL;   
-extern const float RETURN_ACCEL;    
+extern float FORWARD_ACCEL;   // dashboard-editable
+extern float RETURN_ACCEL;    // dashboard-editable
 }  // namespace Motion
 
 // Timing Settings (milliseconds)

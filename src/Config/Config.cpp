@@ -31,8 +31,8 @@ const float RETURN_SPEED_FAST_MULT  = 1.5;     // Multiplier applied when fastRe
 const float FINAL_SPEED             = 840;     // Creep speed for end-of-travel position verification
 
 // Accelerations (steps/sec²)
-const float FORWARD_ACCEL = 100000;  // Ramp-up used for all forward moves
-const float RETURN_ACCEL  = 160000;  // Slightly higher ramp for return (no load)
+float FORWARD_ACCEL = 100000;  // Ramp-up used for all forward moves — dashboard-editable
+float RETURN_ACCEL  = 160000;  // Slightly higher ramp for return (no load) — dashboard-editable
 }  // namespace Motion
 
 // TIMING

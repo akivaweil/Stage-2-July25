@@ -3,11 +3,18 @@
 
 #include "StateMachine/StateMachine.h"
 
+// Bounce2 debounce intervals (ms) — named to avoid bare magic numbers
+namespace InputDebounce {
+    const int HOME_SWITCH_DEBOUNCE_MS                = 1;   // Ultra-fast for instant homing response
+    const int START_BUTTON_DEBOUNCE_MS               = 5;   // Reliable button detection
+    const int TRANSFER_ARM_SIGNAL_DEBOUNCE_MS        = 25;  // Moderate for sensor reliability
+    const int END_POSITION_SENSOR_DEBOUNCE_MS        = 2;   // Ultra-fast sensor detection
+    const int IS_ROUTER_CLEAR_DEBOUNCE_MS            = 5;   // Short debounce for router-clear physical sensor
+}  // namespace InputDebounce
+
 // Input setup
 
 void setupInputs() {
-    Serial.println("Initializing inputs...");
-    
     // Configure input pins
     pinMode(Pins::HOME_SWITCH, INPUT_PULLDOWN);                        // active HIGH
     pinMode(Pins::START_BUTTON, INPUT_PULLDOWN);                       // active HIGH
@@ -18,25 +25,28 @@ void setupInputs() {
     // Initialize Bounce2 objects for debouncing
     // Home switch - ultra-fast debounce for immediate homing response
     homeSwitch.attach(Pins::HOME_SWITCH);
-    homeSwitch.interval(1); // 1ms debounce for instant homing response
+    homeSwitch.interval(InputDebounce::HOME_SWITCH_DEBOUNCE_MS); // instant homing response
     homeSwitch.setPressedState(HIGH); // Active HIGH
-    
+
     // Start button - standard debounce for reliable button presses
     startButton.attach(Pins::START_BUTTON);
-    startButton.interval(5); // 5ms debounce for reliable button detection
+    startButton.interval(InputDebounce::START_BUTTON_DEBOUNCE_MS); // reliable button detection
     startButton.setPressedState(HIGH); // Active HIGH
-    
+
     // Transfer arm signal - moderate debounce for sensor reliability
     transferArmSignal.attach(Pins::TRANSFER_ARM_START_SIGNAL);
-    transferArmSignal.interval(25); // 25ms debounce time
+    transferArmSignal.interval(InputDebounce::TRANSFER_ARM_SIGNAL_DEBOUNCE_MS); // sensor reliability
     transferArmSignal.setPressedState(HIGH); // Active HIGH
-    
+
     // End position verification sensor - ultra-fast debounce for immediate detection
     endPositionVerificationSensor.attach(Pins::END_POSITION_VERIFICATION_SENSOR);
-    endPositionVerificationSensor.interval(2); // 2ms debounce for ultra-fast sensor detection
+    endPositionVerificationSensor.interval(InputDebounce::END_POSITION_SENSOR_DEBOUNCE_MS); // ultra-fast sensor detection
     endPositionVerificationSensor.setPressedState(LOW); // Active LOW
-    
-    Serial.println("Input initialization complete");
+
+    // Router-clear physical sensor - short debounce on the physical read (active LOW)
+    isRouterClearSensor.attach(Pins::IS_ROUTER_CLEAR);
+    isRouterClearSensor.interval(InputDebounce::IS_ROUTER_CLEAR_DEBOUNCE_MS); // short debounce
+    isRouterClearSensor.setPressedState(LOW); // Active LOW
 }
 
 // Input reading
@@ -47,31 +57,7 @@ void updateInputs() {
     startButton.update();
     transferArmSignal.update();
     endPositionVerificationSensor.update();
-}
-
-bool checkInputs() {
-    // Check for any active inputs - used for general monitoring
-    updateInputs();
-    
-    bool anyActive = false;
-    
-    if (homeSwitch.read()) {
-        anyActive = true;
-    }
-    
-    if (startButton.read()) {
-        anyActive = true;
-    }
-    
-    if (transferArmSignal.read()) {
-        anyActive = true;
-    }
-    
-    if (endPositionVerificationSensor.read()) {
-        anyActive = true;
-    }
-    
-    return anyActive;
+    isRouterClearSensor.update();
 }
 
 // Utility functions

@@ -28,6 +28,10 @@ struct FieldDef {
     // Accessors into the persisted struct.
     float (*get)();
     void  (*set)(float);
+    // Dashboard grouping / unit-conversion metadata.
+    const char* group;      // section heading
+    bool        fromSteps;  // true => stored in steps; dashboard shows in/s via stepsPerInch
+    bool        collapsed;  // true => group section starts collapsed
 };
 
 // Position fields: 0-30 in, step 0.1. ALIGNMENT short forward: 0-2 in.
@@ -35,39 +39,58 @@ struct FieldDef {
 const FieldDef FIELDS[] = {
     { "APPROACH_POSITION", "Approach Position (in)", false, 0.0f, 30.0f, 0.1f,
       [] { return machineSettings.approachPosition; },
-      [](float v) { machineSettings.approachPosition = v; } },
+      [](float v) { machineSettings.approachPosition = v; },
+      "Positions", false, false },
 
     { "CUTTING_POSITION", "Cutting Position (in)", false, 0.0f, 30.0f, 0.1f,
       [] { return machineSettings.cuttingPosition; },
-      [](float v) { machineSettings.cuttingPosition = v; } },
+      [](float v) { machineSettings.cuttingPosition = v; },
+      "Positions", false, false },
 
     { "FINAL_POSITION", "Final Position (in)", false, 0.0f, 30.0f, 0.1f,
       [] { return machineSettings.finalPosition; },
-      [](float v) { machineSettings.finalPosition = v; } },
+      [](float v) { machineSettings.finalPosition = v; },
+      "Positions", false, false },
 
     { "ALIGNMENT_SHORT_FORWARD_POSITION", "Alignment Short Forward (in)", false, 0.0f, 2.0f, 0.1f,
       [] { return machineSettings.alignmentShortForwardPosition; },
-      [](float v) { machineSettings.alignmentShortForwardPosition = v; } },
+      [](float v) { machineSettings.alignmentShortForwardPosition = v; },
+      "Positions", false, false },
 
-    { "CUTTING_SPEED", "Cutting Speed (steps/s)", false, 1.0f, 105000.0f, 1.0f,
+    { "CUTTING_SPEED", "Cutting Speed (in/s)", false, 1.0f, 105000.0f, 1.0f,
       [] { return machineSettings.cuttingSpeed; },
-      [](float v) { machineSettings.cuttingSpeed = v; } },
+      [](float v) { machineSettings.cuttingSpeed = v; },
+      "Motors", true, true },
 
-    { "APPROACH_SPEED", "Approach Speed (steps/s)", false, 1.0f, 200000.0f, 1.0f,
+    { "APPROACH_SPEED", "Approach Speed (in/s)", false, 1.0f, 200000.0f, 1.0f,
       [] { return machineSettings.approachSpeed; },
-      [](float v) { machineSettings.approachSpeed = v; } },
+      [](float v) { machineSettings.approachSpeed = v; },
+      "Motors", true, true },
 
-    { "RETURN_SPEED", "Return Speed (steps/s)", false, 1.0f, 200000.0f, 1.0f,
+    { "RETURN_SPEED", "Return Speed (in/s)", false, 1.0f, 200000.0f, 1.0f,
       [] { return machineSettings.returnSpeed; },
-      [](float v) { machineSettings.returnSpeed = v; } },
+      [](float v) { machineSettings.returnSpeed = v; },
+      "Motors", true, true },
 
-    { "HOMING_SPEED", "Homing Speed (steps/s)", false, 1.0f, 105000.0f, 1.0f,
+    { "HOMING_SPEED", "Homing Speed (in/s)", false, 1.0f, 105000.0f, 1.0f,
       [] { return machineSettings.homingSpeed; },
-      [](float v) { machineSettings.homingSpeed = v; } },
+      [](float v) { machineSettings.homingSpeed = v; },
+      "Motors", true, true },
+
+    { "FORWARD_ACCEL", "Forward Accel (in/s^2)", false, 677.0f, 300000.0f, 1.0f,
+      [] { return machineSettings.forwardAccel; },
+      [](float v) { machineSettings.forwardAccel = v; },
+      "Motors", true, true },
+
+    { "RETURN_ACCEL", "Return Accel (in/s^2)", false, 677.0f, 300000.0f, 1.0f,
+      [] { return machineSettings.returnAccel; },
+      [](float v) { machineSettings.returnAccel = v; },
+      "Motors", true, true },
 
     { "CYCLE_COOLDOWN_MS", "Cycle Cooldown (ms)", true, 0.0f, 5000.0f, 1.0f,
       [] { return (float)machineSettings.cycleCooldownMs; },
-      [](float v) { machineSettings.cycleCooldownMs = (int)lroundf(v); } },
+      [](float v) { machineSettings.cycleCooldownMs = (int)lroundf(v); },
+      "Timing", false, false },
 };
 constexpr size_t FIELD_COUNT = sizeof(FIELDS) / sizeof(FIELDS[0]);
 
@@ -143,8 +166,9 @@ String buildStatusJson() {
 
 String buildConfigJson() {
     JsonDocument doc;
-    doc["id"]     = MACHINE_ID;
-    doc["schema"] = CONFIG_SCHEMA;
+    doc["id"]           = MACHINE_ID;
+    doc["schema"]       = CONFIG_SCHEMA;
+    doc["stepsPerInch"] = Motion::STEPS_PER_INCH;
 
     JsonArray fields = doc["fields"].to<JsonArray>();
     for (size_t i = 0; i < FIELD_COUNT; ++i) {
@@ -164,6 +188,9 @@ String buildConfigJson() {
             obj["max"]   = f.maxVal;
             obj["step"]  = f.step;
         }
+        obj["group"] = f.group;
+        if (f.fromSteps) obj["fromSteps"] = true;
+        if (f.collapsed) obj["collapsed"] = true;
     }
 
     String out;

@@ -4,6 +4,12 @@
 // This state handles the error condition when the router is not clear
 // during the cutting sequence. Waits for user intervention or automatic recovery.
 
+// Button-hold threshold separating a short press (return to previous state)
+// from a long press (set cutToHomingFlag and go to homing).
+namespace RouterClearErrorConfig {
+    const unsigned long BUTTON_HOLD_THRESHOLD_MS = 1000;  // 1s hold = go to homing
+}  // namespace RouterClearErrorConfig
+
 void handleRouterClearErrorState() {
     // Router error state: handle user input for error recovery
 
@@ -22,11 +28,10 @@ void handleRouterClearErrorState() {
         // Button is still being held - check for hold duration
         unsigned long holdDuration = millis() - stateStartTime;
         
-        if (holdDuration >= 1000) { // 1 second hold for homing
+        if (holdDuration >= RouterClearErrorConfig::BUTTON_HOLD_THRESHOLD_MS) { // long hold for homing
             // Long press detected - set flag to go to homing after cutting completes
             startButtonWasPressed = false;
             cutToHomingFlag = true;
-            Serial.println("Router Error: cutToHomingFlag set to TRUE");
             currentState = stateBeforeError;
             
             // If returning to cutting state, continue from where it left off
@@ -40,7 +45,7 @@ void handleRouterClearErrorState() {
         // Button was released - check if it was a short press
         unsigned long holdDuration = millis() - stateStartTime;
         
-        if (holdDuration < 1000) { // Short press - return to previous state
+        if (holdDuration < RouterClearErrorConfig::BUTTON_HOLD_THRESHOLD_MS) { // Short press - return to previous state
             // Return to the state before the error occurred
             startButtonWasPressed = false;
             currentState = stateBeforeError;

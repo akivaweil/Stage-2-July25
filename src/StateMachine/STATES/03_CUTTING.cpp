@@ -301,9 +301,10 @@ void handlePositionVerificationPhase() {
 void handleSettleTimePhase() {
     // Settle time: wait for CLAMP_SETTLE_TIME
     if (millis() - stepStartTime >= Timing::CLAMP_SETTLE_TIME) {
-        // Check IS_ROUTER_CLEAR physical sensor (active LOW)
+        // Check IS_ROUTER_CLEAR physical sensor (active LOW), debounced
         // If triggered: hold at drop-off and wait for start button
-        if (digitalRead(Pins::IS_ROUTER_CLEAR) == LOW) {
+        isRouterClearSensor.update();
+        if (isRouterClearSensor.read() == LOW) {
             startButtonWasPressed = false; // reset so wait phase sees a clean edge
             cuttingPhase = PHASE_WAIT_ROUTER_CLEAR;
             return;
@@ -390,12 +391,10 @@ void handlePrepareReturnPhase() {
 
     // Check if flag is set to go to homing instead of returning
     if (cutToHomingFlag) {
-        Serial.println("Cutting: cutToHomingFlag is TRUE - going to HOMING");
         cutToHomingFlag = false; // Reset flag
         enableMotor(); // Ensure motor is enabled before homing
         currentState = STATE_HOMING;
     } else {
-        Serial.println("Cutting: cutToHomingFlag is FALSE - going to RETURNING");
         currentState = STATE_RETURNING;
     }
 }

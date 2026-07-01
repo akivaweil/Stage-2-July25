@@ -2,6 +2,7 @@
 
 #include <WiFi.h>
 #include <ArduinoOTA.h>
+#include <esp_task_wdt.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
 #include <WebServer.h>
@@ -68,22 +69,18 @@ void setupOTA() {
     delay(WIFI_CONNECT_POLL_MS);
   }
 
-  Serial.print("WiFi connected to: ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  Serial.print("MAC address: ");
-  Serial.println(WiFi.macAddress());
-  Serial.print("Signal strength (RSSI): ");
-  Serial.print(WiFi.RSSI());
-  Serial.println(" dBm");
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print("[Stage2] wifi ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("[Stage2] wifi unavailable - standalone");
+  }
 
   // Max TX power for strongest signal
   esp_wifi_set_max_tx_power(84);
 
   // Init ESP-NOW (requires WiFi to be connected first)
   if (esp_now_init() != ESP_OK) {
-    Serial.println("ESP-NOW init failed");
     return;
   }
 
@@ -96,8 +93,6 @@ void setupOTA() {
   peer.encrypt = false;
   esp_now_add_peer(&peer);
 
-  Serial.println("ESP-NOW initialized");
-
   // Load dashboard-editable settings from NVS and apply them to the live globals
   // before the cutting cycle can run (overrides compile-time defaults).
   loadSettings();
@@ -107,13 +102,23 @@ void setupOTA() {
   // Shared cross-machine REST config + status API (/api/status, /api/config).
   setupConfigApi(dashboardServer);
   dashboardServer.begin();
-  Serial.print("Dashboard: http://");
-  Serial.println(WiFi.localIP());
 
   ArduinoOTA.setHostname("stage2-esp32s3");
+  ArduinoOTA.onStart([]() {
+    Serial.println("[Stage2] OTA start");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("[Stage2] OTA done");
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("[Stage2] OTA error %u\n", error);
+  });
+  // Feed the watchdog during an upload: ArduinoOTA.handle() blocks for the whole
+  // transfer in a single loop iteration, which would otherwise trip the WDT.
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    esp_task_wdt_reset();
+  });
   ArduinoOTA.begin();
-
-  Serial.println("OTA server started - ready for wireless uploads");
 }
 
 void handleOTA() {

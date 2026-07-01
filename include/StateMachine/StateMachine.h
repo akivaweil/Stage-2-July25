@@ -49,6 +49,7 @@ extern Bounce2::Button homeSwitch;
 extern Bounce2::Button startButton;
 extern Bounce2::Button transferArmSignal;
 extern Bounce2::Button endPositionVerificationSensor;
+extern Bounce2::Button isRouterClearSensor;
 
 // FastAccelStepper objects
 extern FastAccelStepperEngine engine;
@@ -88,7 +89,6 @@ void retractAlignmentCylinder();
 // Utility functions
 void setupInputs();
 void updateInputs();
-bool checkInputs();
 bool checkStartButtonForHoming();
 float inchesToSteps(float inches);
 float stepsToInches(float steps);

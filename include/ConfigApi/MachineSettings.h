@@ -18,6 +18,9 @@ struct MachineSettings {
     float approachSpeed;
     float returnSpeed;
     float homingSpeed;
+    // Accelerations (steps/sec^2)
+    float forwardAccel;
+    float returnAccel;
     // Timing (ms)
     int   cycleCooldownMs;
 };

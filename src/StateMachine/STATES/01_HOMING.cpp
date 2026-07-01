@@ -3,6 +3,15 @@
 
 #include "StateMachine/StateMachine.h"
 
+// Homing configuration — named constants to avoid magic numbers
+namespace HomingConfig {
+    const long HOME_SEARCH_DISTANCE_STEPS = -100000;  // Long move toward switch while searching for home
+    const long HOME_BACKOFF_DISTANCE_STEPS = 1;       // Tiny move off the switch after it triggers
+    const long OFFSET_POSITION_TOLERANCE_STEPS = 5;   // Allowable error when reaching the offset position
+    const int  MAX_HOMING_RETRIES = 3;                // Retries before aborting/restarting homing
+    const unsigned long OFFSET_MOVE_TIMEOUT_MS = 10000;  // Max time for the offset move before retrying
+}  // namespace HomingConfig
+
 void handleHomingState() {
     static bool homingStarted = false;
     static bool movingToHome = false;
@@ -38,7 +47,7 @@ void handleHomingState() {
             movingToHome = true;
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
-            stepper->move(-100000);
+            stepper->move(HomingConfig::HOME_SEARCH_DISTANCE_STEPS);
         }
     }
     
@@ -55,7 +64,7 @@ void handleHomingState() {
             // Move away from switch
             stepper->setSpeedInHz(Motion::HOMING_SPEED);
             stepper->setAcceleration(Motion::FORWARD_ACCEL);
-            stepper->move(1);
+            stepper->move(HomingConfig::HOME_BACKOFF_DISTANCE_STEPS);
             waitForMotorComplete();
             
             // Move to offset position
@@ -76,8 +85,8 @@ void handleHomingState() {
             long targetPos = (long)targetOffsetSteps;
             long positionError = abs(currentPos - targetPos);
             
-            // Allow 5 steps of tolerance
-            if (positionError <= 5) {
+            // Allow a small tolerance when checking the offset position
+            if (positionError <= HomingConfig::OFFSET_POSITION_TOLERANCE_STEPS) {
                 // Successfully reached target
                 setCurrentMotorPosition(0);
                 currentPosition = 0.0;
@@ -90,8 +99,8 @@ void handleHomingState() {
             } else {
                 // Did not reach target - retry
                 retryCount++;
-                
-                if (retryCount < 3) {
+
+                if (retryCount < HomingConfig::MAX_HOMING_RETRIES) {
                     // Re-enable motor and retry
                     enableMotor();
                     stepper->setSpeedInHz(Motion::HOMING_SPEED);
@@ -110,11 +119,11 @@ void handleHomingState() {
             }
         }
         
-        // Timeout check - if motor hasn't completed in 10 seconds, retry
-        if (isMotorRunning() && (millis() - offsetStartTime > 10000)) {
+        // Timeout check - if motor hasn't completed in time, retry
+        if (isMotorRunning() && (millis() - offsetStartTime > HomingConfig::OFFSET_MOVE_TIMEOUT_MS)) {
             retryCount++;
-            
-            if (retryCount < 3) {
+
+            if (retryCount < HomingConfig::MAX_HOMING_RETRIES) {
                 // Stop and retry
                 stepper->forceStopAndNewPosition(stepper->getCurrentPosition());
                 waitForMotorComplete();
